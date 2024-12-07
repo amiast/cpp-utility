@@ -69,19 +69,9 @@ class SegmentTree {
         }
 
         U query_range(int left, int right) {
-            if (left < 0) {
-                std::stringstream message;
-                message << "Invalid range with left=" << left;
-                throw std::invalid_argument(message.str());
-            }
             if (left > right) {
                 std::stringstream message;
                 message << "Invalid range with left=" << left << " and right=" << right;
-                throw std::invalid_argument(message.str());
-            }
-            if (right >= num_elements) {
-                std::stringstream message;
-                message << "Invalid range with right=" << right;
                 throw std::invalid_argument(message.str());
             }
             return query(0, 0, num_elements - 1, left, right);
