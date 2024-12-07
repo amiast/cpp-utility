@@ -16,11 +16,11 @@ class SegmentTree {
         std::vector<U> tree;
         int num_elements;
         std::function<U(U, U)> op;
-        std::function<U(T)> identity;
+        std::function<U(T)> eval;
 
         void add_nodes(const std::vector<T> &vector, int node, int begin, int end) {
             if (begin == end) {
-                tree.at(node) = identity(vector.at(begin));
+                tree.at(node) = eval(vector.at(begin));
             } else {
                 int mid = (begin + end) / 2;
                 add_nodes(vector, node * 2 + 1, begin, mid);
@@ -47,7 +47,7 @@ class SegmentTree {
 
         void update(int node, int begin, int end,int index, T val) {
             if (begin == end) {
-                tree.at(node) = identity(val);
+                tree.at(node) = eval(val);
             } else {
                 int mid = (begin + end) / 2;
                 if (begin <= index && index <= mid) {
@@ -60,10 +60,10 @@ class SegmentTree {
         }
 
     public:
-        SegmentTree(const std::vector<T> &vector, std::function<U(U, U)> operation, std::function<U(T)> identity_function) {
+        SegmentTree(const std::vector<T> &vector, std::function<U(U, U)> operation, std::function<U(T)> evaluate) {
             num_elements = vector.size();
             op = operation;
-            identity = identity_function;
+            eval = evaluate_function;
             tree = std::vector<U>(num_elements * 3);
             add_nodes(vector, 0, 0, num_elements - 1);
         }
