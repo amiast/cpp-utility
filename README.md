@@ -95,3 +95,7 @@ int main() {
 ## `union_find.h`
 
 A `UnionFind` data structure stores a **partition** of a set. It supports two main operations: `update_union(val_1, val_2)` merges the two sets containing `val_1` and `val_2` into their union, and `find(val)` returns a representative member of the set containing `val`.
+
+### Examples
+
+[AtCoder Beginner Contest 383 | E - Sum of Max Matching](https://atcoder.jp/contests/abc383/tasks/abc383_e?lang=en) is a graph problem that can be solved using a clever greedy algorithm that utilizes `UnionFind`.
