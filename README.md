@@ -1,6 +1,11 @@
 # cpp-utility
 A collection of useful C++ data structures for competitive programming.
 
+## Table of Contents
+
+- [`segment_tree.h`](#segment_treeh)
+- [`union_find.h`](#union_findh)
+
 ## `segment_tree.h`
 
 A segment tree holds information about elements in an interval of an array.
@@ -86,3 +91,7 @@ int main() {
 ```
 
 [AtCoder Beginner Contest 343 | F - Second Largest Query](https://atcoder.jp/contests/abc343/tasks/abc343_f?lang=en) can be solved using `SegmentTree` to find **the number of occurrences of the second largest number in an interval**. A complete solution implementing this can be found [here](https://atcoder.jp/contests/abc343/submissions/60488868). (Note: undocumented code.)
+
+## `union_find.h`
+
+A `UnionFind` data structure stores a **partition** of a set. It supports two main operations: `update_union(val_1, val_2)` merges the two sets containing `val_1` and `val_2` into their union, and `find(val)` returns a representative member of the set containing `val`.
