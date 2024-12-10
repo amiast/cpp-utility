@@ -7,7 +7,6 @@
 
 #include <vector>
 
-template <typename T = int>
-std::vector<bool> sieve(T n);
+std::vector<bool> sieve(int n);
 
 #endif
