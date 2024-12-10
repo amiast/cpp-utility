@@ -3,8 +3,19 @@ A collection of useful C++ data structures for competitive programming.
 
 ## Table of Contents
 
+- [`prime.h`](#primeh)
 - [`segment_tree.h`](#segment_treeh)
 - [`union_find.h`](#union_findh)
+
+## `prime.h`
+
+The `sieve(n)` function returns a `std::vector` of `bool` for looking up whether a number up to `n` is prime.
+
+```
+std::vector<bool> prime = sieve(100);
+p.at(2);   // true
+p.at(100); // false
+```
 
 ## `segment_tree.h`
 
