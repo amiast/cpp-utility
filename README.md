@@ -3,9 +3,19 @@ A collection of useful C++ data structures for competitive programming.
 
 ## Table of Contents
 
+- [`binary_indexed_tree.h`](#binary_indexed_treeh)
 - [`prime.h`](#primeh)
 - [`segment_tree.h`](#segment_treeh)
 - [`union_find.h`](#union_findh)
+
+## `binary_indexed_tree.h`
+
+A `BITree` stores prefix sums of an array of numbers.
+
+Initially, a `BitTree<int>(n)` represents an array of `n` numbers all set to `0`.
+Values can be incremented using `update(index, value)`.
+Use `query(index)` to find the sum of the `index`-length prefix of the array.
+In this implementation, indices start from `1`.
 
 ## `prime.h`
 
@@ -19,7 +29,7 @@ p.at(100); // false
 
 ## `segment_tree.h`
 
-A segment tree holds information about elements in an interval of an array.
+A `SegmentTree` holds information about elements in an interval of an array.
 It can answer **range queries** like "What is the sum of the numbers between the 1000th and 2000th elements?" or "What is the greatest number between the 9000th and 19000th elements?"
 
 ### Usage
