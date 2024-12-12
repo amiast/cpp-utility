@@ -4,6 +4,7 @@ A collection of useful C++ data structures for competitive programming.
 ## Table of Contents
 
 - [`binary_indexed_tree.h`](#binary_indexed_treeh)
+- [`bucket_sort.h](#bucket_sorth)
 - [`prime.h`](#primeh)
 - [`segment_tree.h`](#segment_treeh)
 - [`union_find.h`](#union_findh)
@@ -16,6 +17,14 @@ Initially, a `BitTree<int>(n)` represents an array of `n` numbers all set to `0`
 Values can be incremented using `update(index, value)`.
 Use `query(index)` to find the sum of the `index`-length prefix of the array.
 In this implementation, indices start from `1`.
+
+## `bucket_sort.h`
+
+A sorting algorithm that efficiently sorts an array of numbers. If the input is distributed uniformly (and randomly), the algorithm's expected time complexity is linear and runs faster than `std::sort` on large inputs ($n \geq 500$ for the current implementation).
+
+```
+bucket_sort(vector.begin(), vector.end());
+```
 
 ## `prime.h`
 
