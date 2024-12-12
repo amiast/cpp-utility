@@ -4,7 +4,7 @@ A collection of useful C++ data structures for competitive programming.
 ## Table of Contents
 
 - [`binary_indexed_tree.h`](#binary_indexed_treeh)
-- [`bucket_sort.h](#bucket_sorth)
+- [`bucket_sort.h`](#bucket_sorth)
 - [`prime.h`](#primeh)
 - [`segment_tree.h`](#segment_treeh)
 - [`union_find.h`](#union_findh)
