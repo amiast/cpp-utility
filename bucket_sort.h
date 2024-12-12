@@ -5,10 +5,12 @@
 #ifndef BUCKET_SORT_H
 #define BUCKET_SORT_H
 
-template <typename Iterator>
-void bucket_sort(Iterator begin, Iterator end, int64_t bucket_size);
+#include <vector>
 
-template <typename Iterator>
-void bucket_sort(Iterator begin, Iterator end);
+template <typename T>
+void bucket_sort(std::vector<T> &vector, int64_t bucket_size);
+
+template <typename T>
+void bucket_sort(std::vector<T> &vector);
 
 #endif

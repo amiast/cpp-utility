@@ -3,64 +3,60 @@
  */
 
 #include "bucket_sort.h"
-#include <vector>
 #include <cmath>
 
-template <typename Iterator>
-void bucket_sort(Iterator begin, Iterator end, int64_t bucket_size) {
-    int64_t n = std::distance(begin, end);
+template <typename T>
+void bucket_sort(std::vector<T> &vector, int64_t bucket_size) {
+    int64_t n = vector.size();
     if (n <= 1) return;
 
     if (bucket_size <= 0) {
-        std::sort(begin, end);
+        std::sort(vector.begin(), vector.end());
         return;
     }
 
-    using T = typename std::iterator_traits<Iterator>::value_type;
-    std::vector<std::vector<T>> buckets((n + bucket_size - 1) / bucket_size);
+    int64_t num_buckets = (n + bucket_size - 1) / bucket_size;
+    std::vector<std::vector<T>> buckets(num_buckets);
 
-    T min = *begin;
-    T max = *begin;
-    auto iter = begin;
-    iter++;
-    while (iter != end) {
-        if (*iter < min) min = *iter;
-        if (*iter > max) max = *iter;
-        iter++;
+    T min = vector.at(0);
+    T max = vector.at(0);
+    for (int64_t i = 1; i < vector.size(); i++) {
+        if (vector.at(i) < min) min = vector.at(i);
+        if (vector.at(i) > max) max = vector.at(i);
     }
 
-    for (auto iter = begin; iter != end; iter++) {
+    for (int64_t i = 0; i < vector.size(); i++) {
         int64_t index;
-        if (std::is_floating_point<T>::value) {
-            index = std::floor((*iter - min) * (n - 1) / (max - min));
+        if (std::is_floating_point_v<T>) {
+            index = std::floor((vector.at(i) - min) * (n - 1) / (max - min) / bucket_size);
         } else {
-            index = (*iter - min) * (n - 1) / (max - min) / bucket_size;
+            index = (vector.at(i) - min) * (n - 1) / (max - min) / bucket_size;
         }
-        buckets.at(index).push_back(*iter);
+        buckets.at(index).push_back(vector.at(i));
     }
 
-    iter = begin;
+    int64_t i = 0;
     for (auto &bucket : buckets) {
         std::sort(bucket.begin(), bucket.end());
-        for (auto &value : bucket) {
-            *iter = value;
-            iter++;
+        for (T value : bucket) {
+            vector.at(i) = value;
+            i++;
         }
     }
 }
 
-template <typename Iterator>
-void bucket_sort(Iterator begin, Iterator end) {
-    int64_t n = std::distance(begin, end);
+template <typename T>
+void bucket_sort(std::vector<T> &vector) {
+    int64_t n = std::distance(vector.begin(), vector.end());
 
     if (n < (1 << 21)) {
-        bucket_sort(begin, end, 16);
+        bucket_sort(vector, 16);
     } else {
         int log_val = 0;
         while (n > 1) {
             log_val++;
             n /= 2;
         }
-        bucket_sort(begin, end, 1LL << (log_val - 16));
+        bucket_sort(vector, 1LL << (log_val - 16));
     }
 }
