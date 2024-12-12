@@ -23,7 +23,7 @@ In this implementation, indices start from `1`.
 A sorting algorithm that efficiently sorts an array of numbers. If the input is distributed uniformly (and randomly), the algorithm's expected time complexity is linear and runs faster than `std::sort` on large inputs ($n \geq 500$ for the current implementation).
 
 ```
-bucket_sort(vector.begin(), vector.end());
+bucket_sort(vector);
 ```
 
 ## `prime.h`
