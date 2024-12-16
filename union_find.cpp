@@ -42,7 +42,7 @@ void UnionFind<T>::update_union(T val_1, T val_2) {
     if (rank.at(index_1) > rank.at(index_2)) {
         parent.at(index_2) = root_1;
     } else if (rank.at(index_1) < rank.at(index_2)) {
-        parent.at(index_2) = root_1;
+        parent.at(index_1) = root_2;
     } else {
         parent.at(index_2) = root_1;
         rank.at(index_1)++;
