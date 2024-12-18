@@ -3,7 +3,6 @@
  */
 
 #include "prime.h"
-#include <type_traits>
 
 std::vector<bool> sieve(int n) {
     std::vector<bool> is_prime(n + 1, true);
@@ -12,6 +11,7 @@ std::vector<bool> sieve(int n) {
 
     for (int i = 2; i <= n; i++) {
         if (!is_prime.at(i)) continue;
+        if (int64_t(i) * i >= (int64_t(1) << 31)) continue;
 
         for (int j = i * i; j <= n; j += i) is_prime.at(j) = false;
     }
