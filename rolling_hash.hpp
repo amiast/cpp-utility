@@ -20,11 +20,10 @@ struct static_string_hash {
         join(s);
     }
 
-    static_string_hash(const static_string_hash &prefix, const static_string_hash &suffix) {
-        _hash991 = prefix._hash991;
-        _pow991 = prefix._pow991;
-        _hash997 = prefix._hash997;
-        _pow997 = prefix._pow997;
+    static_string_hash(const static_string_hash &prefix, const static_string_hash &suffix)
+        : static_string_hash()
+    {
+        join(prefix);
         join(suffix);
     }
 
