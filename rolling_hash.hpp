@@ -4,9 +4,11 @@
 #include <string>
 #include <atcoder/modint>
 
-using mint = atcoder::modint998244353;
+namespace kotone {
 
 struct static_string_hash {
+    using mint = atcoder::modint998244353;
+
     mint _hash991, _pow991, _hash997, _pow997;
 
     static_string_hash()
@@ -69,8 +71,9 @@ struct static_string_hash {
 
 // Reference:
 // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector/72073933#72073933
-
 struct size_t_hash {
+    using mint = atcoder::modint998244353;
+
     std::size_t operator()(const static_string_hash &h) const {
         std::size_t hash = 0;
         for (mint m : {h._hash991, h._pow991, h._hash997, h._pow997}) {
@@ -83,5 +86,7 @@ struct size_t_hash {
         return hash;
     }
 };
+
+}  // namespace kotone
 
 #endif  // ROLLING_HASH_HPP
