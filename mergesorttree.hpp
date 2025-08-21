@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <iterator>
 
+namespace kotone {
+
 template <typename T>
 class mergesorttree {
   private:
@@ -47,5 +49,7 @@ class mergesorttree {
         return query(0, 0, N, l, r, x);
     }
 };
+
+}  // namespace kotone
 
 #endif // MERGESORTTREE_HPP
