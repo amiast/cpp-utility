@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 
+namespace kotone {
+
 struct mo_alg {
   private:
     int _q = 0;
@@ -35,5 +37,7 @@ struct mo_alg {
         }
     }
 };
+
+}
 
 #endif  // MO_ALGORITHM_HPP
