@@ -22,7 +22,7 @@ struct coord_compress_hashmap {
     _comp_pred _comp;
 
   public:
-    // Insert a value to be compressed.
+    // Inserts a value to be compressed.
     void insert(const T &val) {
         _vals.emplace_back(val);
     }
@@ -41,12 +41,14 @@ struct coord_compress_hashmap {
     }
 
     // Returns the compressed ID of the given value.
+    // Requires the value to be a member of the hash map.
     int operator[](const T &val) const {
         assert(_map.contains(val));
         return _map.at(val);
     }
 
     // Returns a copy of the value at the specified index in the sorted order.
+    // Requires the index to be in bounds.
     // The behavior is undefined if the hash map is not built after new values are inserted.
     T get_nth(int index) const {
         assert(index >= 0);
