@@ -1,7 +1,9 @@
 #ifndef MODINT_HPP
-#define MODINT_HPP
+#define MODINT_HPP 1
 
 #include <iostream>
+
+namespace kotone {
 
 template<int MOD = 998244353>
 class modint {
@@ -77,5 +79,7 @@ class modint {
         return in;
     }
 };
+
+}  // namespace kotone
 
 #endif // MODINT_HPP
