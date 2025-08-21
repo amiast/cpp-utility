@@ -1,10 +1,11 @@
 #ifndef RETROACTIVE_SEGTREE_HPP
 #define RETROACTIVE_SEGTREE_HPP 1
 
-#include <iostream>
 #include <vector>
 #include <queue>
 #include <utility>
+
+namespace kotone {
 
 template <typename T>
 struct erasable_pq {
@@ -28,6 +29,7 @@ struct erasable_pq {
     }
 };
 
+// Example - https://atcoder.jp/contests/abc342/tasks/abc342_g
 template <typename T>
 struct retroactive_segtree {
     int _N;
@@ -74,37 +76,6 @@ struct retroactive_segtree {
     }
 };
 
-// Example - https://atcoder.jp/contests/abc342/tasks/abc342_g
-
-int main() {
-    int N;
-    std::cin >> N;
-    std::vector<int> vec(N);
-    for (int &v : vec) std::cin >> v;
-    retroactive_segtree seg(vec);
-
-    int Q;
-    std::cin >> Q;
-    std::vector<int> query_l(Q), query_r(Q), query_x(Q);
-    for (int i = 0; i < Q; i++) {
-        int t;
-        std::cin >> t;
-        if (t == 1) {
-            std::cin >> query_l[i] >> query_r[i] >> query_x[i];
-            query_l[i]--;
-            seg.push_update(query_l[i], query_r[i], query_x[i]);
-        } else if (t == 2) {
-            int i;
-            std::cin >> i;
-            i--;
-            seg.erase_update(query_l[i], query_r[i], query_x[i]);
-        } else {
-            int i;
-            std::cin >> i;
-            i--;
-            std::cout << seg.get(i, [](int a, int b){ return a > b ? a : b; }) << std::endl;
-        }
-    }
-}
+}  // namespace kotone
 
 #endif  // RETROACTIVE_SEGTREE
