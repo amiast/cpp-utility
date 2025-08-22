@@ -2,7 +2,6 @@
 #define CONTAINER_HASH_HPP 1
 
 #include <cstdint>
-#include <cstddef>
 #include <vector>
 #include <array>
 
