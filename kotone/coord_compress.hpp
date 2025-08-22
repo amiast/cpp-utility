@@ -34,7 +34,7 @@ struct coord_compress_hashmap {
             std::vector<T> temp_vals;
             temp_vals.reserve(_vals.size());
             for (T &val : _vals) {
-                if (!_erase.contains(val)) temp_vals.emplace_back(std::move(val));
+                if (!_erase.contains(val)) temp_vals.push_back(std::move(val));
             }
             _erase.clear();
             _vals = std::move(temp_vals);
@@ -52,21 +52,21 @@ struct coord_compress_hashmap {
 
   public:
     // Inserts the given value into the hash map.
-    void insert(const T &val) {
+    void insert(T val) {
         _erase.erase(val);
-        _vals.emplace_back(val);
+        _vals.push_back(std::move(val));
         _requires_build = true;
     }
 
     // Removes the given value from the hash map.
-    void erase(const T &val) {
-        _erase.insert(val);
+    void erase(T val) {
+        _erase.insert(std::move(val));
         _requires_build = true;
     }
 
     // Returns the compressed index of the given value.
     // Requires the value to be a member of the hash map.
-    int operator[](const T &val) {
+    int operator[](T val) {
         assert(_map.contains(val));
         if (_requires_build) _build();
         return _map[val];
@@ -74,7 +74,6 @@ struct coord_compress_hashmap {
 
     // Returns a copy of the value at the specified index in the sorted order.
     // Requires the index to be in bounds.
-    // The behavior is undefined if the hash map is not built after new values are inserted.
     T get_nth(int index) {
         assert(index >= 0);
         assert(index < _vals.size());
