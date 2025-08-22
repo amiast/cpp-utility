@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 #include <cassert>
 
@@ -19,24 +20,44 @@ struct coord_compress_hashmap {
   private:
     std::vector<T> _vals;
     std::unordered_map<T, int, _hash, _key_eq_pred> _map;
+    std::unordered_set<T, _hash, _key_eq_pred> _erase;
     _comp_pred _comp;
 
   public:
     // Inserts a value to be compressed.
-    void insert(const T &val) {
-        _vals.emplace_back(val);
+    // Requires calling `build()` to take effect.
+    void insert(const T &&val) {
+        if (_erase.contains(val)) _erase.erase(val);
+        _vals.emplace_back(std::move(val));
+    }
+
+    // Removes the given value from the hash map.
+    // Requires calling `build()` to take effect.
+    void erase(const T &val) {
+        _erase.insert(val);
     }
 
     // Builds the hash map with compressed values in ascending order and returns the number of distinct values compressed.
     // Uses custom comparator specified in the template argument `_comp_pred` for sorting.
     int build() {
-        if (_map.size()) _map.clear();
+
+        std::vector<T> temp_vals;
+        temp_vals.reserve(_vals.size());
+        for (T &val : _vals) {
+            if (!_erase.contains(val)) temp_vals.emplace_back(std::move(val));
+        }
+        _erase.clear();
+        _vals = std::move(temp_vals);
+
         std::sort(_vals.begin(), _vals.end(), _comp);
         _vals.erase(std::unique(_vals.begin(), _vals.end()), _vals.end());
+
+        _map.clear();
         int len = _vals.size();
         for (int i = 0; i < len; i++) {
-            _map[_vals[i]] = i;
+            _map.emplace(_vals[i], i);
         }
+
         return len;
     }
 
