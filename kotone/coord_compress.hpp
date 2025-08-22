@@ -9,7 +9,8 @@
 
 namespace kotone {
 
-// A struct for maintaining coordinate compression with a hash map.
+// A hash map that maintains the coordinate compression of a set.
+// Supports custom comparators and hashes.
 template <
     typename T,
     typename _comp_pred = std::less<T>,
@@ -21,60 +22,70 @@ struct coord_compress_hashmap {
     std::vector<T> _vals;
     std::unordered_map<T, int, _hash, _key_eq_pred> _map;
     std::unordered_set<T, _hash, _key_eq_pred> _erase;
-    _comp_pred _comp;
+    _comp_pred _comp{};
+    _key_eq_pred _eq{};
+    bool _requires_build = false;
 
-  public:
-    // Inserts a value to be compressed.
-    // Requires calling `build()` to take effect.
-    void insert(const T &&val) {
-        if (_erase.contains(val)) _erase.erase(val);
-        _vals.emplace_back(std::move(val));
-    }
+    void _build() {
+        if (!_requires_build) return;
+        _requires_build = false;
 
-    // Removes the given value from the hash map.
-    // Requires calling `build()` to take effect.
-    void erase(const T &val) {
-        _erase.insert(val);
-    }
-
-    // Builds the hash map with compressed values in ascending order and returns the number of distinct values compressed.
-    // Uses custom comparator specified in the template argument `_comp_pred` for sorting.
-    int build() {
-
-        std::vector<T> temp_vals;
-        temp_vals.reserve(_vals.size());
-        for (T &val : _vals) {
-            if (!_erase.contains(val)) temp_vals.emplace_back(std::move(val));
+        if (_erase.size()) {
+            std::vector<T> temp_vals;
+            temp_vals.reserve(_vals.size());
+            for (T &val : _vals) {
+                if (!_erase.contains(val)) temp_vals.emplace_back(std::move(val));
+            }
+            _erase.clear();
+            _vals = std::move(temp_vals);
         }
-        _erase.clear();
-        _vals = std::move(temp_vals);
 
         std::sort(_vals.begin(), _vals.end(), _comp);
-        _vals.erase(std::unique(_vals.begin(), _vals.end()), _vals.end());
+        _vals.erase(std::unique(_vals.begin(), _vals.end(), _eq), _vals.end());
 
         _map.clear();
         int len = _vals.size();
         for (int i = 0; i < len; i++) {
             _map.emplace(_vals[i], i);
         }
-
-        return len;
     }
 
-    // Returns the compressed ID of the given value.
+  public:
+    // Inserts the given value into the hash map.
+    void insert(const T &val) {
+        _erase.erase(val);
+        _vals.emplace_back(val);
+        _requires_build = true;
+    }
+
+    // Removes the given value from the hash map.
+    void erase(const T &val) {
+        _erase.insert(val);
+        _requires_build = true;
+    }
+
+    // Returns the compressed index of the given value.
     // Requires the value to be a member of the hash map.
-    int operator[](const T &val) const {
+    int operator[](const T &val) {
         assert(_map.contains(val));
-        return _map.at(val);
+        if (_requires_build) _build();
+        return _map[val];
     }
 
     // Returns a copy of the value at the specified index in the sorted order.
     // Requires the index to be in bounds.
     // The behavior is undefined if the hash map is not built after new values are inserted.
-    T get_nth(int index) const {
+    T get_nth(int index) {
         assert(index >= 0);
         assert(index < _vals.size());
+        if (_requires_build) _build();
         return _vals[index];
+    }
+
+    // Returns the number of distinct elements in the hash map.
+    int size() {
+        if (_requires_build) _build();
+        return _map.size();
     }
 };
 
