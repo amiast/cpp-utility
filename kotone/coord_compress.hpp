@@ -65,19 +65,19 @@ struct coord_compress_hashmap {
     }
 
     // Returns the compressed index of the given value.
-    // Requires the value to be a member of the hash map.
+    // If the value is not a member of the hash map, returns `-1` instead.
     int operator[](T val) {
-        assert(_map.contains(val));
         if (_requires_build) _build();
-        return _map[val];
+        if (_map.contains(val)) return _map[val];
+        return -1;
     }
 
     // Returns a copy of the value at the specified index in the sorted order.
     // Requires the index to be in bounds.
     T get_nth(int index) {
+        if (_requires_build) _build();
         assert(index >= 0);
         assert(index < _vals.size());
-        if (_requires_build) _build();
         return _vals[index];
     }
 

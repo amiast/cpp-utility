@@ -72,11 +72,8 @@ int m.operator[](T val)
 
 Returns the (read-only) index of `val` in the ascending order of $S$.
 
-* If provided, the ascending order of $S$ is defined by `comp_pred`.
-
-### Constraints
-
-* `val` is a member of $S$
+* If `val` is not a member of $S$, returns $-1$ instead.
+* If provided, `comp_pred` defines the ascending order of $S$.
 
 ### Time complexity
 
@@ -93,7 +90,7 @@ T m.get_nth(int index)
 
 Returns a copy of the value at the specified index in the ascending order of $S$.
 
-* If provided, the ascending order of $S$ is defined by `comp_pred`.
+* If provided, `comp_pred` defines the ascending order of $S$.
 
 ### Constraints
 
@@ -138,6 +135,7 @@ int main() {
     assert(m.size() == 3);
     assert(m[10] == 1);
     assert(m.get_nth(1) == 10);
+    assert(m[40] == -1);
 
     m.insert(40);
     m.erase(-1);
@@ -146,6 +144,7 @@ int main() {
     assert(m.size() == 3);
     assert(m[10] == 0);
     assert(m[40] == 1);
+    assert(m[-1] == -1);
 }
 ```
 
