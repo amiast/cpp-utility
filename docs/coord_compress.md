@@ -1,6 +1,6 @@
 # Coordinate Compression Hash Map
 
-The `coord_compress_hashmap` is a hash map that maintains a set of values $S$ with up to $N$ elements. It supports the following operations for coordinate compression in $\mathcal{O}(1)$ time:
+The `coord_compress_hashmap` is a hash map that maintains a totally ordered set of values $S$ with up to $N$ elements. It supports the following operations for coordinate compression in $\mathcal{O}(1)$ amortized time:
 
 * Insertion
 * Deletion
@@ -19,16 +19,21 @@ The time complexity analysis in this documentation assumes that values can be cr
 
 ```cpp
 (1) kotone::coord_compress_hashmap<T> m()
-(2) kotone::coord_compress_hashmap<T, comp_pred, hash, key_eq_pred> m()
+(2) kotone::coord_compress_hashmap<T, comp_pred, hash> m()
 ```
 
 Constructs a hash map for a set $S$ of data type `T`. Initially, $S$ is an empty set.
 
-* (1) Requires `T` to have built-in comparators and hashes provided by C++.
+* (1) Requires `T` to have built-in comparators and hashes. By default, `T` is sorted in ascending order.
 * (2) Uses:
-    * `comp_pred` for sorting values;
-    * `hash` for hashing values;
-    * `key_eq_pred` for comparing equivalent values.
+    * `comp_pred` for comparing values;
+    * `hash` for hashing values.
+
+### Constraints
+
+* `T`, `comp_pred` and `hash` are structs
+* `comp_pred` is a strict total order
+* `hash` accepts `T` and returns `std::size_t`
 
 ### Time complexity
 
@@ -67,18 +72,17 @@ Removes `val` from $S$.
 ## Index lookup
 
 ```cpp
-int m.operator[](T val)
+int m.operator[](const T &val)
 ```
 
-Returns the (read-only) index of `val` in the ascending order of $S$.
+Returns the compressed index of `val` in $S$.
 
 * If `val` is not a member of $S$, returns $-1$ instead.
-* If provided, `comp_pred` defines the ascending order of $S$.
 
 ### Time complexity
 
-* $\mathcal{O}(N\log N)$ for building the hash map
-* $\mathcal{O}(1)$ for all subsequent calls before `insert()` and `erase()` are invoked again
+* $\mathcal{O}(N\log N)$ on the first call after $S$ is modified
+* $\mathcal{O}(1)$ on subsequent calls
 
 <br>
 
@@ -88,9 +92,7 @@ Returns the (read-only) index of `val` in the ascending order of $S$.
 T m.get_nth(int index)
 ```
 
-Returns a copy of the value at the specified index in the ascending order of $S$.
-
-* If provided, `comp_pred` defines the ascending order of $S$.
+Returns a copy of the value at the specified index in $S$.
 
 ### Constraints
 
@@ -98,8 +100,42 @@ Returns a copy of the value at the specified index in the ascending order of $S$
 
 ### Time complexity
 
-* $\mathcal{O}(N\log N)$ for building the hash map
-* $\mathcal{O}(1)$ for all subsequent calls before `insert()` and `erase()` are invoked again
+* $\mathcal{O}(N\log N)$ on the first call after $S$ is modified
+* $\mathcal{O}(1)$ on subsequent calls
+
+<br>
+
+## Lower bound
+
+```cpp
+int m.lower_bound(const T &val)
+```
+
+Returns the number of elements in $S$ that are less than `val`.
+
+* Equivalently, returns the index of the first element $v\in S$ for which `comp_pred{}(v, val)` is `false`, or $|S|$ if no such element exists.
+
+### Time complexity
+
+* $\mathcal{O}(N\log N)$ on the first call after $S$ is modified
+* $\mathcal{O}(\log N)$ on subsequent calls
+
+<br>
+
+## Upper bound
+
+```cpp
+int m.upper_bound(const T &val)
+```
+
+Returns the number of elements in $S$ that are no greater than `val`.
+
+* Equivalently, returns the index of the first element $v\in S$ for which `comp_pred{}(val, v)` is `true`, or $|S|$ if no such element exists.
+
+### Time complexity
+
+* $\mathcal{O}(N\log N)$ on the first call after $S$ is modified
+* $\mathcal{O}(\log N)$ on subsequent calls
 
 <br>
 
@@ -113,8 +149,8 @@ Returns $|S|$.
 
 ### Time complexity
 
-* $\mathcal{O}(N\log N)$ for building the hash map
-* $\mathcal{O}(1)$ for all subsequent calls before `insert()` and `erase()` are invoked again
+* $\mathcal{O}(N\log N)$ on the first call after $S$ is modified
+* $\mathcal{O}(1)$ on subsequent calls
 
 <br>
 
@@ -136,6 +172,8 @@ int main() {
     assert(m[10] == 1);
     assert(m.get_nth(1) == 10);
     assert(m[40] == -1);
+    assert(m.lower_bound(10) == 1);
+    assert(m.upper_bound(10) == 2);
 
     m.insert(40);
     m.erase(-1);

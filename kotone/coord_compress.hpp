@@ -14,16 +14,22 @@ namespace kotone {
 template <
     typename T,
     typename comp_pred = std::less<T>,
-    typename hash = std::hash<T>,
-    typename key_eq_pred = std::equal_to<T>
+    typename hash = std::hash<T>
 >
 struct coord_compress_hashmap {
   private:
+    struct eq_pred {
+        comp_pred comp{};
+        bool operator()(const T &a, const T &b) const {
+            return !comp(a, b) && !comp(b, a);
+        }
+    };
+
     std::vector<T> _vals;
-    std::unordered_map<T, int, hash, key_eq_pred> _map;
-    std::unordered_set<T, hash, key_eq_pred> _erase;
+    std::unordered_map<T, int, hash, eq_pred> _map;
+    std::unordered_set<T, hash, eq_pred> _erase;
     comp_pred _comp{};
-    key_eq_pred _eq{};
+    eq_pred _eq{};
     bool _requires_build = false;
 
     void _build() {
@@ -40,7 +46,10 @@ struct coord_compress_hashmap {
         }
 
         std::sort(_vals.begin(), _vals.end(), _comp);
-        _vals.resize(std::distance(_vals.begin(), std::unique(_vals.begin(), _vals.end(), _eq)));
+        _vals.resize(std::distance(
+            _vals.begin(),
+            std::unique(_vals.begin(), _vals.end(), _eq)
+        ));
 
         _map.clear();
         int len = _vals.size();
@@ -65,7 +74,7 @@ struct coord_compress_hashmap {
 
     // Returns the compressed index of the given value.
     // If the value is not a member of the hash map, returns `-1` instead.
-    int operator[](T val) {
+    int operator[](const T &val) {
         if (_requires_build) _build();
         if (_map.contains(val)) return _map[val];
         return -1;
@@ -78,6 +87,24 @@ struct coord_compress_hashmap {
         assert(index >= 0);
         assert(index < _vals.size());
         return _vals[index];
+    }
+
+    // Returns the number of elements less than `val` in the hash map.
+    int lower_bound(const T &val) {
+        if (_requires_build) _build();
+        return std::distance(
+            _vals.begin(),
+            std::lower_bound(_vals.begin(), _vals.end(), val, _comp)
+        );
+    }
+
+    // Returns the number of elements no greater than `val` in the hash map.
+    int upper_bound(const T &val) {
+        if (_requires_build) _build();
+        return std::distance(
+            _vals.begin(),
+            std::upper_bound(_vals.begin(), _vals.end(), val, _comp)
+        );
     }
 
     // Returns the number of distinct elements in the hash map.
