@@ -13,21 +13,20 @@ namespace kotone {
 // Supports custom comparators and hashes.
 template <
     typename T,
-    typename _comp_pred = std::less<T>,
-    typename _hash = std::hash<T>,
-    typename _key_eq_pred = std::equal_to<T>
+    typename comp_pred = std::less<T>,
+    typename hash = std::hash<T>,
+    typename key_eq_pred = std::equal_to<T>
 >
 struct coord_compress_hashmap {
   private:
     std::vector<T> _vals;
-    std::unordered_map<T, int, _hash, _key_eq_pred> _map;
-    std::unordered_set<T, _hash, _key_eq_pred> _erase;
-    _comp_pred _comp{};
-    _key_eq_pred _eq{};
+    std::unordered_map<T, int, hash, key_eq_pred> _map;
+    std::unordered_set<T, hash, key_eq_pred> _erase;
+    comp_pred _comp{};
+    key_eq_pred _eq{};
     bool _requires_build = false;
 
     void _build() {
-        if (!_requires_build) return;
         _requires_build = false;
 
         if (_erase.size()) {
@@ -41,7 +40,7 @@ struct coord_compress_hashmap {
         }
 
         std::sort(_vals.begin(), _vals.end(), _comp);
-        _vals.erase(std::unique(_vals.begin(), _vals.end(), _eq), _vals.end());
+        _vals.resize(std::distance(_vals.begin(), std::unique(_vals.begin(), _vals.end(), _eq)));
 
         _map.clear();
         int len = _vals.size();
