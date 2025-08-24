@@ -1,5 +1,5 @@
-#ifndef ROLLING_HASH_HPP
-#define ROLLING_HASH_HPP 1
+#ifndef KOTONE_ROLLING_HASH_HPP
+#define KOTONE_ROLLING_HASH_HPP 1
 
 #include <string>
 #include <atcoder/modint>
@@ -89,4 +89,4 @@ struct size_t_hash {
 
 }  // namespace kotone
 
-#endif  // ROLLING_HASH_HPP
+#endif  // KOTONE_ROLLING_HASH_HPP

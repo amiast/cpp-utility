@@ -1,5 +1,5 @@
-#ifndef AHO_CORASICK_HPP
-#define AHO_CORASICK_HPP 1
+#ifndef KOTONE_AHO_CORASICK_HPP
+#define KOTONE_AHO_CORASICK_HPP 1
 
 #include <string>
 #include <vector>
@@ -77,4 +77,4 @@ struct aho_corasick {
 
 }  // namespace kotone
 
-#endif  // AHO_CORASICK_HPP
+#endif  // KOTONE_AHO_CORASICK_HPP

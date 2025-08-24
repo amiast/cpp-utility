@@ -1,5 +1,5 @@
-#ifndef MERGESORTTREE_HPP
-#define MERGESORTTREE_HPP
+#ifndef KOTONE_MERGESORTTREE_HPP
+#define KOTONE_MERGESORTTREE_HPP
 
 #include <vector>
 #include <algorithm>
@@ -52,4 +52,4 @@ class mergesorttree {
 
 }  // namespace kotone
 
-#endif // MERGESORTTREE_HPP
+#endif // KOTONE_MERGESORTTREE_HPP

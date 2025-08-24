@@ -1,5 +1,5 @@
-#ifndef CONTAINER_HASH_HPP
-#define CONTAINER_HASH_HPP 1
+#ifndef KOTONE_CONTAINER_HASH_HPP
+#define KOTONE_CONTAINER_HASH_HPP 1
 
 #include <cstdint>
 #include <vector>
@@ -41,4 +41,4 @@ struct array_hash {
 
 }  // namespace kotone
 
-#endif  // CONTAINER_HASH_HPP
+#endif  // KOTONE_CONTAINER_HASH_HPP

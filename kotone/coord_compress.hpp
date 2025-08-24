@@ -1,5 +1,5 @@
-#ifndef COORD_COMPRESS_HPP
-#define COORD_COMPRESS_HPP 1
+#ifndef KOTONE_COORD_COMPRESS_HPP
+#define KOTONE_COORD_COMPRESS_HPP 1
 
 #include <vector>
 #include <unordered_map>
@@ -116,4 +116,4 @@ struct coord_compress_hashmap {
 
 }  // namespace kotone
 
-#endif  // COORD_COMPRESS
+#endif  // KOTONE_COORD_COMPRESS

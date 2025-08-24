@@ -1,5 +1,5 @@
-#ifndef RETROACTIVE_SEGTREE_HPP
-#define RETROACTIVE_SEGTREE_HPP 1
+#ifndef KOTONE_RETROACTIVE_SEGTREE_HPP
+#define KOTONE_RETROACTIVE_SEGTREE_HPP 1
 
 #include <vector>
 #include <queue>
@@ -78,4 +78,4 @@ struct retroactive_segtree {
 
 }  // namespace kotone
 
-#endif  // RETROACTIVE_SEGTREE
+#endif  // KOTONE_RETROACTIVE_SEGTREE

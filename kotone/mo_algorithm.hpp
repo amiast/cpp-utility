@@ -1,5 +1,5 @@
-#ifndef MO_ALGORITHM_HPP
-#define MO_ALGORITHM_HPP 1
+#ifndef KOTONE_MO_ALGORITHM_HPP
+#define KOTONE_MO_ALGORITHM_HPP 1
 
 #include <vector>
 #include <algorithm>
@@ -40,4 +40,4 @@ struct mo_alg {
 
 }
 
-#endif  // MO_ALGORITHM_HPP
+#endif  // KOTONE_MO_ALGORITHM_HPP
