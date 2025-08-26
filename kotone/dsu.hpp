@@ -10,7 +10,7 @@ namespace kotone {
 // A basic data structure that monitors connectivity in a graph.
 // Reference: AtCoder Library
 struct dsu {
-  private:
+  protected:
     int _num_nodes;
     std::vector<int> _parent_or_size;
 
@@ -49,15 +49,34 @@ struct dsu {
     int size(int v) {
         return -_parent_or_size[leader(v)];
     }
+
+    // Returns a vector of connected groups as vectors of node indices.
+    // The order of groups is undefined.
+    // Node indices in each group's vector appear in ascending order.
+    std::vector<std::vector<int>> groups() {
+        std::vector<std::vector<int>> temp(_num_nodes), result;
+        for (int i = 0; i < _num_nodes; i++) temp[leader(i)].emplace_back(i);
+        for (int i = 0; i < _num_nodes; i++) {
+            if (temp[i].size()) {
+                result.push_back(std::move(temp[i]));
+            }
+        }
+        return result;
+    }
 };
 
 // An extended DSU with internal mapping between connected components and monoids.
 template <typename S, S (*op)(S, S), S (*e)()> struct extended_dsu : dsu {
-  private:
+  protected:
     std::vector<S> _vec;
-  public:
-    extended_dsu(int num_nodes) : dsu(num_nodes), _vec(num_nodes, e()) {}
 
+  public:
+    struct component {
+        std::vector<int> nodes;
+        S x;
+    };
+
+    extended_dsu(int num_nodes) : dsu(num_nodes), _vec(num_nodes, e()) {}
     extended_dsu(const std::vector<S> &vec) : dsu(vec.size()), _vec(vec) {}
 
     // Merges the connected components containing `u` and `v`,
@@ -80,6 +99,23 @@ template <typename S, S (*op)(S, S), S (*e)()> struct extended_dsu : dsu {
     // Sets `x` as the monoid associated with the connected component containing `v`.
     void set(int v, S x) {
         _vec[leader(v)] = std::move(x);
+    }
+
+    // Returns a vector of connected components and their associated monoids.
+    // The order of components is undefined.
+    // Node indices in `nodes` appear in ascending order.
+    std::vector<component> components() {
+        std::vector<std::vector<int>> temp(_num_nodes);
+        for (int i = 0; i < _num_nodes; i++) temp[leader(i)].emplace_back(i);
+        std::vector<component> result;
+        for (int i = 0; i < _num_nodes; i++) {
+            if (temp[i].size()) {
+                result.emplace_back();
+                result.back().nodes = std::move(temp[i]);
+                result.back().x = _vec[i];
+            }
+        }
+        return result;
     }
 };
 
