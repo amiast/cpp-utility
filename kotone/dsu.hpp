@@ -15,6 +15,9 @@ struct dsu {
     std::vector<int> _parent_or_size;
 
   public:
+    dsu() : _num_nodes(0) {}
+
+    // Creates a graph with the specified `num_nodes` and no edges.
     dsu(int num_nodes) : _num_nodes(num_nodes), _parent_or_size(num_nodes, -1) {
         assert(num_nodes >= 0);
         assert(num_nodes <= 100000000);
@@ -66,7 +69,7 @@ struct dsu {
 };
 
 // An extended DSU with internal mapping between connected components and monoids.
-template <typename S, S (*op)(S, S), S (*e)()> struct extended_dsu : dsu {
+template <typename S, S (*op)(S, S)> struct extended_dsu : dsu {
   protected:
     std::vector<S> _vec;
 
@@ -76,7 +79,18 @@ template <typename S, S (*op)(S, S), S (*e)()> struct extended_dsu : dsu {
         S x;
     };
 
-    extended_dsu(int num_nodes) : dsu(num_nodes), _vec(num_nodes, e()) {}
+    extended_dsu() : dsu() {}
+
+    // Creates a graph with the specified `num_nodes` and no edges.
+    // Each node is associated with a value-initialized monoid.
+    extended_dsu(int num_nodes) : dsu(num_nodes), _vec(num_nodes) {}
+
+    // Creates a graph with the specified `num_nodes` and no edges.
+    // Each node is associated with a copy of `init_x`.
+    extended_dsu(int num_nodes, S init_x) : dsu(num_nodes), _vec(num_nodes, init_x) {}
+
+    // Creates a graph with no edges.
+    // Uses `vec` to initialize the monoids associated with nodes.
     extended_dsu(const std::vector<S> &vec) : dsu(vec.size()), _vec(vec) {}
 
     // Merges the connected components containing `u` and `v`,
