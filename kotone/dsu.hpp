@@ -8,7 +8,7 @@
 namespace kotone {
 
 // A basic data structure that monitors connectivity in a graph.
-// Optionally monitors the potential differences of nodes.
+// Optionally monitors the potential differences between nodes.
 // Reference: AtCoder Library
 template <typename T = int> struct dsu {
   protected:
@@ -46,6 +46,8 @@ template <typename T = int> struct dsu {
     }
 
     // Returns the potentital difference from `u` to `v`.
+    // If potential differences between nodes are undefined,
+    // the behavior is undefined as well.
     // Requires `u` and `v` to be in the same connected component.
     T potential_diff(int u, int v) {
         assert(same(u, v));
@@ -61,7 +63,7 @@ template <typename T = int> struct dsu {
     // Merges the connected components containing `u` and `v`,
     // then returns the leader of the merged component.
     // If `u` and `v` are not formerly connected,
-    // defines the potential difference from `u` to `v` as `pd`.
+    // defines `pd` as the potential difference from `u` to `v`.
     virtual int merge(int u, int v, T pd) {
         if (same(u, v)) return u;
         pd += _potential(u) - _potential(v);
@@ -98,7 +100,7 @@ template <typename T = int> struct dsu {
 };
 
 // An extended DSU with internal mapping between connected components and monoids.
-// Optionally monitors the potential differences of nodes.
+// Optionally monitors the potential differences between nodes.
 template <typename S, S (*op)(S, S), typename T = int> struct extended_dsu : dsu<T> {
   protected:
     std::vector<S> _vec;
@@ -129,7 +131,7 @@ template <typename S, S (*op)(S, S), typename T = int> struct extended_dsu : dsu
     // then returns the leader of the merged component.
     // Also merges the associated monoids.
     // If `u` and `v` are not formerly connected,
-    // defines the potential difference from `u` to `v` as `pd`.
+    // defines `pd` as the potential difference from `u` to `v`.
     int merge(int u, int v, T pd) override {
         if (this->same(u, v)) return u;
         S result = op(_vec[this->leader(u)], _vec[this->leader(v)]);
@@ -142,9 +144,12 @@ template <typename S, S (*op)(S, S), typename T = int> struct extended_dsu : dsu
         return _vec[this->leader(v)];
     }
 
-    // Sets `x` as the monoid associated with the connected component containing `v`.
-    void set(int v, S x) {
-        _vec[this->leader(v)] = std::move(x);
+    // Sets `x` as the monoid associated with the connected component containing `v`,
+    // then returns the leader of the modified component.
+    int set(int v, S x) {
+        v = this->leader(v);
+        _vec[v] = std::move(x);
+        return v;
     }
 };
 
