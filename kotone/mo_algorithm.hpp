@@ -6,6 +6,8 @@
 
 namespace kotone {
 
+// Reference:
+// https://take44444.github.io/Algorithm-Book/range/mo/main.html
 struct mo_alg {
   private:
     int _q = 0;
@@ -38,6 +40,24 @@ struct mo_alg {
     }
 };
 
+// Reference:
+// https://take44444.github.io/Algorithm-Book/range/mo/main.html
+int64_t hilbert_index(int x, int y, int max_bit_width = 30) {
+    int rx, ry, index = 0;
+    int N = 1 << max_bit_width;
+    for (int64_t s = N >> 1; s; s >>= 1) {
+        rx = (x & s) > 0, ry = (y & s) > 0;
+        index += s * s * ((rx * 3) ^ ry);
+        if (ry) continue;
+        if (rx) {
+            x = N - 1 - x;
+            y = N - 1 - y;
+        }
+        std::swap(x, y);
+    }
+    return index;
 }
+
+}  // namespace kotone
 
 #endif  // KOTONE_MO_ALGORITHM_HPP
