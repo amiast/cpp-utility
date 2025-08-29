@@ -10,21 +10,21 @@ namespace kotone {
 // https://take44444.github.io/Algorithm-Book/range/mo/main.html
 struct mo_alg {
   private:
-    int _q = 0;
+    int _num_queries = 0;
     std::vector<int> _l, _r;
 
   public:
-    void insert(int l, int r) {
-        _q++;
+    void insert_query(int l, int r) {
+        _num_queries++;
         _l.emplace_back(l);
         _r.emplace_back(r);
     }
 
     template <typename order_, typename add_l_, typename add_r_, typename del_l_, typename del_r_, typename solve_>
-    void execute(order_ &&order, add_l_ &&add_l, add_r_ && add_r, del_l_ &&del_l, del_r_ &&del_r, solve_ &&solve) {
-        std::vector<int> indices(_q);
-        std::vector<int64_t> ordering(_q);
-        for (int i = 0; i < _q; i++) {
+    void eval_queries(order_ &&order, add_l_ &&add_l, add_r_ && add_r, del_l_ &&del_l, del_r_ &&del_r, solve_ &&solve) {
+        std::vector<int> indices(_num_queries);
+        std::vector<int64_t> ordering(_num_queries);
+        for (int i = 0; i < _num_queries; i++) {
             indices[i] = i;
             ordering[i] = order(_l[i], _r[i]);
         }
@@ -40,12 +40,12 @@ struct mo_alg {
     }
 
     template <typename order_, typename add_, typename del_, typename solve_>
-    void execute(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve) {
+    void eval_queries(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve) {
         auto add_l = [add](int l, int) { add(l); };
         auto add_r = [add](int, int r) { add(r); };
         auto del_l = [del](int l, int) { del(l); };
         auto del_r = [del](int, int r) { del(r); };
-        execute(order, add_l, add_r, del_l, del_r, solve);
+        eval_queries(order, add_l, add_r, del_l, del_r, solve);
     }
 };
 
