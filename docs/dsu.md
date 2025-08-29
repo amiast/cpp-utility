@@ -208,3 +208,14 @@ Reassigns $g(C_v)$ as $x$ then returns the leader of $C_v$, where $C_v$ is the c
 * Amortized $\mathcal{O}(\alpha(N))$
 
 <br>
+
+## Related problems (external links)
+
+<details><summary>Click to unfold (spoilers)</summary>
+
+* [ABC 235 E - MST + 1](https://atcoder.jp/contests/abc235/tasks/abc235_e)
+* [ABC 328 F - Good Set Query](https://atcoder.jp/contests/abc328/tasks/abc328_f)
+
+</details>
+
+<br>
