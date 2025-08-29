@@ -28,7 +28,7 @@ struct mo_alg {
             indices[i] = i;
             ordering[i] = order(_l[i], _r[i]);
         }
-        std::ranges::sort(indices, [&ordering](int i, int j){ return ordering[i] < ordering[j]; });
+        std::sort(indices.begin(), indices.end(), [&ordering](int i, int j){ return ordering[i] < ordering[j]; });
         int nl = 0, nr = 0;
         for (int i : indices) {
             while (nl > _l[i]) add_l(--nl, nr);
@@ -38,12 +38,21 @@ struct mo_alg {
             solve(i);
         }
     }
+
+    template <typename order_, typename add_, typename del_, typename solve_>
+    void execute(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve) {
+        auto add_l = [add](int l, int) { add(l); };
+        auto add_r = [add](int, int r) { add(r); };
+        auto del_l = [del](int l, int) { del(l); };
+        auto del_r = [del](int, int r) { del(r); };
+        execute(order, add_l, add_r, del_l, del_r, solve);
+    }
 };
 
 // Reference:
 // https://take44444.github.io/Algorithm-Book/range/mo/main.html
 int64_t hilbert_index(int x, int y, int max_bit_width = 30) {
-    int rx, ry, index = 0;
+    int64_t rx, ry, index = 0;
     int N = 1 << max_bit_width;
     for (int64_t s = N >> 1; s; s >>= 1) {
         rx = (x & s) > 0, ry = (y & s) > 0;
