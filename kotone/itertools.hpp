@@ -31,11 +31,12 @@ template <typename T> struct product {
       public:
         iterator(const std::vector<T> &vec, int repeat, bool is_end)
             : _vec(vec),
-              _current(repeat, vec.empty() ? T{} : vec[0]),
               _indices(repeat, 0),
               _repeat(repeat),
-              _is_end(is_end)
-        {}
+              _is_end(is_end || vec.empty())
+        {
+            if (vec.size()) _current.assign(repeat, vec[0]);
+        }
 
         reference operator*() const {
             return _current;
