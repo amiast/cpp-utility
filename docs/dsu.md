@@ -13,7 +13,7 @@ The potential difference between two connected nodes in $G$ is a function $f:C\r
 <br>
 
 The `extended_dsu`, derived from `dsu`, maps connected components to user-defined values. When the extended DSU merges two connected components, it merges their images under the mapping as well. More formally, the mapping is a function $g:(\mathcal{P}(V)\setminus\{\varnothing\})\rightarrow S$ with the following properties:
-* $S$ is a semigroup equipped with an associative binary operation $h$
+* $S$ is a commutative semigroup equipped with a binary operation $h$
 * When two disjoint subsets $X, Y$ merge, the mapping obeys $g(X\cup Y)=h(g(X), g(Y))$
 
 <br>
@@ -51,7 +51,7 @@ Constructs a DSU for an undirected graph $G$ with no edges. Each node is initial
 * `T` is default-constructible
 * `T` supports addition (`+`) and subtraction (`-`) operators
 * `S` is default-constructible
-* `op` is associative
+* `S op(S a, S b)` is associative and commutative
 
 ### Time complexity
 
