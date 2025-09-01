@@ -7,7 +7,7 @@
 namespace kotone {
 
 template <typename T = int> struct range {
-    static_assert(std::is_arithmetic<T>::value);
+    static_assert(std::is_integral<T>::value);
 
   private:
     T _start, _stop, _steps;
