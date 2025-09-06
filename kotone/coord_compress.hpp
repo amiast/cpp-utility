@@ -85,7 +85,7 @@ struct coord_compress_hashmap {
     T get_nth(int index) {
         if (_requires_build) _build();
         assert(index >= 0);
-        assert(index < _vals.size());
+        assert(index < size());
         return _vals[index];
     }
 
