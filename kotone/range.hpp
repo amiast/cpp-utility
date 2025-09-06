@@ -2,13 +2,12 @@
 #define KOTONE_RANGE_HPP 1
 
 #include <iterator>
+#include <concepts>
 #include <cassert>
 
 namespace kotone {
 
-template <typename T = int> struct range {
-    static_assert(std::is_integral<T>::value);
-
+template <std::integral T = int> struct range {
   private:
     T _start, _stop, _steps;
 
