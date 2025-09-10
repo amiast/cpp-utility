@@ -52,7 +52,7 @@ struct coord_compress_hashmap {
         ));
 
         _map.clear();
-        int len = _vals.size();
+        int len = static_cast<int>(_vals.size());
         for (int i = 0; i < len; i++) {
             _map.emplace(_vals[i], i);
         }
@@ -110,7 +110,7 @@ struct coord_compress_hashmap {
     // Returns the number of distinct elements in the hash map.
     int size() {
         if (_requires_build) _build();
-        return _map.size();
+        return static_cast<int>(_map.size());
     }
 };
 
