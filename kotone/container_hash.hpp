@@ -11,8 +11,7 @@ namespace kotone {
 
 // A hash for vectors of integral values.
 // Reference: https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector/72073933#72073933
-template <std::integral T>
-struct vector_hash {
+template <std::integral T> struct vector_hash {
     std::size_t operator()(const std::vector<T> &v) const {
         std::size_t hash = 0;
         for (T val : v) {
@@ -29,8 +28,7 @@ struct vector_hash {
 
 // A hash for arrays of integral values.
 // Reference: https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector/72073933#72073933
-template <std::integral T, std::size_t N>
-struct array_hash {
+template <std::integral T, std::size_t N> struct array_hash {
     std::size_t operator()(const std::array<T, N> &v) const {
         std::size_t hash = 0;
         for (T val : v) {
@@ -46,8 +44,7 @@ struct array_hash {
 
 // A hash for pairs of integral values.
 // If possible, consider hashing plain integers as a computationally-cheaper alternative.
-template <std::integral S, std::integral T>
-struct pair_hash {
+template <std::integral S, std::integral T> struct pair_hash {
     std::size_t operator()(const std::pair<S, T> &p) const {
         uint64_t x = static_cast<uint64_t>(p.first);
         uint64_t y = static_cast<uint64_t>(p.second);
