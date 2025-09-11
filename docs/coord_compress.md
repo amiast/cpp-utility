@@ -96,7 +96,7 @@ Returns a copy of the value at the specified index in $S$.
 
 ### Constraints
 
-* $0\leq$ `index` $\lt |S|$
+* $0\leq$ `index` $\lt N$
 
 ### Time complexity
 
@@ -113,7 +113,7 @@ int m.lower_bound(const T &val)
 
 Returns the number of elements in $S$ that are less than `val`.
 
-* Equivalently, returns the index of the first element $v\in S$ for which `comp_pred{}(v, val)` is `false`, or $|S|$ if no such element exists.
+* Equivalently, returns the index of the first element $v\in S$ for which `comp_pred{}(v, val)` is `false`, or $N$ if no such element exists.
 
 ### Time complexity
 
@@ -130,7 +130,7 @@ int m.upper_bound(const T &val)
 
 Returns the number of elements in $S$ that are no greater than `val`.
 
-* Equivalently, returns the index of the first element $v\in S$ for which `comp_pred{}(val, v)` is `true`, or $|S|$ if no such element exists.
+* Equivalently, returns the index of the first element $v\in S$ for which `comp_pred{}(val, v)` is `true`, or $N$ if no such element exists.
 
 ### Time complexity
 
@@ -145,7 +145,7 @@ Returns the number of elements in $S$ that are no greater than `val`.
 int m.size()
 ```
 
-Returns $|S|$.
+Returns $N$, the number of elements in $S$.
 
 ### Time complexity
 
