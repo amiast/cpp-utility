@@ -102,7 +102,7 @@ template <std::integral T = int> struct grid {
         }
     };
 
-    // Returns a container that iterates through the neighbors of the provided cell.
+    // Returns a container that iterates through the orthogonal neighbors of the provided cell.
     // The order of iteration is undefined.
     // Only iterates through neighbors within the grid.
     neighbors neighbors(T row, T col) const {
