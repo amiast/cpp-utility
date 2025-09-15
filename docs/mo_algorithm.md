@@ -8,11 +8,11 @@ For instance, Mo's algorithm can efficiently answer range queries on a sequence.
 >
 > Given an arbitrary function $f$ that maps contiguous subsequences of $A$ to some values, a range query to evaluate $f(A_{\ell, r})$ can be expressed as the half-open interval $[\ell, r)$.
 
-In general, Mo's algorithm works for queries that can be described by two non-negative integer parameters $(x, y)$. This implementation follows the convention of using $[\ell, r)$ to represent range queries, but it also works for queries where $\ell\gt r$.
+In general, Mo's algorithm works for queries that can be described by two non-negative integer parameters $(x, y)$. This implementation follows the convention of using $[\ell, r)$ to represent range queries, but it also works for non-range queries where $\ell\gt r$.
 
-To answer a new query $[\ell^\prime, r^\prime)$ after evaluating $[\ell, r)$, the algorithm iteratively expands or contracts the interval by "adding" and "deleting" elements at the start and end of a subsequence. For example, to evaluate $[\ell, r+10)$ after evaluating $[\ell, r)$, the algorithm uses existing results to iteratively expand the interval and compute $[\ell, r+1), \dots, [\ell, r+10)$. Likewise, to compute $[\ell+10, r)$ from $[\ell, r)$, the algorithm contracts the interval and computes $[\ell+1, r), \dots, [\ell+10, r)$.
+Mo's algorithm initially stores the result to the empty interval $[0, 0)$. To answer a new query $[\ell^\prime, r^\prime)$ after evaluating $[\ell, r)$, the algorithm iteratively expands or contracts the interval by "adding" and "deleting" elements at the start and end of a subsequence. For example, to evaluate $[\ell, r+10)$ after evaluating $[\ell, r)$, the algorithm uses existing results to iteratively expand the interval and compute $[\ell, r+1), \dots, [\ell, r+10)$. Likewise, to compute $[\ell+10, r)$ from $[\ell, r)$, the algorithm contracts the interval and computes $[\ell+1, r), \dots, [\ell+10, r)$.
 
-The original Mo's algorithm uses square-root decomposition to determine the order of query evaluation. A faster method uses Hilbert's curve to minimize the total "distance" between queries.
+The original Mo's algorithm uses square-root decomposition to determine the order of query evaluation. A faster method uses Hilbert's curve to minimize the total number of evaluations needed to answer all queries.
 
 The implementation is based on [Takeshi Masumoto's Algorithm Book](https://take44444.github.io/Algorithm-Book/range/mo/main.html) (in Japanese).
 
@@ -21,7 +21,7 @@ The implementation is based on [Takeshi Masumoto's Algorithm Book](https://take4
 ## Constructor
 
 ```cpp
-kotone::mo_alg m()
+kotone::mo_alg mo()
 ```
 
 Constructs an empty instance to store range queries.
@@ -35,7 +35,7 @@ Constructs an empty instance to store range queries.
 ## Insert queries
 
 ```cpp
-int insert_query(int l, int r)
+int mo.insert_query(int l, int r)
 ```
 
 Inserts range query $[\ell, r)$ and returns its query index.
@@ -55,8 +55,8 @@ Inserts range query $[\ell, r)$ and returns its query index.
 ## Evaluate queries
 
 ```cpp
-(1) void eval_queries(order_ &&order, add_l_ &&add_l, add_r_ && add_r, del_l_ &&del_l, del_r_ &&del_r, solve_ &&solve)
-(2) void eval_queries(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve)
+(1) void mo.eval_queries(order_ &&order, add_l_ &&add_l, add_r_ && add_r, del_l_ &&del_l, del_r_ &&del_r, solve_ &&solve)
+(2) void mo.eval_queries(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve)
 ```
 
 Evaluates range queries using the provided functions.
@@ -79,12 +79,13 @@ Evaluates range queries using the provided functions.
 ## Hilbert index
 
 ```cpp
-int64_t hilbert_index(int x, int y, int max_bit_width = 30)
+template <int max_bit_width = 30> int64_t hilbert_index(int x, int y)
 ```
 
 Returns the index of the coordinates $(x, y)$ on a Hilbert curve given the maximum bit width $B_{\max}$.
 
 * Pass this function to `mo_alg::eval_queries` to determine an optimized query order.
+* For example: `mo.eval_queries(kotone::hilbert_index<>, add, del, solve)`
 
 ### Constraints
 

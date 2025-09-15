@@ -77,7 +77,7 @@ struct mo_alg {
 // Requires `x` and `y` to be non-negative integers less than `1 << max_bit_width`.
 // Requires `bit_width` to be a positive integer at most `30`.
 // Reference: https://take44444.github.io/Algorithm-Book/range/mo/main.html
-int64_t hilbert_index(int x, int y, int max_bit_width = 30) {
+template <int max_bit_width = 30> int64_t hilbert_index(int x, int y) {
     assert(0 < max_bit_width && max_bit_width <= 30);
     assert(0 <= x && x < 1 << max_bit_width);
     assert(0 <= y && y < 1 << max_bit_width);
