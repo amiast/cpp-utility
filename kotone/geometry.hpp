@@ -149,4 +149,16 @@ std::vector<point<T>> convex_hull(const std::vector<point<T>> &vec) {
 
 }  // namespace kotone
 
+namespace std {
+
+template <kotone::signed_number T> struct hash<kotone::point<T>> {
+    std::size_t operator()(const kotone::point<T> &p) const {
+        uint64_t x = static_cast<uint64_t>(p.x());
+        uint64_t y = static_cast<uint64_t>(p.y());
+        return std::hash<uint64_t>()((x >> 32 ^ x) << 32 | (y >> 32 ^ y));
+    }
+};
+
+}  // namespace std
+
 #endif  // KOTONE_GEOMETRY_HPP
