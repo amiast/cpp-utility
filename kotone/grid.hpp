@@ -28,7 +28,7 @@ template <std::integral T = int> struct grid {
 
     // Returns whether the given coordinates is within the grid,
     // i.e. whether `0 <= row < num_rows` and `0 <= col < num_cols`.
-    bool is_within_grid(T row, T col) const {
+    bool contains(T row, T col) const {
         return T{} <= row && row < _h && T{} <= col && col < _w;
     }
 
@@ -52,7 +52,7 @@ template <std::integral T = int> struct grid {
                 while (_dir < 4) {
                     T ni = _i + _di[_dir];
                     T nj = _j + _dj[_dir];
-                    if (_g.is_within_grid(ni, nj)) return;
+                    if (_g.contains(ni, nj)) return;
                     _dir++;
                 }
             }
@@ -90,7 +90,7 @@ template <std::integral T = int> struct grid {
         };
 
         neighbors(const grid<T> &grid, T row, T col) : _g(grid), _i(row), _j(col) {
-            assert(grid.is_within_grid(row, col));
+            assert(grid.contains(row, col));
         }
 
         iterator begin() const {
@@ -129,7 +129,7 @@ template <std::integral T = int> struct grid {
                 while (_dir < 8) {
                     T ni = _i + _di_8[_dir];
                     T nj = _j + _dj_8[_dir];
-                    if (_g.is_within_grid(ni, nj)) return;
+                    if (_g.contains(ni, nj)) return;
                     _dir++;
                 }
             }
@@ -167,7 +167,7 @@ template <std::integral T = int> struct grid {
         };
 
         eight_neighbors(const grid<T> &grid, T row, T col) : _g(grid), _i(row), _j(col) {
-            assert(grid.is_within_grid(row, col));
+            assert(grid.contains(row, col));
         }
 
         iterator begin() const {
