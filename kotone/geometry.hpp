@@ -53,25 +53,7 @@ template <signed_number T> struct point {
         return _y < other._y;
     }
 
-    bool operator>(const point &other) const {
-        return other < *this;
-    }
-
-    bool operator<=(const point &other) const {
-        return !(*this > other);
-    }
-
-    bool operator>=(const point &other) const {
-        return !(*this < other);
-    }
-
-    bool operator!=(const point &other) const {
-        return *this < other || other < *this;
-    }
-
-    bool operator==(const point &other) const {
-        return !(*this != other);
-    }
+    auto operator<=>(const point&) const = default;
 
     // Returns the dot product of two vectors.
     T dot(const point &other) const {

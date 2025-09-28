@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/static_convex_hull
-// Details: https://judge.yosupo.jp/submission/314072
+// Details: https://judge.yosupo.jp/submission/317384
 
 #include <iostream>
 #include <vector>
