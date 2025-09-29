@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/ordered_set
-// Details: https://judge.yosupo.jp/submission/317527
+// Details: https://judge.yosupo.jp/submission/317605
 
 #include <iostream>
 #include <vector>

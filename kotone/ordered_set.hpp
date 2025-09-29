@@ -2,19 +2,14 @@
 #define KOTONE_ORDERED_SET_HPP 1
 
 #include <utility>
-#include <stack>
 #include <algorithm>
 #include <memory>
-#include <functional>
 #include <cassert>
 
 namespace kotone {
 
-template <
-    typename T,
-    typename comp_pred = std::less<T>
->
-struct ordered_set {
+// An ordered set implemented with an AVL tree.
+template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
   private:
     struct node {
         T _val;
@@ -36,21 +31,21 @@ struct ordered_set {
     comp_pred _comp{};
     eq_pred _eq{};
 
-    int _height(const std::shared_ptr<node> &root) const {
+    int _height(const std::shared_ptr<node> &root) const noexcept {
         return root ? root->_height : 0;
     }
 
-    int _size(const std::shared_ptr<node> &root) const {
+    int _size(const std::shared_ptr<node> &root) const noexcept {
         return root ? root->_size : 0;
     }
 
-    void _update(std::shared_ptr<node> root) {
+    void _update(std::shared_ptr<node> root) noexcept {
         if (!root) return;
         root->_height = std::max(_height(root->_left), _height(root->_right)) + 1;
         root->_size = _size(root->_left) + _size(root->_right) + 1;
     }
 
-    std::shared_ptr<node> _rotate_left(std::shared_ptr<node> root) {
+    std::shared_ptr<node> _rotate_left(std::shared_ptr<node> root) noexcept {
         std::shared_ptr<node> new_root = root->_right, temp = new_root->_left;
         new_root->_left = root;
         root->_right = temp;
@@ -62,7 +57,7 @@ struct ordered_set {
         return new_root;
     }
 
-    std::shared_ptr<node> _rotate_right(std::shared_ptr<node> root) {
+    std::shared_ptr<node> _rotate_right(std::shared_ptr<node> root) noexcept {
         std::shared_ptr<node> new_root = root->_left, temp = new_root->_right;
         new_root->_right = root;
         root->_left = temp;
@@ -74,11 +69,11 @@ struct ordered_set {
         return new_root;
     }
 
-    int _balance_factor(const std::shared_ptr<node> &root) const {
+    int _balance_factor(const std::shared_ptr<node> &root) const noexcept {
         return root ? _height(root->_left) - _height(root->_right) : 0;
     }
 
-    std::shared_ptr<node> _balance(std::shared_ptr<node> root) {
+    std::shared_ptr<node> _balance(std::shared_ptr<node> root) noexcept {
         if (!root) return root;
         _update(root);
         int factor = _balance_factor(root);
@@ -118,12 +113,12 @@ struct ordered_set {
         return {root, inserted};
     }
 
-    std::shared_ptr<node> _get_min(std::shared_ptr<node> root) const {
+    std::shared_ptr<node> _get_min(std::shared_ptr<node> root) const noexcept {
         while (root && root->_left) root = root->_left;
         return root;
     }
 
-    std::shared_ptr<node> _get_max(std::shared_ptr<node> root) const {
+    std::shared_ptr<node> _get_max(std::shared_ptr<node> root) const noexcept {
         while (root && root->_right) root = root->_right;
         return root;
     }
@@ -176,7 +171,7 @@ struct ordered_set {
         return _find(root->_right, val);
     }
 
-    std::shared_ptr<node> _get_nth(const std::shared_ptr<node> &root, int index) const {
+    std::shared_ptr<node> _get_nth(const std::shared_ptr<node> &root, int index) const noexcept {
         if (!root) return root;
         int l_size = _size(root->_left);
         if (index == l_size) return root;
@@ -190,12 +185,12 @@ struct ordered_set {
         return _size(n->_left) + _order_of(n->_right, val) + 1;
     }
 
-    std::shared_ptr<node> _build(const std::vector<T> &vec, int l, int r, node *parent = nullptr) {
+    std::shared_ptr<node> _build_sorted(const std::vector<T> &vec, int l, int r, node *parent = nullptr) noexcept {
         if (l >= r) return nullptr;
         int m = (l + r) / 2;
         std::shared_ptr<node> root = std::make_shared<node>(vec[m]);
-        root->_left = _build(vec, l, m, root.get());
-        root->_right = _build(vec, m + 1, r, root.get());
+        root->_left = _build_sorted(vec, l, m, root.get());
+        root->_right = _build_sorted(vec, m + 1, r, root.get());
         root->_parent = parent;
         _update(root);
         return root;
@@ -203,7 +198,7 @@ struct ordered_set {
 
   public:
     // Constructs an empty set.
-    ordered_set() {}
+    ordered_set() noexcept {}
 
     // Constructs a set from elements of a brace-enclosed initializer list.
     ordered_set(std::initializer_list<T> init_list) {
@@ -217,7 +212,7 @@ struct ordered_set {
                 assert(_comp(*iter, *std::next(iter)));
             }
         }
-        _root = _build(sorted_vec, 0, static_cast<int>(sorted_vec.size()));
+        _root = _build_sorted(sorted_vec, 0, static_cast<int>(sorted_vec.size()));
         _min_node = _get_min(_root).get();
         _max_node = _get_max(_root).get();
     }
@@ -234,10 +229,10 @@ struct ordered_set {
         node *_curr;
 
       public:
-        iterator(const ordered_set &set, node *n) : _set(set), _curr(n) {}
-        iterator(const ordered_set &set) : _set(set), _curr(nullptr) {};
+        iterator(const ordered_set &set, node *node) noexcept : _set(set), _curr(node) {}
+        iterator(const ordered_set &set) noexcept : _set(set), _curr(nullptr) {};
 
-        value_type operator*() const {
+        reference operator*() const {
             assert(_curr);
             return _curr->_val;
         }
@@ -247,11 +242,11 @@ struct ordered_set {
             return &_curr->_val;
         }
 
-        bool operator==(const iterator &other) const {
+        bool operator==(const iterator &other) const noexcept {
             return &_set == &other._set && _curr == other._curr;
         }
 
-        bool operator!=(const iterator &other) const {
+        bool operator!=(const iterator &other) const noexcept {
             return !(*this == other);
         }
 
@@ -302,22 +297,22 @@ struct ordered_set {
     };
 
     // Returns an iterator to the first element in the set.
-    iterator begin() const {
+    iterator begin() const noexcept {
         return iterator(*this, _min_node);
     }
 
     // Returns an iterator to the past-the-end element in the set.
-    iterator end() const {
+    iterator end() const noexcept {
         return iterator(*this);
     }
 
     // Returns the number of elements in the set.
-    int size() const {
+    int size() const noexcept {
         return _size(_root);
     }
 
     // Returns whether the set contains any element.
-    bool empty() const {
+    bool empty() const noexcept {
         return _root == nullptr;
     }
 
@@ -371,7 +366,7 @@ struct ordered_set {
 
     // Returns an iterator to the value at the specified index in the set.
     // Returns an iterator to `ordered_set::end` if the index is out of bounds.
-    iterator get_nth(int index) const {
+    iterator get_nth(int index) const noexcept {
         return iterator(*this, _get_nth(_root, index).get());
     }
 
@@ -411,9 +406,18 @@ struct ordered_set {
     }
 
     // Removes all elements from the set.
-    void clear() {
+    void clear() noexcept {
         _root = nullptr;
         _min_node = _max_node = nullptr;
+    }
+
+    // Exchanges the content of the set with another set.
+    void swap(ordered_set &other) noexcept {
+        std::swap(_root, other._root);
+        std::swap(_min_node, other._min_node);
+        std::swap(_max_node, other._max_node);
+        std::swap(_comp, other._comp);
+        std::swap(_eq, other._eq);
     }
 
     struct reverse_iterator {
@@ -428,10 +432,10 @@ struct ordered_set {
         node *_curr;
 
       public:
-        reverse_iterator(const ordered_set &set, node *n) : _set(set), _curr(n) {}
-        reverse_iterator(const ordered_set &set) : _set(set), _curr(nullptr) {};
+        reverse_iterator(const ordered_set &set, node *node) noexcept : _set(set), _curr(node) {}
+        reverse_iterator(const ordered_set &set) noexcept : _set(set), _curr(nullptr) {};
 
-        value_type operator*() const {
+        reference operator*() const {
             assert(_curr);
             return _curr->_val;
         }
@@ -441,11 +445,11 @@ struct ordered_set {
             return &_curr->_val;
         }
 
-        bool operator==(const reverse_iterator &other) const {
+        bool operator==(const reverse_iterator &other) const noexcept {
             return &_set == &other._set && _curr == other._curr;
         }
 
-        bool operator!=(const reverse_iterator &other) const {
+        bool operator!=(const reverse_iterator &other) const noexcept {
             return !(*this == other);
         }
 
@@ -494,7 +498,7 @@ struct ordered_set {
             return result;
         }
 
-        iterator base() const {
+        iterator base() const noexcept {
             node *next = _curr;
             if (!next) return iterator(_set);
             if (next->_right) next = _set._get_min(next->_right).get();
@@ -511,15 +515,21 @@ struct ordered_set {
     };
 
     // Returns a reverse iterator to the last element in the set.
-    reverse_iterator rbegin() const {
+    reverse_iterator rbegin() const noexcept {
         return reverse_iterator(*this, _max_node);
     }
 
     // Returns a reverse iterator pointing right before the first element in the set.
-    reverse_iterator rend() const {
+    reverse_iterator rend() const noexcept {
         return reverse_iterator(*this);
     }
 };
+
+// Exchanges the content of the two sets.
+template <typename T, typename comp_pred>
+void swap(ordered_set<T, comp_pred> &lhs, ordered_set<T, comp_pred> &rhs) noexcept {
+    lhs.swap(rhs);
+}
 
 }  // namespace kotone
 

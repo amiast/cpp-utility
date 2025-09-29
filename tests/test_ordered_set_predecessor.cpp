@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/predecessor_problem
-// Details: https://judge.yosupo.jp/submission/317528
+// Details: https://judge.yosupo.jp/submission/317604
 
 #include <iostream>
 #include <vector>
