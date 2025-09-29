@@ -34,7 +34,7 @@ template <std::integral T = int> struct grid {
 
     struct neighbors {
       private:
-        const grid<T> &_g;
+        const grid &_g;
         T _i, _j;
 
       public:
@@ -44,7 +44,7 @@ template <std::integral T = int> struct grid {
             using iterator_category = std::input_iterator_tag;
 
           private:
-            const grid<T> &_g;
+            const grid &_g;
             T _i, _j;
             int _dir;
 
@@ -58,7 +58,7 @@ template <std::integral T = int> struct grid {
             }
 
           public:
-            iterator(const grid<T> &grid, T row, T col, int dir)
+            iterator(const grid &grid, T row, T col, int dir)
                 : _g(grid), _i(row), _j(col), _dir(dir)
             {
                 _skip();
@@ -89,7 +89,7 @@ template <std::integral T = int> struct grid {
             }
         };
 
-        neighbors(const grid<T> &grid, T row, T col) : _g(grid), _i(row), _j(col) {
+        neighbors(const grid &grid, T row, T col) : _g(grid), _i(row), _j(col) {
             assert(grid.contains(row, col));
         }
 
@@ -111,7 +111,7 @@ template <std::integral T = int> struct grid {
 
     struct eight_neighbors {
       private:
-        const grid<T> &_g;
+        const grid &_g;
         T _i, _j;
 
       public:
@@ -121,7 +121,7 @@ template <std::integral T = int> struct grid {
             using iterator_category = std::input_iterator_tag;
 
           private:
-            const grid<T> &_g;
+            const grid &_g;
             T _i, _j;
             int _dir;
 
@@ -135,7 +135,7 @@ template <std::integral T = int> struct grid {
             }
 
           public:
-            iterator(const grid<T> &grid, T row, T col, int dir)
+            iterator(const grid &grid, T row, T col, int dir)
                 : _g(grid), _i(row), _j(col), _dir(dir)
             {
                 _skip();
@@ -166,7 +166,7 @@ template <std::integral T = int> struct grid {
             }
         };
 
-        eight_neighbors(const grid<T> &grid, T row, T col) : _g(grid), _i(row), _j(col) {
+        eight_neighbors(const grid &grid, T row, T col) : _g(grid), _i(row), _j(col) {
             assert(grid.contains(row, col));
         }
 
