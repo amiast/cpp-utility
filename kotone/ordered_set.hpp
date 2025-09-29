@@ -1,6 +1,7 @@
 #ifndef KOTONE_ORDERED_SET_HPP
 #define KOTONE_ORDERED_SET_HPP 1
 
+#include <vector>
 #include <utility>
 #include <algorithm>
 #include <memory>
