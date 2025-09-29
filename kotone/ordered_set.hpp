@@ -91,9 +91,10 @@ struct ordered_set {
         return _rotate_left(root);
     }
 
-    std::pair<std::shared_ptr<node>, bool> _insert(std::shared_ptr<node> root, T val, node *parent = nullptr) {
+    template <typename U>
+    std::pair<std::shared_ptr<node>, bool> _insert(std::shared_ptr<node> root, U &&val, node *parent = nullptr) {
         if (!root) {
-            root = std::make_shared<node>(val);
+            root = std::make_shared<node>(std::forward<U>(val));
             root->_parent = parent;
             if (!_min_node || _comp(val, _min_node->_val)) _min_node = root.get();
             if (!_max_node || _comp(_max_node->_val, val)) _max_node = root.get();
@@ -241,6 +242,11 @@ struct ordered_set {
             return _curr->_val;
         }
 
+        pointer operator->() const {
+            assert(_curr);
+            return &_curr->_val;
+        }
+
         bool operator==(const iterator &other) const {
             return &_set == &other._set && _curr == other._curr;
         }
@@ -320,6 +326,26 @@ struct ordered_set {
     // - whether the value has been newly inserted
     std::pair<iterator, bool> insert(const T &val) {
         auto [new_root, inserted] = _insert(_root, val);
+        _root = new_root;
+        return {iterator(*this, _find(_root, val).get()), inserted};
+    }
+
+    // Inserts the specified rvalue into the set, then returns a pair of:
+    // - an iterator to the value in the set
+    // - whether the value has been newly inserted
+    std::pair<iterator, bool> insert(T &&val) {
+        auto [new_root, inserted] = _insert(_root, std::move(val));
+        _root = new_root;
+        return {iterator(*this, _find(_root, val).get()), inserted};
+    }
+
+    // Inserts the specified value in place using args for construction, then returns a pair of:
+    // - an iterator to the value in the set
+    // - whether the value has been newly inserted
+    template <typename ...Args>
+    std::pair<iterator, bool> emplace(Args &&...args) {
+        T val(std::forward<Args>(args)...);
+        auto [new_root, inserted] = _insert(_root, std::move(val));
         _root = new_root;
         return {iterator(*this, _find(_root, val).get()), inserted};
     }
@@ -408,6 +434,11 @@ struct ordered_set {
         value_type operator*() const {
             assert(_curr);
             return _curr->_val;
+        }
+
+        pointer operator->() const {
+            assert(_curr);
+            return &_curr->_val;
         }
 
         bool operator==(const reverse_iterator &other) const {
