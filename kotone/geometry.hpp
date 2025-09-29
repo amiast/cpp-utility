@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <compare>
 #include <cassert>
 #include <kotone/internal_type_traits>
 
@@ -48,12 +49,7 @@ template <signed_number T> struct point {
         return point(_x / scalar, _y / scalar);
     }
 
-    bool operator<(const point &other) const {
-        if (_x != other._x) return _x < other._x;
-        return _y < other._y;
-    }
-
-    auto operator<=>(const point&) const = default;
+    std::strong_ordering operator<=>(const point&) const = default;
 
     // Returns the dot product of two vectors.
     T dot(const point &other) const {
