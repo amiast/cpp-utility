@@ -62,6 +62,7 @@ template <typename T> struct memory_pool {
     }
 
     // Frees all allocated memory in the memory pool.
+    // If `T` has a non-trivial destructor, `deallocate()` must be called first to prevent memory leak.
     void reset() {
         for (T *chunk : _chunks) ::operator delete(chunk);
         _chunks.clear();
@@ -69,6 +70,7 @@ template <typename T> struct memory_pool {
     }
 
     // Frees all allocated memory and destroys the memory pool.
+    // If `T` has a non-trivial destructor, `deallocate()` must be called first to prevent memory leak.
     ~memory_pool() {
         reset();
     }
