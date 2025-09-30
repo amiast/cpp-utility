@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/deque
-// Details: https://judge.yosupo.jp/submission/317606
+// Details: https://judge.yosupo.jp/submission/317633
 
 #include <iostream>
 #include <utility>
