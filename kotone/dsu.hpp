@@ -65,7 +65,7 @@ template <typename T = int> struct dsu {
     // Adds an edge between `u` and `v`,
     // then returns the leader of the merged component.
     // If `u` and `v` are not formerly connected,
-    // defines `pd` as the potential difference from `u` to `v`.
+    // defines the potential difference from `u` to `v` as `pd`.
     virtual int merge(int u, int v, T pd) {
         if (connected(u, v)) return leader(u);
         pd = pd + _potential(u) - _potential(v);
@@ -134,7 +134,7 @@ template <typename S, S (*op)(S, S), typename T = int> struct extended_dsu : dsu
     // then returns the leader of the merged component.
     // Also merges their images under the mapping.
     // If `u` and `v` are not formerly connected,
-    // defines `pd` as the potential difference from `u` to `v`.
+    // defines the potential difference from `u` to `v` as `pd`.
     int merge(int u, int v, T pd) override {
         if (this->connected(u, v)) return this->leader(u);
         S result = op(_map[this->leader(u)], _map[this->leader(v)]);

@@ -214,6 +214,7 @@ Reassigns $g(C_v)$ as $x$ then returns the leader of $C_v$, where $C_v$ is the c
 <details><summary>Click to unfold (spoilers)</summary>
 
 * [ABC 235 E - MST + 1](https://atcoder.jp/contests/abc235/tasks/abc235_e)
+* [ABC 280 F - Pay or Receive](https://atcoder.jp/contests/abc280/tasks/abc280_f)
 * [ABC 328 F - Good Set Query](https://atcoder.jp/contests/abc328/tasks/abc328_f)
 
 </details>
