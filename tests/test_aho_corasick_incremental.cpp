@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/aho_corasick
-// Details: https://judge.yosupo.jp/submission/317931
+// Details: https://judge.yosupo.jp/submission/317933
 
 #include <iostream>
 #include <vector>
@@ -10,8 +10,10 @@ int main() {
     std::cin >> N;
     std::vector<std::string> S(N);
     for (std::string &s : S) std::cin >> s;
-    kotone::aho_corasick<char, std::unordered_map> ac;
-    for (std::string &s : S) ac.insert(s);
+    kotone::aho_corasick ac;
+    for (int i = 0; i < N / 2; i++) ac.insert(S[i]);
+    ac.build();
+    for (int i = N / 2; i < N; i++) ac.insert(S[i]);
     auto g = ac.to_graph();
     assert(g.characters[0] == char{});
     assert(g.parents[0] == -1);
