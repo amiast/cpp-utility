@@ -37,7 +37,7 @@ struct line {
         return _b;
     }
 
-    // Returns the line as a pair `(a, b)`.
+    // Returns the line `y = ax + b` as a pair `(a, b)`.
     std::pair<int64_t, int64_t> get() const noexcept {
         return {_a, _b};
     }
@@ -50,7 +50,7 @@ struct line {
     }
 
     // Constructs a `line` instance without checking against any constraints.
-    // If the assigned values violate constraints, the behavior is undefined.
+    // If the assigned values violate constraints, `eval()` may cause integer overflow.
     static line raw(int64_t a, int64_t b) noexcept {
         line result;
         result._a = a;
@@ -159,8 +159,8 @@ struct lichao_tree {
         insert_segment({a, b}, l, r);
     }
 
-    // Returns the minimum y-coordinate at the specified x-coordinate among all inserted lines.
-    // If no lines are inserted, returns `LLONG_MAX`.
+    // Returns the minimum `y`-coordinate at the specified `x`-coordinate among all inserted lines.
+    // If no lines are inserted at the specified coordinate, returns `LLONG_MAX`.
     // Requires `x` to be in the domain.
     int64_t find_min(int64_t x) {
         assert(_index_of.contains(x));
