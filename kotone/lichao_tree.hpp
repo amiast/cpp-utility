@@ -146,8 +146,11 @@ struct lichao_tree {
 
     // Inserts the specified line segment over `[l, r)` into the tree.
     void insert_segment(line line, int64_t l, int64_t r) {
-        int index_l = std::distance(_xs.begin(), std::lower_bound(_xs.begin(), _xs.end(), l));
-        int index_r = std::distance(_xs.begin(), std::lower_bound(_xs.begin(), _xs.end(), r));
+        int index_l, index_r;
+        if (_index_of.contains(l)) index_l = _index_of[l];
+        else index_l = std::distance(_xs.begin(), std::lower_bound(_xs.begin(), _xs.end(), l));
+        if (_index_of.contains(r)) index_r = _index_of[r];
+        else index_r = std::distance(_xs.begin(), std::lower_bound(_xs.begin(), _xs.end(), r));
         if (index_l >= index_r) return;
         _insert_segment(1, 0, _len, line, index_l, index_r);
     }
