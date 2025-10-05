@@ -61,8 +61,8 @@ template <signed_number T> struct point {
         return _x * other._y - _y * other._x;
     }
 
-    // Returns the L2 norm of the vector.
-    T norm() const {
+    // Returns the squared L2 norm of the vector.
+    T norm_squared() const {
         return _x * _x + _y * _y;
     }
 };
