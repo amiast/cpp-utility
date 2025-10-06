@@ -162,10 +162,6 @@ template <kotone::number T> struct segtree_beats {
   public:
     segtree_beats() {}
 
-    // Constructs a segment tree beats for the specified number of elements.
-    // All elements are initialized to `T{}`.
-    segtree_beats(int length) : segtree_beats(std::vector<T>(length)) {}
-
     // Constructs a segment tree beats with the specified initial values.
     segtree_beats(const std::vector<T> &vec) {
         if (vec.empty()) return;
@@ -179,6 +175,14 @@ template <kotone::number T> struct segtree_beats {
         }
         for (int i = _len - 1; i > 0; i--) _update(i);
     }
+
+    // Constructs a segment tree beats for the specified number of elements.
+    // Initializes all elements to `T{}`.
+    segtree_beats(int length) : segtree_beats(std::vector<T>(length)) {}
+
+    // Constructs a segment tree beats for the specified number of elements.
+    // Initializes all elements to `init_val`.
+    segtree_beats(int length, T init_val) : segtree_beats(std::vector(length, init_val)) {}
 
     // Increments all elements with index `i` in `[l, r)` by `val`.
     // Requires `l` and `r` to be in bounds.
