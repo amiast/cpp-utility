@@ -109,9 +109,9 @@ template <typename mint> std::vector<mint> exp_fps(const std::vector<mint> &fps,
 // If `init` contains `d` terms and `d < n`, assumes initial values of `0` for `d + 1, ..., n - 1`.
 // Requires `d <= n`.
 // Requires `k >= 0`.
-template <typename mint> mint solve_recurrence(const std::vector<mint> &recurrence, int64_t k, const std::vector<mint> &init) {
+template <typename mint> mint solve_recurrence(const std::vector<mint> &recurrence, const std::vector<mint> &init, int64_t k) {
     assert(k >= 0);
-    if (recurrence.empty() || init.empty()) return 0;
+    if (init.empty()) return 0;
     assert(init.size() <= recurrence.size() && recurrence.size() <= 100000000u);
     if (k < static_cast<int>(init.size())) return init[k];
     int n = static_cast<int>(recurrence.size());

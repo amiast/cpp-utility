@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/kth_term_of_linearly_recurrent_sequence
-// Details: https://judge.yosupo.jp/submission/319383
+// Details: https://judge.yosupo.jp/submission/319385
 
 #include <iostream>
 #include <vector>
@@ -21,5 +21,5 @@ int main() {
         std::cin >> i;
         c = i;
     }
-    std::cout << kotone::solve_recurrence(C, k, A).val() << std::endl;
+    std::cout << kotone::solve_recurrence(C, A, k).val() << std::endl;
 }
