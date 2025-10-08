@@ -438,7 +438,7 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
     // Exchanges the content of the set with another set.
     // This operation invalidates existing iterators for both sets.
     void swap(ordered_set &other) noexcept {
-        std::swap(_pool, other._pool);
+        _pool.swap(other._pool);
         std::swap(_root, other._root);
         std::swap(_min_node, other._min_node);
         std::swap(_max_node, other._max_node);
@@ -550,13 +550,6 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
         return reverse_iterator(*this);
     }
 };
-
-// Exchanges the content of the two sets.
-// This operation invalidates existing iterators for both sets.
-template <typename T, typename comp_pred>
-void swap(ordered_set<T, comp_pred> &lhs, ordered_set<T, comp_pred> &rhs) noexcept {
-    lhs.swap(rhs);
-}
 
 }  // namespace kotone
 
