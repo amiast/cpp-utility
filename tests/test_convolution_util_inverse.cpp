@@ -1,0 +1,22 @@
+// Verified with: https://judge.yosupo.jp/problem/inv_of_formal_power_series
+// Details: https://judge.yosupo.jp/submission/319224
+
+#include <iostream>
+#include <vector>
+#include <kotone/convolution_util>
+
+using mint = atcoder::modint998244353;
+
+int main() {
+    int N;
+    std::cin >> N;
+    std::vector<mint> A(N);
+    for (mint &a : A) {
+        int i;
+        std::cin >> i;
+        a = i;
+    }
+    std::vector<mint> B = kotone::inv_fps(A, N);
+    for (mint &b : B) std::cout << b.val() << ' ';
+    std::cout << std::endl;
+}
