@@ -2,6 +2,7 @@
 #define KOTONE_MEMORY_POOL_HPP 1
 
 #include <vector>
+#include <algorithm>
 #include <cassert>
 
 namespace kotone {
@@ -37,6 +38,18 @@ template <typename T> struct memory_pool {
         assert(chunk_size > 0);
     }
 
+    memory_pool(const memory_pool&) = delete;
+    memory_pool(memory_pool&&) = delete;
+    memory_pool& operator=(const memory_pool&) = delete;
+    memory_pool& operator=(memory_pool&&) = delete;
+
+    // Exchanges the content of the two memory pools.
+    void swap(memory_pool &other) noexcept {
+        std::swap(_chunk_size, other._chunk_size);
+        std::swap(_chunks, other._chunks);
+        std::swap(_free_list, other._free_list);
+    }
+
     // Updates the chunk size used to allocate memory in bulk.
     void update_chunk_size(int chunk_size) {
         assert(chunk_size > 0);
@@ -63,7 +76,7 @@ template <typename T> struct memory_pool {
 
     // Frees all allocated memory in the memory pool.
     // If `T` has a non-trivial destructor, `deallocate()` must be called first to prevent memory leak.
-    void reset() {
+    void reset() noexcept {
         for (T *chunk : _chunks) ::operator delete(chunk);
         _chunks.clear();
         _free_list = nullptr;
@@ -71,7 +84,7 @@ template <typename T> struct memory_pool {
 
     // Frees all allocated memory and destroys the memory pool.
     // If `T` has a non-trivial destructor, `deallocate()` must be called first to prevent memory leak.
-    ~memory_pool() {
+    ~memory_pool() noexcept {
         reset();
     }
 };
