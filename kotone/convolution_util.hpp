@@ -11,8 +11,9 @@ namespace kotone {
 // Requires `!fps.empty() && fps[0] != 0`.
 // Requires `0 <= n <= 100000000`.
 template <typename mint> std::vector<mint> inv_fps(const std::vector<mint> &fps, int n) {
-    assert(!fps.empty() && fps[0] != 0);
     assert(0 <= n && n <= 100000000);
+    assert(!fps.empty() && fps[0] != 0);
+    assert(fps.size() <= 100000000u);
     if (n == 0) return {};
     std::vector<mint> result{1 / fps[0]};
     int m = 1;
@@ -29,6 +30,75 @@ template <typename mint> std::vector<mint> inv_fps(const std::vector<mint> &fps,
         result.resize(m);
     }
     result.resize(n);
+    return result;
+}
+
+// Returns the derivative of the formal power series.
+// Returns an empty vector if `fps` is empty.
+template <typename mint> std::vector<mint> derivative(const std::vector<mint> &fps) {
+    if (fps.empty()) return {};
+    assert(fps.size() <= 100000000u);
+    std::vector<mint> result(fps.begin() + 1, fps.end());
+    for (unsigned i{}; i < result.size(); i++) result[i] *= i + 1;
+    return result;
+}
+
+// Returns the integral of the formal power series.
+// Sets the integral's coefficient of the term independent of variables to `0`.
+// If `fps` is empty, returns an empty vector.
+template <typename mint> std::vector<mint> integral(const std::vector<mint> &fps) {
+    if (fps.empty()) return {};
+    assert(fps.size() <= 100000000u);
+    int len = static_cast<int>(fps.size());
+    std::vector<mint> result(len + 1);
+    result[1] = 1;
+    for (int i = 2; i <= len; i++) {
+        result[i] = -result[mint::mod() % i] * mint(mint::mod() / i);
+    }
+    for (int i = 0; i < len; i++) result[i + 1] *= fps[i];
+    return result;
+}
+
+// Returns the logarithm of the formal power series up to the first `n` coefficients.
+// Requires `0 <= n <= 100000000`.
+// Requires `fps` to be non-empty and `fps[0] == 1`.
+template <typename mint> std::vector<mint> log_fps(const std::vector<mint> &fps, int n) {
+    assert(!fps.empty());
+    assert(fps[0] == 1);
+    assert(fps.size() <= 100000000u);
+    assert(0 <= n && n <= 100000000);
+    if (n == 0) return {};
+    std::vector<mint> dfps = derivative(fps), ifps = inv_fps(fps, n);
+    std::vector<mint> prod = atcoder::convolution(dfps, ifps);
+    prod.resize(n - 1);
+    std::vector<mint> result = integral(prod);
+    result.resize(n);
+    return result;
+}
+
+// Returns the exponential of the formal power series up to the first `n` coefficients.
+// Requires `0 <= n <= 100000000`.
+// If `fps` is empty, returns a vector of `n` elements filled with `0`.
+// Requires `fps[0] == 0` if `fps` is not empty.
+template <typename mint> std::vector<mint> exp_fps(const std::vector<mint> &fps, int n) {
+    assert(fps.size() <= 100000000u);
+    assert(0 <= n && n <= 100000000);
+    if (fps.empty()) return std::vector<mint>(n);
+    assert(fps[0] == 0);
+    if (n == 0) return {};
+    std::vector<mint> result{1};
+    int m = 1;
+    while (m < n) {
+        m = std::min(m * 2, n);
+        std::vector<mint> log = log_fps(result, m);
+        for (int i = 0; i < m; i++) {
+            log[i] = -log[i];
+            if (i < static_cast<int>(fps.size())) log[i] += fps[i];
+        }
+        log[0] += 1;
+        result = atcoder::convolution(result, log);
+        result.resize(m);
+    }
     return result;
 }
 

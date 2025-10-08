@@ -1,5 +1,5 @@
-// Verified with: https://judge.yosupo.jp/problem/inv_of_formal_power_series
-// Details: https://judge.yosupo.jp/submission/319380
+// Verified with: https://judge.yosupo.jp/problem/log_of_formal_power_series
+// Details: https://judge.yosupo.jp/submission/319382
 
 #include <iostream>
 #include <vector>
@@ -16,7 +16,7 @@ int main() {
         std::cin >> i;
         a = i;
     }
-    std::vector<mint> B = kotone::inv_fps(A, N);
+    std::vector<mint> B = kotone::log_fps(A, N);
     for (mint &b : B) std::cout << b.val() << ' ';
     std::cout << std::endl;
 }
