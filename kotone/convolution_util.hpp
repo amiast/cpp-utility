@@ -102,6 +102,42 @@ template <typename mint> std::vector<mint> exp_fps(const std::vector<mint> &fps,
     return result;
 }
 
+// Returns the formal power series raised to the specified power up to the first `n` coefficients.
+// If `pow == 0`, the first element of the resulting vector is `1` and subsequence elements are `0`.
+// If `pow > 0` and `fps` is empty, returns a vector of `n` elements filled with `0`.
+// Requires `pow >= 0`.
+// Requires `0 <= n <= 100000000`.
+template <typename mint> std::vector<mint> pow_fps(const std::vector<mint> &fps, int64_t pow, int n) {
+    assert(fps.size() <= 100000000u);
+    assert(pow >= 0);
+    assert(0 <= n && n <= 100000000);
+    if (pow == 0) {
+        std::vector<mint> result(n);
+        if (n) result[0] = 1;
+        return result;
+    }
+    int len = static_cast<int>(fps.size());
+    int d = -1;
+    for (int i = 0; i < len; i++) {
+        if (fps[i] == 0) continue;
+        d = i;
+        break;
+    }
+    if (d == -1 || d > (n - 1) / pow) return std::vector<mint>(n);
+    mint lead_coeff = fps[d];
+    mint lead_pow = lead_coeff.pow(pow);
+    mint factor = 1 / lead_coeff;
+    std::vector<mint> truncated_fps(fps.begin() + d, fps.end());
+    for (mint &m : truncated_fps) m *= factor;
+    truncated_fps = log_fps(truncated_fps, n - d * pow);
+    for (mint &m : truncated_fps) m *= pow;
+    truncated_fps = exp_fps(truncated_fps, n - d * pow);
+    for (mint &m : truncated_fps) m *= lead_pow;
+    std::vector<mint> result(n);
+    for (int i = 0; i + d * pow < n; i++) result[i + d * pow] = truncated_fps[i];
+    return result;
+}
+
 // Computes term `a[k]` of a homogeneous linear recurrence `a` of order `n`.
 // More specifically, `recurrence` specifies coefficients `c` in the relation
 // `a[i] = c[0] * a[i - 1] + ... + c[n - 1] * a[i - n]`.
