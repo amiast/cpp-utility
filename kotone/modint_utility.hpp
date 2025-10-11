@@ -90,6 +90,46 @@ template <compatible_modint mint> struct modint_utility {
     }
 };
 
+// Returns a square root of the given value.
+// If no square root exists, returns `0`.
+// If there are multiple square roots, the function may return any of them.
+template <compatible_modint mint> mint sqrt_mint(mint val) {
+    if (val == 0) return 0;
+    int mod = mint::mod();
+    if (mod == 2) return val;
+    if (val.pow((mod - 1) / 2) == -1) return 0;
+    if (mod % 4 == 3) return val.pow((mod + 1) / 4);
+
+    int s = 0;
+    int q = mod - 1;
+    while (q % 2 == 0) {
+        q /= 2;
+        s++;
+    }
+
+    mint z = 2;
+    while (z.pow((mod - 1) / 2) == 1) z++;
+    mint c = z.pow(q);
+    mint x = val.pow((q + 1) / 2);
+    mint t = val.pow(q);
+
+    while (t != 1) {
+        int i = 0;
+        mint tpow = t;
+        while (tpow != 1 && i < s) {
+            tpow *= tpow;
+            i++;
+        }
+        if (i == s) return 0;
+        mint b = c.pow(1 << (s - i - 1));
+        x *= b;
+        t *= b * b;
+        c = b * b;
+        s = i;
+    }
+    return x;
+}
+
 }  // namespace kotone
 
 #endif  // KOTONE_MODINT_UTILITY_HPP
