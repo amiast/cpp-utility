@@ -3,11 +3,12 @@
 
 #include <vector>
 #include <cassert>
+#include <kotone/internal_type_traits>
 
 namespace kotone {
 
 // Returns the vector of the first `n` factorials (`0!, 1!, ..., (N-1)!`).
-template <typename mint> std::vector<mint> factorials(int n) {
+template <compatible_modint mint> std::vector<mint> factorials(int n) {
     assert(n >= 0);
     assert(n <= 100000000);
     std::vector<mint> result(n);
@@ -17,7 +18,7 @@ template <typename mint> std::vector<mint> factorials(int n) {
 }
 
 // Returns the vector of the first `n` inverse factorials.
-template <typename mint> std::vector<mint> inv_factorials(const std::vector<mint> &factorials) {
+template <compatible_modint mint> std::vector<mint> inv_factorials(const std::vector<mint> &factorials) {
     int n = static_cast<int>(factorials.size());
     std::vector<mint> result(n);
     if (n) {
@@ -29,7 +30,7 @@ template <typename mint> std::vector<mint> inv_factorials(const std::vector<mint
 }
 
 // A wrapper class for combinatorial functions with modint.
-template <typename mint> struct modint_utility {
+template <compatible_modint mint> struct modint_utility {
   private:
     int _n = 0;
     std::vector<mint> _fact, _ifact;
