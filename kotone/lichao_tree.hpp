@@ -104,7 +104,7 @@ struct lichao_tree {
         assert(std::abs(r) <= 2'000'001'000LL);
         if (l == r) return;
         _len = 1 << std::bit_width(uint64_t(r - l - 1));
-        _xs.resize(_len, 2'000'001'000LL);
+        _xs.resize(_len, _xs.back());
         for (int i = 0; i < r - l; i++) {
             _xs[i] = i + l;
             _index_of[i + l] = i;
@@ -127,7 +127,7 @@ struct lichao_tree {
             _index_of[_xs[i]] = i;
         }
         _len = 1 << std::bit_width(_xs.size() - 1);
-        _xs.resize(_len, 2'000'001'000LL);
+        _xs.resize(_len, _xs.back());
         _tree.assign(_len * 2, line::raw(0, LLONG_MAX));
     }
 
@@ -137,7 +137,7 @@ struct lichao_tree {
         _insert(1, 0, _len, line);
     }
 
-    // Inserts line y = ax + b in to the tree.
+    // Inserts line y = ax + b into the tree.
     // Requires `|a| <= 2e9 + 1000`.
     // Requires `|b| <= 4e18 + 1000`.
     void insert(int64_t a, int64_t b) {

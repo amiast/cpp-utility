@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/segment_add_get_min
-// Details: https://judge.yosupo.jp/submission/318672
+// Details: https://judge.yosupo.jp/submission/323085
 
 #include <iostream>
 #include <vector>
