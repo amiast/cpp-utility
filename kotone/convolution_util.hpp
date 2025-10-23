@@ -7,6 +7,21 @@
 
 namespace kotone {
 
+// Performs naive convolution of the two given formal power series.
+// If either `fps_l` or `fps_r` is empty, returns an empty vector.
+template <typename T> std::vector<T> naive_convolution(const std::vector<T> &fps_l, const std::vector<T> &fps_r) {
+    assert(fps_l.size() <= 100000000u);
+    assert(fps_r.size() <= 100000000u);
+    if (fps_l.empty() || fps_r.empty()) return {};
+    std::vector<T> result(fps_l.size() + fps_r.size() - 1);
+    for (unsigned i{}; i < fps_l.size(); i++) {
+        for (unsigned j{}; j < fps_r.size(); j++) {
+            result[i + j] += fps_l[i] * fps_r[j];
+        }
+    }
+    return result;
+}
+
 // Returns the inverse of the formal power series up to the first `n` coefficients.
 // Requires `!fps.empty() && fps[0] != 0`.
 // Requires `0 <= n <= 100000000`.
@@ -60,8 +75,8 @@ template <typename mint> std::vector<mint> integral(const std::vector<mint> &fps
 }
 
 // Returns the logarithm of the formal power series up to the first `n` coefficients.
-// Requires `0 <= n <= 100000000`.
 // Requires `fps` to be non-empty and `fps[0] == 1`.
+// Requires `0 <= n <= 100000000`.
 template <typename mint> std::vector<mint> log_fps(const std::vector<mint> &fps, int n) {
     assert(!fps.empty());
     assert(fps[0] == 1);
@@ -77,9 +92,9 @@ template <typename mint> std::vector<mint> log_fps(const std::vector<mint> &fps,
 }
 
 // Returns the exponential of the formal power series up to the first `n` coefficients.
-// Requires `0 <= n <= 100000000`.
 // If `fps` is empty, returns a vector of `n` elements filled with `0`.
 // Requires `fps[0] == 0` if `fps` is not empty.
+// Requires `0 <= n <= 100000000`.
 template <typename mint> std::vector<mint> exp_fps(const std::vector<mint> &fps, int n) {
     assert(fps.size() <= 100000000u);
     assert(0 <= n && n <= 100000000);
@@ -111,9 +126,10 @@ template <typename mint> std::vector<mint> pow_fps(const std::vector<mint> &fps,
     assert(fps.size() <= 100000000u);
     assert(pow >= 0);
     assert(0 <= n && n <= 100000000);
+    if (n == 0) return {};
     if (pow == 0) {
         std::vector<mint> result(n);
-        if (n) result[0] = 1;
+        result[0] = 1;
         return result;
     }
     int len = static_cast<int>(fps.size());
@@ -126,13 +142,13 @@ template <typename mint> std::vector<mint> pow_fps(const std::vector<mint> &fps,
     if (d == -1 || d > (n - 1) / pow) return std::vector<mint>(n);
     mint lead_coeff = fps[d];
     mint lead_pow = lead_coeff.pow(pow);
-    mint factor = 1 / lead_coeff;
+    mint lead_inv = 1 / lead_coeff;
     std::vector<mint> truncated_fps(fps.begin() + d, fps.end());
-    for (mint &m : truncated_fps) m *= factor;
+    for (mint &c : truncated_fps) c *= lead_inv;
     truncated_fps = log_fps(truncated_fps, n - d * pow);
-    for (mint &m : truncated_fps) m *= pow;
+    for (mint &c : truncated_fps) c *= pow;
     truncated_fps = exp_fps(truncated_fps, n - d * pow);
-    for (mint &m : truncated_fps) m *= lead_pow;
+    for (mint &c : truncated_fps) c *= lead_pow;
     std::vector<mint> result(n);
     for (int i = 0; i + d * pow < n; i++) result[i + d * pow] = truncated_fps[i];
     return result;
@@ -176,8 +192,8 @@ template <typename mint> mint solve_recurrence(const std::vector<mint> &recurren
         std::vector<mint> num_next(n), denom_next(n + 1);
         for (int i = 0; i < n; i++) num_next[i] = numerator[i * 2 + (k & 1)];
         for (int i = 0; i <= n; i++) denom_next[i] = denominator[i * 2];
-        numerator.swap(num_next);
-        denominator.swap(denom_next);
+        numerator = num_next;
+        denominator = denom_next;
         k >>= 1;
     }
 
