@@ -1,5 +1,5 @@
 #ifndef KOTONE_MERGESORT_TREE_HPP
-#define KOTONE_MERGESORT_TREE_HPP
+#define KOTONE_MERGESORT_TREE_HPP 1
 
 #include <vector>
 #include <algorithm>
