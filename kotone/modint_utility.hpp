@@ -1,5 +1,5 @@
 #ifndef KOTONE_MODINT_UTILITY_HPP
-#define KOTONE_MODINT_UTILITY_HPP
+#define KOTONE_MODINT_UTILITY_HPP 1
 
 #include <vector>
 #include <cassert>
