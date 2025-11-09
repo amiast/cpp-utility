@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/lca
-// Details: https://judge.yosupo.jp/submission/319074
+// Details: https://judge.yosupo.jp/submission/327615
 
 #include <iostream>
 #include <vector>
@@ -8,7 +8,7 @@
 int main() {
     int N, Q;
     std::cin >> N >> Q;
-    kotone::extended_link_cut_tree tree(N);
+    kotone::extended_link_cut_tree<int> tree(N);
     for (int i = 1; i < N; i++) {
         int p;
         std::cin >> p;

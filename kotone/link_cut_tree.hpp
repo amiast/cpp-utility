@@ -206,25 +206,39 @@ template <typename derived_tree, compatible_node node> struct link_cut_tree_base
 // A link-cut tree with minimal functionalities.
 struct link_cut_tree : link_cut_tree_base<link_cut_tree, link_cut_node> {};
 
-struct extended_node {
+template <typename W> struct extended_node {
     extended_node *parent = nullptr, *light = nullptr, *heavy = nullptr;
     bool lazy_reverse = false;
     int size = 1;
     int index;
+    W weight{};
+    W sum{};
     extended_node(int node_index) : index(node_index) {}
 };
 
 // A link-cut tree with extended functionalities.
-struct extended_link_cut_tree : link_cut_tree_base<extended_link_cut_tree, extended_node> {
-    friend class link_cut_tree_base<extended_link_cut_tree, extended_node>;
-    using node = extended_node;
+template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extended_link_cut_tree<W>, extended_node<W>> {
+    friend class link_cut_tree_base<extended_link_cut_tree<W>, extended_node<W>>;
 
   protected:
+    using node = extended_node<W>;
+    using base = link_cut_tree_base<extended_link_cut_tree<W>, extended_node<W>>;
+    using base::_nodes;
+    using base::_push;
+    using base::_access;
+    using base::_splay;
+    using base::_get_root;
+    using base::_make_root;
+    using base::base;
+    using base::size;
+    using base::connected;
+
     void _update(node *n) {
         if (!n) return;
         n->size = 1;
-        if (n->light) n->size += n->light->size;
-        if (n->heavy) n->size += n->heavy->size;
+        n->sum = n->weight;
+        if (n->light) n->size += n->light->size, n->sum += n->light->sum;
+        if (n->heavy) n->size += n->heavy->size, n->sum += n->heavy->sum;
     }
 
     node* _get_nth(node *n, int index) {
@@ -316,6 +330,37 @@ struct extended_link_cut_tree : link_cut_tree_base<extended_link_cut_tree, exten
         std::vector<int> path;
         _collect_nodes(node_v, path);
         return path;
+    }
+
+    // Returns the weight of node `v`.
+    // If no weight has been set, returns `W{}`.
+    // Requires `v` to be a valid index.
+    W get_weight(int v) {
+        assert(0 <= v && v < size());
+        node *node_v = &_nodes[v];
+        _access(node_v);
+        return node_v->weight;
+    }
+
+    // Sets the new weight of node `v`.
+    // Requires `v` to be a valid index.
+    void set_weight(int v, W new_weight) {
+        assert(0 <= v && v < size());
+        node *node_v = &_nodes[v];
+        _access(node_v);
+        node_v->weight = new_weight;
+        _update(node_v);
+    }
+
+    // Returns the sum of weights of nodes in the path from `u` to `v`.
+    // If `u` and `v` are not connected, returns `W{}`.
+    // Requires `u` and `v` to be valid indices.
+    W get_path_sum(int u, int v) {
+        if (!connected(u, v)) return {};
+        node *node_u = &_nodes[u], *node_v = &_nodes[v];
+        _make_root(node_u);
+        _access(node_v);
+        return node_v->sum;
     }
 };
 
