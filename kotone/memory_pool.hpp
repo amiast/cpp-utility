@@ -22,7 +22,7 @@ template <typename T> struct memory_pool {
     void _allocate_chunk() {
         T *chunk = static_cast<T*>(::operator new(sizeof(T) * _chunk_size));
         _chunks.push_back(chunk);
-        for (std::size_t i = 0; i < _chunk_size; i++) {
+        for (int i = 0; i < _chunk_size; i++) {
             block *b = reinterpret_cast<block*>(chunk + i);
             b->_next = _free_list;
             _free_list = b;
