@@ -1,0 +1,1 @@
+#include <kotone/segment_tree.hpp>
