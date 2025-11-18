@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <utility>
+#include <algorithm>
 #include <iterator>
 #include <concepts>
 #include <random>
@@ -13,7 +14,7 @@ namespace kotone {
 // A randomized hash for integers.
 struct randomized_hash {
   private:
-    static uint64_t splitmix64(uint64_t x) {
+    static uint64_t splitmix64(uint64_t x) noexcept {
         x += 0x9e3779b97f4a7c15;
         x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
         x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
@@ -21,7 +22,7 @@ struct randomized_hash {
     }
 
   public:
-    std::size_t operator()(uint64_t x) const {
+    std::size_t operator()(uint64_t x) const noexcept {
         static const uint64_t SEED = std::chrono::steady_clock::now().time_since_epoch().count();
         return splitmix64(x ^ SEED);
     }
@@ -36,12 +37,13 @@ template <std::integral S, typename T> struct unordered_map {
         bucket_state state = EMPTY;
     };
 
+    static constexpr std::size_t _INIT_CAPACITY = 8ULL;
     int _size = 0;
     std::vector<bucket> _table;
     std::size_t _load_size{};
     randomized_hash _hash;
 
-    static std::size_t _next_pow_2(std::size_t n) {
+    static std::size_t _next_pow_2(std::size_t n) noexcept {
         std::size_t p = 1ULL;
         while (p < n) p <<= 1;
         return p;
@@ -64,7 +66,7 @@ template <std::integral S, typename T> struct unordered_map {
 
   public:
     // Constructs an empty hash map.
-    unordered_map() : _table(8) {}
+    unordered_map() : _table(_INIT_CAPACITY) {}
 
     // Returns a reference to the value associated with the specified key.
     T& operator[](S key) {
@@ -88,7 +90,7 @@ template <std::integral S, typename T> struct unordered_map {
     }
 
     // Removes the specified key and returns whether the key has been newly erased.
-    bool erase(S key) {
+    bool erase(S key) noexcept {
         std::size_t n = _table.size();
         std::size_t i = _hash(key) & (n - 1);
         while (true) {
@@ -103,7 +105,7 @@ template <std::integral S, typename T> struct unordered_map {
     }
 
     // Returns whether the map contains the specified key.
-    bool contains(S key) const {
+    bool contains(S key) const noexcept {
         std::size_t n = _table.size();
         std::size_t i = _hash(key) & (n - 1);
         while (true) {
@@ -114,13 +116,44 @@ template <std::integral S, typename T> struct unordered_map {
     }
 
     // Returns the number of key-value pairs in the map.
-    int size() const {
+    int size() const noexcept {
         return _size;
     }
 
     // Returns whether the map is empty.
-    bool empty() const {
+    bool empty() const noexcept {
         return _size == 0;
+    }
+
+    // Removes all elements from the map.
+    void clear() noexcept {
+        for (bucket &b : _table) b.state = EMPTY;
+        _size = 0;
+        _load_size = 0ULL;
+    }
+
+    // Removes all elements from the map and resets the internal hash table.
+    void reset() {
+        _table.assign(_INIT_CAPACITY, {});
+        _size = 0;
+        _load_size = 0ULL;
+    }
+
+    // Exchanges the content of the map with another map.
+    // This operation invalidates existing iterators for both maps.
+    void swap(unordered_map &other) noexcept {
+        std::swap(_table, other._table);
+        std::swap(_size, other._size);
+        std::swap(_load_size, other._load_size);
+        std::swap(_hash, other._hash);
+    }
+
+    friend void swap(unordered_map &map_l, unordered_map &map_r) noexcept {
+        using std::swap;
+        swap(map_l._table, map_r._table);
+        swap(map_l._size, map_r._size);
+        swap(map_l._load_size, map_r._load_size);
+        swap(map_l._hash, map_r._hash);
     }
 
     struct iterator {
@@ -133,43 +166,43 @@ template <std::integral S, typename T> struct unordered_map {
       private:
         bucket *_ptr, *_end;
 
-        void _advance() { while (_ptr != _end && _ptr->state != FILLED) ++_ptr; }
+        void _advance() noexcept { while (_ptr != _end && _ptr->state != FILLED) ++_ptr; }
 
       public:
-        iterator(bucket *p, bucket *e) : _ptr(p), _end(e) { _advance(); }
+        iterator(bucket *p, bucket *e) noexcept : _ptr(p), _end(e) { _advance(); }
 
-        reference operator*() const { return _ptr->data; }
-        pointer operator->() const { return &_ptr->data; }
+        reference operator*() const noexcept { return _ptr->data; }
+        pointer operator->() const noexcept { return &_ptr->data; }
 
-        iterator& operator++() {
+        iterator& operator++() noexcept {
             ++_ptr;
             _advance();
             return *this;
         }
 
-        iterator operator++(int) {
+        iterator operator++(int) noexcept {
             iterator result = *this;
             ++*this;
             return result;
         }
 
-        bool operator==(const iterator &other) const { return _ptr == other._ptr; }
-        bool operator!=(const iterator &other) const { return !(*this == other); }
+        bool operator==(const iterator &other) const noexcept { return _ptr == other._ptr; }
+        bool operator!=(const iterator &other) const noexcept { return !(*this == other); }
     };
 
     // Returns an iterator to the first element in the map.
-    iterator begin() {
+    iterator begin() noexcept {
         return iterator(_table.data(), _table.data() + _table.size());
     }
 
     // Returns an iterator to the past-the-end element in the map.
-    iterator end() {
+    iterator end() noexcept {
         return iterator(_table.data() + _table.size(), _table.data() + _table.size());
     }
 
     // Returns an iterator to the specified key-value pair if it exists,
     // otherwise returns an iterator to `unordered_map::end`.
-    iterator find(S key) {
+    iterator find(S key) noexcept {
         std::size_t n = _table.size();
         std::size_t i = _hash(key) & (n - 1);
         while (true) {
@@ -191,43 +224,43 @@ template <std::integral S, typename T> struct unordered_map {
       private:
         const bucket *_ptr, *_end;
 
-        void _advance() { while (_ptr != _end && _ptr->state != FILLED) ++_ptr; }
+        void _advance() noexcept { while (_ptr != _end && _ptr->state != FILLED) ++_ptr; }
 
       public:
-        const_iterator(const bucket *p, const bucket *e) : _ptr(p), _end(e) { _advance(); }
+        const_iterator(const bucket *p, const bucket *e) noexcept : _ptr(p), _end(e) { _advance(); }
 
-        reference operator*() const { return reinterpret_cast<const value_type&>(_ptr->data); }
-        pointer operator->() const { return reinterpret_cast<const value_type*>(&_ptr->data); }
+        reference operator*() const noexcept { return reinterpret_cast<const value_type&>(_ptr->data); }
+        pointer operator->() const noexcept { return reinterpret_cast<const value_type*>(&_ptr->data); }
 
-        const_iterator& operator++() {
+        const_iterator& operator++() noexcept {
             ++_ptr;
             _advance();
             return *this;
         }
 
-        const_iterator operator++(int) {
+        const_iterator operator++(int) noexcept {
             const_iterator result = *this;
             ++*this;
             return result;
         }
 
-        bool operator==(const const_iterator &other) const { return _ptr == other._ptr; }
-        bool operator!=(const const_iterator &other) const { return !(*this == other); }
+        bool operator==(const const_iterator &other) const noexcept { return _ptr == other._ptr; }
+        bool operator!=(const const_iterator &other) const noexcept { return !(*this == other); }
     };
 
     // Returns a const_iterator to the first element in the map.
-    const_iterator begin() const {
+    const_iterator begin() const noexcept {
         return const_iterator(_table.data(), _table.data() + _table.size());
     }
 
     // Returns a const_iterator to the past-the-end element in the map.
-    const_iterator end() const {
+    const_iterator end() const noexcept {
         return const_iterator(_table.data() + _table.size(), _table.data() + _table.size());
     }
 
     // Returns a const_iterator to the specified key-value pair if it exists,
     // otherwise returns a const_iterator to `unordered_map::end`.
-    const_iterator find(S key) const {
+    const_iterator find(S key) const noexcept {
         std::size_t n = _table.size();
         std::size_t i = _hash(key) & (n - 1);
         while (true) {
