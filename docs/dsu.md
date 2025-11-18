@@ -48,6 +48,7 @@ Constructs a DSU for an undirected graph $G$ with no edges. Each node is initial
 * `T` is `int` by default.
 
 ### Constraints
+
 * `T` is default-constructible
 * `T` supports addition (`+`) and subtraction (`-`) operators
 * `S` is default-constructible
