@@ -329,7 +329,7 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
         return _size(_root);
     }
 
-    // Returns whether the set contains any element.
+    // Returns whether the set is empty.
     bool empty() const noexcept {
         return _root == nullptr;
     }
