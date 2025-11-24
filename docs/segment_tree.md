@@ -80,19 +80,19 @@ Returns the product of the values over the specified subinterval.
 ## Binary search
 
 ```cpp
-(1) int64_t seg.max_right(int64_t low, F f)
-(2) int64_t seg.min_left(int64_t high, F f)
+(1) int64_t seg.max_right(int64_t low, G g)
+(2) int64_t seg.min_left(int64_t high, G g)
 ```
 
-Performs binary search on $A$ using the specified monotonic predicate $f$.
+Performs binary search on $A$ using the specified monotonic predicate $g$.
 
-* (1) Returns the maximum `high`$\leq R$ such that `f(seg.prod(low, high)) == true`.
-* (2) Returns the minimum `low`$\geq L$ such that `f(seg.prod(low, high)) == true`.
+* (1) Returns the maximum `high`$\leq R$ such that `g(seg.prod(low, high)) == true`.
+* (2) Returns the minimum `low`$\geq L$ such that `g(seg.prod(low, high)) == true`.
 
 ### Constraints
 
-* `bool f(S x)` is monotonic
-* `f(e()) == true`
+* `bool g(S x)` is monotonic
+* `g(e()) == true`
 * (1) $L\leq\ell\leq R$
 * (2) $L\leq r\leq R$
 

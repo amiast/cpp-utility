@@ -50,36 +50,36 @@ template <typename S, S (*op)(S, S), S (*e)()> struct segment_tree {
         return op(val_l, val_r);
     }
 
-    template <typename F> int64_t _max_right(int index, int64_t l, int64_t r, int64_t ql, const F &f, S &acc) const {
+    template <typename G> int64_t _max_right(int index, int64_t l, int64_t r, int64_t ql, const G &g, S &acc) const {
         if (index == -1 || r <= ql) return r;
         if (ql <= l) {
             S new_acc = op(acc, _nodes[index].val);
-            if (f(new_acc)) {
+            if (g(new_acc)) {
                 acc = new_acc;
                 return r;
             }
             if (l + 1 == r) return l;
         }
         int64_t m = (l + r) / 2;
-        int64_t result = _max_right(_nodes[index].left, l, m, ql, f, acc);
+        int64_t result = _max_right(_nodes[index].left, l, m, ql, g, acc);
         if (result < m) return result;
-        return _max_right(_nodes[index].right, m, r, ql, f, acc);
+        return _max_right(_nodes[index].right, m, r, ql, g, acc);
     }
 
-    template <typename F> int64_t _min_left(int index, int64_t l, int64_t r, int64_t qr, const F &f, S &acc) const {
+    template <typename G> int64_t _min_left(int index, int64_t l, int64_t r, int64_t qr, const G &g, S &acc) const {
         if (index == -1 || qr <= l) return l;
         if (r <= qr) {
             S new_acc = op(_nodes[index].val, acc);
-            if (f(new_acc)) {
+            if (g(new_acc)) {
                 acc = new_acc;
                 return l;
             }
             if (l + 1 == r) return r;
         }
         int64_t m = (l + r) / 2;
-        int64_t result = _min_left(_nodes[index].right, m, r, qr, f, acc);
+        int64_t result = _min_left(_nodes[index].right, m, r, qr, g, acc);
         if (result > m) return result;
-        return _min_left(_nodes[index].left, l, m, qr, f, acc);
+        return _min_left(_nodes[index].left, l, m, qr, g, acc);
     }
 
   public:
@@ -115,26 +115,28 @@ template <typename S, S (*op)(S, S), S (*e)()> struct segment_tree {
         return _prod(0, _low, _high, low, high);
     }
 
-    // Returns the maximum `high` in the segment tree's interval such that `f(prod(low, high)) == true`.
+    // Returns the maximum `high` in the segment tree's interval such that `g(prod(low, high)) == true`.
     // Requires `low` to be within the segment tree's interval.
-    // Requires `f(e()) == true`.
-    template <typename F> int64_t max_right(int64_t low, F f) const {
+    // Requires `bool g(S x)` to be a monotonic predicate.
+    // Requires `g(e()) == true`.
+    template <typename G> int64_t max_right(int64_t low, G g) const {
         assert(_low <= low && low <= _high);
-        assert(f(e()));
+        assert(g(e()));
         if (low == _high) return _high;
         S acc = e();
-        return _max_right(0, _low, _high, low, f, acc);
+        return _max_right(0, _low, _high, low, g, acc);
     }
 
-    // Returns the minimum `low` in the segment tree's interval such that `f(prod(low, high)) == true`.
+    // Returns the minimum `low` in the segment tree's interval such that `g(prod(low, high)) == true`.
     // Requires `high` to be within the segment tree's interval.
-    // Requires `f(e()) == true`.
-    template <typename F> int64_t min_left(int64_t high, F f) const {
+    // Requires `bool g(S x)` to be a monotonic predicate.
+    // Requires `g(e()) == true`.
+    template <typename G> int64_t min_left(int64_t high, G g) const {
         assert(_low <= high && high <= _high);
-        assert(f(e()));
+        assert(g(e()));
         if (high == _low) return _low;
         S acc = e();
-        return _min_left(0, _low, _high, high, f, acc);
+        return _min_left(0, _low, _high, high, g, acc);
     }
 };
 
