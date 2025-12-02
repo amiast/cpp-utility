@@ -223,10 +223,8 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
     ordered_set(const std::vector<T> &sorted_vec) {
         int len = static_cast<int>(sorted_vec.size());
         assert(len <= 100000000);
-        if (len) {
-            for (typename std::vector<T>::const_iterator iter = sorted_vec.begin(); std::next(iter) != sorted_vec.end(); iter++) {
-                assert(_comp(*iter, *std::next(iter)));
-            }
+        for (int i = 0; i + 1 < len; i++) {
+            assert(_comp(sorted_vec[i], sorted_vec[i + 1]));
         }
         if (len > _DEFAULT_CHUNK_SIZE) update_chunk_size(len);
         _root = _build_sorted(sorted_vec, 0, len);
