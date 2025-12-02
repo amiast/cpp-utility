@@ -5,9 +5,11 @@ The `segment_tree` is a data structure that maintains a sequence of monoids $A$ 
 * Reassigning a value in $A$
 * Computing the product of elements in $A$ over a subinterval of $[L, R)$
 
+This implementation closely follows the AtCoder Library's naming conventions. See also [AtCoder Library's documentation on segment tree](https://atcoder.github.io/ac-library/production/document_en/segtree.html) for tips on using the segment tree.
+
 Whereas the AtCoder Library's implementation directly stores $\mathcal{O}(N)$ nodes, this version only stores modified nodes, making it suitable for sparse data over a large interval.
 
-This implementation uses user-defined operations for monoid-related operations and assumes these operations run in $\mathcal{O}(1)$ time.
+This implementation uses user-defined functions for monoid-related operations and assumes these functions run in $\mathcal{O}(1)$ time.
 
 <br>
 
