@@ -23,14 +23,14 @@ struct persistent_dsu {
     }
 
     // Returns the latest version ID of the graph.
-    int latest_version() const {
+    int version() const {
         return _version;
     }
 
     // Returns the leader of the connected component containing node `v` in version `t`.
     // If `t == 0`, returns `v`.
     // Requires `0 <= v < num_nodes`.
-    // Requires `0 <= t <= latest_version`.
+    // Requires `0 <= t <= version`.
     int leader(int v, int t) const {
         assert(0 <= v && v < _num_nodes);
         assert(0 <= t && t <= _version);
@@ -40,7 +40,7 @@ struct persistent_dsu {
     }
 
     // Returns the number of nodes in the connected component containing node `v` in version `t`.
-    // If `t == 0`, returns `v`.
+    // If `t == 0`, returns `1`.
     // Requires `0 <= v < num_nodes`.
     // Requires `0 <= t <= latest_version`.
     int size(int v, int t) const {
