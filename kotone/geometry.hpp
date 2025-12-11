@@ -49,7 +49,7 @@ template <signed_number T> struct point {
         return point(_x / scalar, _y / scalar);
     }
 
-    std::strong_ordering operator<=>(const point&) const = default;
+    auto operator<=>(const point&) const = default;
 
     // Returns the dot product of two vectors.
     T dot(const point &other) const {
