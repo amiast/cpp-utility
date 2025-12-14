@@ -200,6 +200,35 @@ template <typename mint> mint solve_recurrence(const std::vector<mint> &recurren
     return numerator[0] / denominator[0];
 }
 
+// Computes the coefficient of the term with the specified degree `k` in the formal power series.
+// Requires `!denominator.empty() && denominator[0] != 0`.
+// Requires `k >= 0`.
+template <typename mint> mint solve_rational(std::vector<mint> numerator, std::vector<mint> denominator, int64_t k) {
+    assert(!denominator.empty() && denominator[0] != 0);
+    assert(k >= 0);
+    assert(numerator.size() <= 100000000u);
+    assert(denominator.size() <= 100000000u);
+    if (numerator.empty()) return 0;
+
+    while (k) {
+        std::vector<mint> denom_alt = denominator;
+        for (unsigned i = 1; i < denom_alt.size(); i += 2) {
+            denom_alt[i] = -denom_alt[i];
+        }
+        numerator = atcoder::convolution(numerator, denom_alt);
+        denominator = atcoder::convolution(denominator, denom_alt);
+
+        std::vector<mint> num_next, denom_next;
+        for (unsigned i = k & 1; i < numerator.size(); i += 2) num_next.push_back(numerator[i]);
+        for (unsigned i = 0; i < denominator.size(); i += 2) denom_next.push_back(denominator[i]);
+        numerator = num_next;
+        denominator = denom_next;
+        k >>= 1;
+    }
+
+    return numerator[0] / denominator[0];
+}
+
 }  // namespace kotone
 
 #endif  // KOTONE_CONVOLUTION_UTIL_HPP
