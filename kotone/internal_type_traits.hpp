@@ -11,6 +11,7 @@ template <typename T> concept signed_number = std::signed_integral<T> || std::fl
 
 template <typename mint> concept compatible_modint = requires(mint a, mint b, int64_t x) {
     { mint::mod() } -> std::convertible_to<int>;
+    mint{};
     mint{1};
     mint{x};
 
