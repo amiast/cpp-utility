@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/point_add_rectangle_sum
-// Details: https://judge.yosupo.jp/submission/329767
+// Details: https://judge.yosupo.jp/submission/341716
 
 #include <iostream>
 #include <vector>
