@@ -52,7 +52,7 @@ struct coord_compress_hashmap {
         ));
 
         _map.clear();
-        int len = static_cast<int>(_vals.size());
+        int len = _vals.size();
         for (int i = 0; i < len; i++) {
             _map.emplace(_vals[i], i);
         }
@@ -76,16 +76,16 @@ struct coord_compress_hashmap {
     // If the value is not a member of the hash map, returns `-1` instead.
     int operator[](const T &val) {
         if (_requires_build) _build();
-        if (_map.contains(val)) return _map[val];
-        return -1;
+        auto iter = _map.find(val);
+        if (iter == _map.end()) return -1;
+        return iter->second;
     }
 
     // Returns a copy of the value at the specified index in the sorted order.
-    // Requires the index to be in bounds.
+    // Requires `0 <= index < size()`.
     T get_nth(int index) {
         if (_requires_build) _build();
-        assert(index >= 0);
-        assert(index < size());
+        assert(0 <= index < size());
         return _vals[index];
     }
 
@@ -110,7 +110,99 @@ struct coord_compress_hashmap {
     // Returns the number of distinct elements in the hash map.
     int size() {
         if (_requires_build) _build();
-        return static_cast<int>(_map.size());
+        return _map.size();
+    }
+};
+
+// A lightweight coordinate compression hash map with less features.
+template <
+    typename T,
+    typename comp_pred = std::less<T>,
+    typename hash = std::hash<T>
+>
+struct coord_compress_compact {
+  private:
+    struct eq_pred {
+        comp_pred comp{};
+        bool operator()(const T &a, const T &b) const {
+            return !comp(a, b) && !comp(b, a);
+        }
+    };
+
+    std::vector<T> _vals;
+    std::unordered_map<T, int, hash, eq_pred> _map;
+    comp_pred _comp{};
+    eq_pred _eq{};
+    bool _is_built = false;
+
+  public:
+    // Inserts the given value into the hash map.
+    // Triggers an assertion failure if this method is called after building.
+    void insert(T val) {
+        assert(!_is_built);
+        _vals.push_back(std::move(val));
+    }
+
+    // Builds the coordinate compression hashmap.
+    // Triggers an assertion failure if this method is called more than once.
+    void build() {
+        assert(!_is_built);
+        _is_built = true;
+        std::sort(_vals.begin(), _vals.end(), _comp);
+        _vals.resize(std::distance(
+            _vals.begin(),
+            std::unique(_vals.begin(), _vals.end(), _eq)
+        ));
+        int len = _vals.size();
+        for (int i = 0; i < len; i++) {
+            _map.emplace(_vals[i], i);
+        }
+    }
+
+    // Returns the compressed index of the given value.
+    // If the value is not a member of the hash map, returns `-1` instead.
+    // Triggers an assertion failure if this method is called before building.
+    int operator[](const T &val) const {
+        assert(_is_built);
+        auto iter = _map.find(val);
+        if (iter == _map.end()) return -1;
+        return iter->second;
+    }
+
+    // Returns a copy of the value at the specified index in the sorted order.
+    // Triggers an assertion failure if this method is called before building.
+    // Requires `0 <= index < size()`.
+    T get_nth(int index) const {
+        assert(_is_built);
+        assert(0 <= index < size());
+        return _vals[index];
+    }
+
+    // Returns the number of elements less than `val` in the hash map.
+    // Triggers an assertion failure if this method is called before building.
+    int lower_bound(const T &val) const {
+        assert(_is_built);
+        return std::distance(
+            _vals.begin(),
+            std::lower_bound(_vals.begin(), _vals.end(), val, _comp)
+        );
+    }
+
+    // Returns the number of elements no greater than `val` in the hash map.
+    // Triggers an assertion failure if this method is called before building.
+    int upper_bound(const T &val) const {
+        assert(_is_built);
+        return std::distance(
+            _vals.begin(),
+            std::upper_bound(_vals.begin(), _vals.end(), val, _comp)
+        );
+    }
+
+    // Returns the number of distinct elements in the hash map.
+    // Triggers an assertion failure if this method is called before building.
+    int size() const {
+        assert(_is_built);
+        return _map.size();
     }
 };
 
