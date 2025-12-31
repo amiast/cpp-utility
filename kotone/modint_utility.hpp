@@ -7,7 +7,22 @@
 
 namespace kotone {
 
-// Returns the vector of the first `n` factorials (`0!, 1!, ..., (N-1)!`).
+// Returns a length-`(n+1)` vector `reciprocal` such that `reciprocal[i]` is the modular inverse of `i`.
+// The value of `reciprocal[0]` is undefined.
+// Requires `n >= 1`.
+template <compatible_modint mint> std::vector<mint> reciprocals(int n) {
+    assert(1 <= n && n <= 100000000);
+    std::vector<mint> result(n + 1);
+    result[1] = 1;
+    int p = mint::mod();
+    for (int i = 2; i <= n; i++) {
+        result[i] = -(p / i) * result[p % i];
+    }
+    return result;
+}
+
+// Returns the vector of the first `n` factorials (`0!, 1!, ..., (n-1)!`).
+// Requires `n >= 0`.
 template <compatible_modint mint> std::vector<mint> factorials(int n) {
     assert(n >= 0);
     assert(n <= 100000000);
@@ -18,6 +33,7 @@ template <compatible_modint mint> std::vector<mint> factorials(int n) {
 }
 
 // Returns the vector of the first `n` inverse factorials.
+// Requires `factorials` to be a vector containing the first `n` factorials.
 template <compatible_modint mint> std::vector<mint> inv_factorials(const std::vector<mint> &factorials) {
     int n = static_cast<int>(factorials.size());
     std::vector<mint> result(n);
