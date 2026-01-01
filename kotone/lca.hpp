@@ -108,6 +108,7 @@ struct lca_tree {
         assert(0 <= u && u < _num_nodes);
         assert(0 <= v && v < _num_nodes);
         if (_requires_build) _build();
+        if (u == v) return u;
         if (!_dsu.connected(u, v)) return -1;
         int L = _first[u], R = _first[v];
         if (L > R) std::swap(L, R);
