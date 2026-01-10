@@ -85,7 +85,7 @@ struct coord_compress_hashmap {
     // Requires `0 <= index < size()`.
     T get_nth(int index) {
         if (_requires_build) _build();
-        assert(0 <= index < size());
+        assert(0 <= index && index < size());
         return _vals[index];
     }
 
@@ -174,7 +174,7 @@ struct coord_compress_compact {
     // Requires `0 <= index < size()`.
     T get_nth(int index) const {
         assert(_is_built);
-        assert(0 <= index < size());
+        assert(0 <= index && index < size());
         return _vals[index];
     }
 
