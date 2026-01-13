@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <utility>
+#include <tuple>
 #include <algorithm>
 #include <compare>
 #include <cassert>
@@ -66,6 +67,33 @@ template <signed_number T> struct point {
         return _x * _x + _y * _y;
     }
 };
+
+// Returns a tuple `{a, b, c}` representing the equation of a line `ax + by + c = 0`
+// that passes through the two specified points.
+// The function may return any valid equation that meets one of the following conditions:
+// - `a > 0`, or
+// - `a == 0 && b > 0`.
+//
+// Requires `(px, py) != (qx, qy)`.
+template <signed_number T> std::tuple<T, T, T> linear_equation(T px, T py, T qx, T qy) {
+    T dx = px - qx;
+    T dy = py - qy;
+    if (dy < 0) dx = -dx, dy = -dy;
+    if (dy == 0 && dx > 0) dx = -dx;
+    T c = py * dx - px * dy;
+    return {dy, -dx, c};
+}
+
+// Returns a tuple `{a, b, c}` representing the equation of a line `ax + by + c = 0`
+// that passes through the two specified points.
+// The function may return any valid equation that meets one of the following conditions:
+// - `a > 0`, or
+// - `a == 0 && b > 0`.
+//
+// Requires `p != q`.
+template <signed_number T> std::tuple<T, T, T> linear_equation(const point<T> &p, const point<T> &q) {
+    return linear_equation(p.x(), p.y(), q.x(), q.y());
+}
 
 // Returns the lower half of the convex hull of the set of points in `vec`.
 // The order of points in the returned convex hull is counterclockwise.
