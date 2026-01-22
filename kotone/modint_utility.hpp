@@ -21,26 +21,25 @@ template <compatible_modint mint> std::vector<mint> reciprocals(int n) {
     return result;
 }
 
-// Returns the vector of the first `n` factorials (`0!, 1!, ..., (n-1)!`).
+// Returns a vector containing the first `n + 1` factorials (`0!, 1!, ..., n!`).
 // Requires `n >= 0`.
 template <compatible_modint mint> std::vector<mint> factorials(int n) {
-    assert(n >= 0);
-    assert(n <= 100000000);
-    std::vector<mint> result(n);
-    if (n) result[0] = 1;
-    for (int i = 1; i < n; i++) result[i] = i * result[i - 1];
+    assert(0 <= n && n <= 100000000);
+    std::vector<mint> result(n + 1);
+    result[0] = 1;
+    for (int i = 1; i <= n; i++) result[i] = i * result[i - 1];
     return result;
 }
 
-// Returns the vector of the first `n` inverse factorials.
-// Requires `factorials` to be a vector containing the first `n` factorials.
-template <compatible_modint mint> std::vector<mint> inv_factorials(const std::vector<mint> &factorials) {
-    int n = static_cast<int>(factorials.size());
+// Returns a vector of inverse factorials given the vector of factorials.
+// This function should usually be called with `factorials`.
+// Requires `vec_factorial` to be a valid vector.
+template <compatible_modint mint> std::vector<mint> inv_factorials(const std::vector<mint> &vec_factorial) {
+    assert(!vec_factorial.empty());
+    int n = vec_factorial.size();
     std::vector<mint> result(n);
-    if (n) {
-        assert(factorials[n - 1] != 0);
-        result[n - 1] = 1 / factorials[n - 1];
-    }
+    assert(vec_factorial[n - 1] != 0);
+    result[n - 1] = vec_factorial[n - 1].inv();
     for (int i = n - 1; i > 0; i--) result[i - 1] = i * result[i];
     return result;
 }
@@ -74,9 +73,9 @@ template <compatible_modint mint> struct modint_utility {
   public:
     modint_utility() {}
 
-    // Instantiates with the first `n` factorials (`0!, 1!, ..., (n-1)!`) precomputed.
+    // Instantiates with the first `n + 1` factorials (`0!, 1!, ..., n!`) precomputed.
     modint_utility(int n) {
-        _build(n);
+        _build(n + 1);
     }
 
     mint factorial(int n) {
