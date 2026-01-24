@@ -66,6 +66,44 @@ template <signed_number T> struct point {
     T norm_squared() const {
         return _x * _x + _y * _y;
     }
+
+    // Compares the arguments of two points relative to the origin.
+    // Uses `[0, pi * 2)` as the range of arguments.
+    // If the argument of `this` is smaller than `other`, returns `-1`.
+    // If the arguments are the same, returns `0`.
+    // Otherwise, returns `1`.
+    // Requires `this->x() != 0 || this->y() != 0` and `other.x() != 0 || other.y() != 0`.
+    int compare_args(const point &other) const {
+        assert(_x != T{} || _y != T{});
+        assert(other._x != T{} || other._y != T{});
+        bool p = _y > 0 || (_y == 0 && _x > 0);
+        bool q = other._y > 0 || (other._y == 0 && other._x > 0);
+        if (p != q) return p ? -1 : 1;
+        T c = cross(other);
+        if (c == T{}) return 0;
+        return c > T{} ? -1 : 1;
+    }
+
+    // A less-than (`<`) comparator struct using arguments.
+    struct arg_less {
+        bool operator()(const point &p, const point &q) const {
+            return p.compare_args(q) == -1;
+        }
+    };
+
+    // An equal-to (`==`) comparator struct using arguments.
+    struct arg_eq {
+        bool operator()(const point &p, const point &q) const {
+            return p.compare_args(q) == 0;
+        }
+    };
+
+    // A greater-than (`>`) comparator struct using arguments.
+    struct arg_greater {
+        bool operator()(const point &p, const point &q) const {
+            return p.compare_args(q) == 1;
+        }
+    };
 };
 
 // Returns a tuple `{a, b, c}` representing the equation of a line `ax + by + c = 0`
