@@ -80,4 +80,4 @@ class modint {
 
 }  // namespace kotone
 
-#endif // MODINT_HPP
+#endif  // MODINT_HPP

@@ -52,6 +52,6 @@ std::vector<suffix_tree_node> build_suffix_tree(const std::vector<int> &sa, cons
     return trie;
 };
 
-} // namespace kotone
+}  // namespace kotone
 
-#endif // KOTONE_SUFFIX_TREE_HPP
+#endif  // KOTONE_SUFFIX_TREE_HPP

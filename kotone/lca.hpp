@@ -129,6 +129,6 @@ struct lca_tree {
     }
 };
 
-} // namespace kotone
+}  // namespace kotone
 
 #endif  // KOTONE_LCA_HPP

@@ -61,4 +61,4 @@ class mergesort_tree {
 
 }  // namespace kotone
 
-#endif // KOTONE_MERGESORTTREE_HPP
+#endif  // KOTONE_MERGESORTTREE_HPP
