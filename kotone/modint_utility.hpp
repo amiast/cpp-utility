@@ -78,30 +78,44 @@ template <compatible_modint mint> struct modint_utility {
         _build(n + 1);
     }
 
+    // Returns `n!`.
+    // Requires `n >= 0`.
     mint factorial(int n) {
         assert(n >= 0);
         if (n >= _n) _build(n + 1);
         return _fact[n];
     }
 
+    // Returns the modular inverse of `n!`.
+    // Requires `n >= 0`.
     mint inv_factorial(int n) {
         assert(n >= 0);
         if (n >= _n) _build(n + 1);
         return _ifact[n];
     }
 
+    // Returns the number of permutations of `k` of `n` objects.
+    // Requires `0 <= k <= n`.
     mint perm(int n, int k) {
-        assert(k >= 0);
-        assert(n >= k);
+        assert(0 <= k && k <= n);
         if (n >= _n) _build(n + 1);
         return _fact[n] * _ifact[n - k];
     }
 
+    // Returns the number of combinations of `k` of `n` objects.
+    // Requires `0 <= k <= n`.
     mint comb(int n, int k) {
-        assert(k >= 0);
-        assert(n >= k);
+        assert(0 <= k && k <= n);
         if (n >= _n) _build(n + 1);
         return _fact[n] * _ifact[k] * _ifact[n - k];
+    }
+
+    // Returns the `n`-th Catalan number.
+    // Requires `n >= 0`.
+    mint catalan(int n) {
+        assert(n >= 0);
+        if (n * 2 >= _n) _build(n * 2 + 1);
+        return _fact[n * 2] * _ifact[n + 1] * _ifact[n];
     }
 };
 
