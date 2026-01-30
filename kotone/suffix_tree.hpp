@@ -9,9 +9,11 @@ namespace kotone {
 // Includes the following attributes:
 // - `depth`: the length of the prefix represented by the node.
 // - `parent`: the index of the parent node. If this node is the root, `parent == -1`.
-// - `start`: the index of the first suffix in the range of the node.
-// - `stop`: the index of the past-the-end suffix in the range of the node.
+// - `start`: the lexicographic index of the first suffix in the range of the node.
+// - `stop`: the lexicographic, past-the-end index of the suffixes in the range of the node.
 // - `children`: the vector of indices of the node's children in lexicographic order.
+//
+// Reference: https://www.youtube.com/live/OhRX4kxHsbY?t=10432s
 struct suffix_tree_node {
     int depth = 0, parent = -1;
     int start = 0, stop = 0;
@@ -22,6 +24,9 @@ struct suffix_tree_node {
 // given the suffix array (SA) and the LCP array of a string.
 // The root is assigned index `0` and represents an empty suffix.
 // Requires `sa` and `lcp` to be valid vectors.
+//
+// Reference: https://www.youtube.com/live/OhRX4kxHsbY?t=10432s
+// Reference: AtCoder Library
 std::vector<suffix_tree_node> build_suffix_tree(const std::vector<int> &sa, const std::vector<int> &lcp) {
     std::vector<suffix_tree_node> trie(1);
     int curr = 0;
