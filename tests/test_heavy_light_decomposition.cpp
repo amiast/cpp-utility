@@ -1,11 +1,10 @@
 // Verified with: https://judge.yosupo.jp/problem/vertex_set_path_composite
-// Details: https://judge.yosupo.jp/submission/338679
+// Details: https://judge.yosupo.jp/submission/349942
 
 #include <iostream>
 #include <vector>
 #include <atcoder/modint>
 #include <atcoder/segtree>
-#include <kotone/lca>
 
 using mint = atcoder::modint998244353;
 using affine = std::pair<mint, mint>;
@@ -32,27 +31,17 @@ int main() {
     }
 
     std::vector<int> size(N), parent(N);
-    kotone::lca_tree lca(N);
-    auto eval_lca = [&](auto &eval_lca, int u, int p) -> void {
+    auto eval_size = [&](auto &eval_size, int u, int p) -> void {
         size[u] = 1;
         parent[u] = p;
-        if (u != p) {
-            for (unsigned i = 0; i < tree[u].size(); i++) {
-                if (tree[u][i] != p) continue;
-                tree[u][i] = tree[u].back();
-                tree[u].pop_back();
-                break;
-            }
-        }
         for (int &v : tree[u]) {
             if (v == p) continue;
-            eval_lca(eval_lca, v, u);
-            lca.add_edge(u, v);
+            eval_size(eval_size, v, u);
             size[u] += size[v];
             if (size[v] > size[tree[u][0]]) std::swap(v, tree[u][0]);
         }
     };
-    eval_lca(eval_lca, 0, 0);
+    eval_size(eval_size, 0, 0);
 
     int id = 0;
     std::vector<int> order(N), head(N);
