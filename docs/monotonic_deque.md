@@ -106,3 +106,17 @@ Returns `true` if $Q$ is empty, otherwise `false`.
 * $\mathcal{O}(1)$
 
 <br>
+
+## Clear
+
+```cpp
+void md.clear()
+```
+
+Erases all elements in $Q$. After this operation, $Q$ becomes an empty queue.
+
+### Time complexity
+
+* $\mathcal{O}(|Q|)$
+
+<br>

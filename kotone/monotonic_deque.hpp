@@ -44,6 +44,12 @@ template <typename T, typename comp_pred = std::less<T>> struct monotonic_deque 
         assert(!empty());
         return _deque.front().first;
     }
+
+    // Erases all elements from the deque.
+    void clear() {
+        _time_push = _time_pop = 0;
+        _deque.clear();
+    }
 };
 
 }  // namespace kotone
