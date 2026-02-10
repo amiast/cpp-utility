@@ -4,11 +4,12 @@
 #include <vector>
 #include <cassert>
 #include <kotone/unordered_map>
+#include <kotone/internal_type_traits>
 
 namespace kotone {
 
 // A Fenwick tree for a sparse collection of values over an interval.
-template <typename T> struct fenwick_tree {
+template <mutable_additive T> struct fenwick_tree {
   private:
     int64_t _len{};
     unordered_map<int64_t, T> _map;
@@ -17,8 +18,7 @@ template <typename T> struct fenwick_tree {
         T acc{};
         for (; pos; pos -= pos & -pos) {
             auto iter = _map.find(pos);
-            if (iter == _map.end()) acc += T{};
-            else acc += iter->second;
+            if (iter != _map.end()) acc += iter->second;
         }
         return acc;
     }
@@ -50,7 +50,7 @@ template <typename T> struct fenwick_tree {
 
 // A two-dimensional Fenwick tree for matrices with a small height and a large width.
 // Reference: https://nyaannyaan.github.io/library/data-structure-2d/dynamic-binary-indexed-tree-2d.hpp
-template <typename T> struct fenwick_tree_2d {
+template <mutable_additive T> struct fenwick_tree_2d {
   private:
     using bit = fenwick_tree<T>;
 
