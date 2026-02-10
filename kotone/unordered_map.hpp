@@ -153,8 +153,8 @@ template <std::integral S, typename T> struct unordered_map {
       public:
         iterator(bucket *p, bucket *e) noexcept : _ptr(p), _end(e) { _advance(); }
 
-        reference operator*() const noexcept { return _ptr->data; }
-        pointer operator->() const noexcept { return &_ptr->data; }
+        reference operator*() const noexcept { return reinterpret_cast<reference>(_ptr->data); }
+        pointer operator->() const noexcept { return reinterpret_cast<pointer>(&_ptr->data); }
 
         iterator& operator++() noexcept {
             ++_ptr;
@@ -211,8 +211,8 @@ template <std::integral S, typename T> struct unordered_map {
       public:
         const_iterator(const bucket *p, const bucket *e) noexcept : _ptr(p), _end(e) { _advance(); }
 
-        reference operator*() const noexcept { return reinterpret_cast<const value_type&>(_ptr->data); }
-        pointer operator->() const noexcept { return reinterpret_cast<const value_type*>(&_ptr->data); }
+        reference operator*() const noexcept { return reinterpret_cast<reference>(_ptr->data); }
+        pointer operator->() const noexcept { return reinterpret_cast<pointer>(&_ptr->data); }
 
         const_iterator& operator++() noexcept {
             ++_ptr;
