@@ -1,4 +1,4 @@
-#ifndef KOTONE_MOTOTONIC_DEQUE_HPP
+#ifndef KOTONE_MONOTONIC_DEQUE_HPP
 #define KOTONE_MONOTONIC_DEQUE_HPP 1
 
 #include <deque>
@@ -30,7 +30,7 @@ template <typename T, typename comp_pred = std::less<T>> struct monotonic_deque 
         _deque.emplace_back(val, _time_push++);
     }
 
-    // Pops the element from the front of the deque.
+    // Pops the element at the front of the deque.
     // Requires the deque to be non-empty.
     void pop() {
         assert(!empty());
