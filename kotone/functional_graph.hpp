@@ -52,6 +52,58 @@ functional_graph parse_functional_graph(const std::vector<int> &adjacency) {
     return {in_cycle, cycles, forest, size};
 }
 
+// Returns an adjacency vector of a functional graph from undirected edges.
+// Note that `edges` does not necessarily represent a simple graph:
+// - If the functional graph contains self-loops, `edges` must also contain self-loops.
+// - If the functional graph contains length-2 cycles, `edges` must also contain duplicate edges.
+//
+// Requires `edges` to represent a valid undirected functional graph.
+// Requires `0 <= edges[i].first < adjacency.size()` for all `i`.
+// Requires `0 <= edges[i].second < adjacency.size()` for all `i`.
+std::vector<int> parse_undirected_functional_graph(const std::vector<std::pair<int, int>> &edges) {
+    int size = edges.size();
+    std::vector<int> deg(size), result(size, -1);
+    std::vector<std::vector<int>> graph(size);
+    for (const std::pair<int, int> &e : edges) {
+        assert(0 <= e.first && e.first < size);
+        assert(0 <= e.second && e.second < size);
+        deg[e.first]++;
+        deg[e.second]++;
+        graph[e.first].push_back(e.second);
+        graph[e.second].push_back(e.first);
+    }
+    std::vector<int> stack;
+    for (int i = 0; i < size; i++) {
+        if (result[i] != -1) continue;
+        if (deg[i] == 1) stack.push_back(i);
+    }
+    while (stack.size()) {
+        int u = stack.back();
+        stack.pop_back();
+        for (int v : graph[u]) {
+            if (result[v] != -1) continue;
+            result[u] = v;
+            if (--deg[v] == 1) stack.push_back(v);
+            break;
+        }
+    }
+    for (int i = 0; i < size; i++) {
+        if (result[i] != -1) continue;
+        int u = i;
+        while (result[u] == -1) {
+            for (int v : graph[u]) {
+                if (deg[v] <= 1 || result[v] == u) continue;
+                result[u] = v;
+                u = v;
+                goto next_loop;
+            }
+            result[u] = i;
+            next_loop:;
+        }
+    }
+    return result;
+}
+
 }  // namespace kotone
 
 #endif  // KOTONE_FUNCTIONAL_GRAPH_HPP
