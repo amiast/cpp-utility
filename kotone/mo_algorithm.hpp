@@ -74,11 +74,12 @@ struct mo_alg {
 };
 
 // Returns the index of the given coordinates `(x, y)` on a Hilbert curve.
-// Requires `x` and `y` to be non-negative integers less than `1 << max_bit_width`.
-// Requires `bit_width` to be a positive integer at most `30`.
+// Requires `0 <= bit_width <= 30`.
+// Requires `0 <= x < 1 << max_bit_width`.
+// Requires `0 <= y < 1 << max_bit_width`.
 // Reference: https://take44444.github.io/Algorithm-Book/range/mo/main.html
 template <int max_bit_width = 30> int64_t hilbert_index(int x, int y) {
-    assert(0 < max_bit_width && max_bit_width <= 30);
+    static_assert(0 < max_bit_width && max_bit_width <= 30);
     assert(0 <= x && x < 1 << max_bit_width);
     assert(0 <= y && y < 1 << max_bit_width);
     int64_t rx, ry, index = 0;
@@ -94,6 +95,19 @@ template <int max_bit_width = 30> int64_t hilbert_index(int x, int y) {
         std::swap(x, y);
     }
     return index;
+}
+
+// Returns the index of the given coordinates `(x, y)` on a zigzagging path.
+// Requires `0 < block_width <= width`.
+// Requires `0 <= x < width`.
+// Requires `0 <= y < width`.
+template <int width, int block_width> int64_t zigzag_index(int x, int y) {
+    static_assert(0 < block_width && block_width <= width);
+    assert(0 <= x && x < width);
+    assert(0 <= y && y < width);
+    int64_t p = x / block_width;
+    int64_t q = p % 2 == 0 ? y : width - 1 - y;
+    return p * width + q;
 }
 
 }  // namespace kotone

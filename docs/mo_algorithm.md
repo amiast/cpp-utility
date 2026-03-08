@@ -19,7 +19,7 @@ Mo's algorithm stores the current range query $[\ell, r)$ and its result $f(A_{\
 
 In general, Mo's algorithm works for offline queries that can be described by two non-negative integer parameters $(x, y)$. This implementation follows the convention of using $[\ell, r)$ to represent range queries, but it also works for non-range queries where $\ell\gt r$.
 
-The original Mo's algorithm uses square-root decomposition to determine the order of query evaluation. A faster method uses the Hilbert curve as a heuristic to minimize the total number of evaluations needed to answer all queries.
+The original Mo's algorithm uses square-root decomposition to determine the order of query evaluation. This implementation also provides the Hilbert curve as a heuristic to minimize the total number of evaluations needed to answer all queries.
 
 The implementation is based on [Takeshi Masumoto's Algorithm Book](https://take44444.github.io/Algorithm-Book/range/mo/main.html) (in Japanese).
 
@@ -92,7 +92,7 @@ int64_t hilbert_index<int max_bit_width = 30>(int x, int y)
 
 Returns the index of the coordinates $(x, y)$ on a Hilbert curve given the maximum bit width $B_{\max}$.
 
-* Pass this function to `mo_alg::eval_queries` to determine an optimized query order.
+* Pass this function to `mo_alg::eval_queries` to determine a query order.
 * Example usage: `mo.eval_queries(kotone::hilbert_index<>, add, del, solve)`
 
 ### Constraints
@@ -103,6 +103,28 @@ Returns the index of the coordinates $(x, y)$ on a Hilbert curve given the maxim
 ### Time complexity
 
 * $\mathcal{O}(B_{\max})$
+
+<br>
+
+## Zigzag index
+
+```cpp
+int64_t zigzag_index<int width, int block_width>(int x, int y)
+```
+
+Returns the index of the coordinates $(x, y)$ on a zigzagging path on the plane $[0, W)^2$ where $W$ is the defined `width`.
+
+* Pass this function to `mo_alg::eval_queries` to determine a query order.
+* The path zigzags between blocks of width $B$ defined by `block_width`.
+
+### Constraints
+
+* $0\lt B\leq W$
+* $0\leq x, y\lt W$
+
+### Time complexity
+
+* $\mathcal{O}(1)$
 
 <br>
 
