@@ -169,7 +169,7 @@ template <
         return result;
     }
 
-    // Copies the specified interval from the `source` and pastes it onto `dest`.
+    // Copies the specified interval from the `source` tree and pastes it onto the `dest` tree.
     // Returns the index of the root of the resulting tree.
     // Requires `source` and `dest` to be valid indices of a root.
     // Requires `low` and `high` to be within the segment tree's interval.
@@ -183,6 +183,6 @@ template <
     }
 };
 
-}
+}  // namespace kotone
 
 #endif  // KOTONE_PERSISTENT_SEGMENT_TREE
