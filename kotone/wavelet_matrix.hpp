@@ -95,7 +95,7 @@ template <int BIT_WIDTH> struct wavelet_matrix {
         for (int i = 0; i < _len; i++) dp[i] = i;
         for (int k = BIT_WIDTH - 1; k >= 0; k--) {
             _mat[k] = bit_vector(_len);
-            std::vector<T> ndp(_len);
+            std::vector<int> ndp(_len);
             for (int i = 0; i < _len; i++) {
                 if (vec[dp[i]] >> k & 1) _mat[k].set(i);
             }
