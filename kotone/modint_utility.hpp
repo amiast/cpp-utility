@@ -54,18 +54,11 @@ template <compatible_modint mint> struct modint_utility {
         if (new_n <= _n) return;
         assert(new_n <= 100000000);
 
-        if (_n == 0) {
-            _fact = factorials<mint>(new_n);
-            _ifact = inv_factorials(_fact);
-            _n = new_n;
-            return;
-        }
-
-        _fact.resize(new_n);
-        _ifact.resize(new_n);
-        for (int i = _n; i < new_n; i++) _fact[i] = i * _fact[i - 1];
+        _fact.resize(new_n, 1);
+        _ifact.resize(new_n, 1);
+        for (int i = std::max(_n, 1); i < new_n; i++) _fact[i] = i * _fact[i - 1];
         assert(_fact[new_n - 1] != 0);
-        _ifact[new_n - 1] = 1 / _fact[new_n - 1];
+        _ifact[new_n - 1] = _fact[new_n - 1].inv();
         for (int i = new_n - 1; i > _n; i--) _ifact[i - 1] = i * _ifact[i];
         _n = new_n;
     }
