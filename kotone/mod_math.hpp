@@ -38,27 +38,21 @@ template <std::integral S, std::integral T> uint64_t sum_mod(S a, T b, uint64_t 
 
 // Returns `a * b % m`.
 // Requires `m > 0`.
+// Requires compiler-provided type `__int128`.
 template <std::integral S, std::integral T> uint64_t prod_mod(S a, T b, uint64_t m) {
     uint64_t ua = mod(a, m), ub = mod(b, m);
-    if (m <= 1ULL << 32) return ua * ub % m;
-    if (ua < ub) std::swap(ua, ub);
-    uint64_t result = 0;
-    while (ub) {
-        if (ub & 1u) result = sum_mod(result, ua, m);
-        ua = sum_mod(ua, ua, m);
-        ub >>= 1;
-    }
-    return result;
+    return __int128(ua) * ub % m;
 }
 
 // Returns `pow(n, k) % m`.
 // Returns `1 % m` if `n == k == 0`.
 // Requires `m > 0`.
+// Requires compiler-provided type `__int128`.
 template<std::integral T> uint64_t pow_mod(T n, uint64_t k, uint64_t m) {
     assert(m > 0u);
     if (k == 0) return m > 1u;
     uint64_t un = mod(n, m);
-    uint64_t result = 1;
+    uint64_t result = 1 % m;
     while (k) {
         if (k & 1u) result = prod_mod(result, un, m);
         un = prod_mod(un, un, m);
