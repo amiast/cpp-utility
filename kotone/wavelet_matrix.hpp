@@ -7,6 +7,7 @@
 #include <bit>
 #include <concepts>
 #include <cassert>
+#include <atcoder/segtree>
 
 namespace kotone {
 
@@ -75,7 +76,7 @@ struct bit_vector {
 template <int BIT_WIDTH> struct wavelet_matrix {
     static_assert(0 <= BIT_WIDTH && BIT_WIDTH <= 64);
 
-  private:
+  protected:
     std::array<bit_vector, BIT_WIDTH> _mat;
     int _len = 0;
 
@@ -168,6 +169,122 @@ template <int BIT_WIDTH> struct wavelet_matrix {
         int count = freq(l, r, lower);
         if (count == r - l) return {lower, false};
         return {nth_smallest(l, r, count), true};
+    }
+};
+
+// A static data structure that stores information of a sequence of non-negative integers.
+// Modified to also manage commutative monoids with segment trees.
+// Reference: https://info.atcoder.jp/entry/algorithm_lectures/wavelet_matrix_basic
+// Reference: https://info.atcoder.jp/entry/algorithm_lectures/wavelet_matrix_advanced
+template <typename S, S (*op)(S, S), S (*e)(), int BIT_WIDTH> struct wavelet_matrix_commutative : wavelet_matrix<BIT_WIDTH> {
+    using wavelet_matrix<BIT_WIDTH>::_mat;
+    using wavelet_matrix<BIT_WIDTH>::_len;
+
+  protected:
+    std::array<atcoder::segtree<S, op, e>, BIT_WIDTH + 1> _seg;
+
+  public:
+    wavelet_matrix_commutative() {}
+
+    // Constructs a wavelet matrix for the given vector and its associated values.
+    // Requires `0 <= vec[i] < 1 << BIT_WIDTH` for all `i`.
+    template <std::integral T> wavelet_matrix_commutative(const std::vector<T> &vec, const std::vector<S> &vals) {
+        _len = vec.size();
+        for (int i = 0; i < _len; i++) assert(vec[i] >= T{});
+        if (BIT_WIDTH < 64) {
+            uint64_t cap = 1ULL << BIT_WIDTH;
+            for (int i = 0; i < _len; i++) assert(uint64_t(vec[i]) < cap);
+        }
+        _seg[BIT_WIDTH] = atcoder::segtree<S, op, e>(vals);
+        std::vector<int> dp(_len);
+        for (int i = 0; i < _len; i++) dp[i] = i;
+        for (int k = BIT_WIDTH - 1; k >= 0; k--) {
+            _mat[k] = bit_vector(_len);
+            std::vector<int> ndp(_len);
+            for (int i = 0; i < _len; i++) {
+                if (vec[dp[i]] >> k & 1) _mat[k].set(i);
+            }
+            _mat[k].build();
+            int left = 0, right = _mat[k].zeros;
+            for (int i = 0; i < _len; i++) {
+                if (_mat[k].get(i)) ndp[right++] = dp[i];
+                else ndp[left++] = dp[i];
+            }
+            dp = ndp;
+            std::vector<S> nvals(_len);
+            for (int i = 0; i < _len; i++) nvals[i] = vals[dp[i]];
+            _seg[k] = atcoder::segtree<S, op, e>(nvals);
+        }
+    }
+
+    // Constructs a wavelet matrix for the given vector.
+    // Requires `0 <= vec[i] < 1 << BIT_WIDTH` for all `i`.
+    template <std::integral T> wavelet_matrix_commutative(const std::vector<T> &vec)
+        : wavelet_matrix_commutative(vec, std::vector<S>(vec.size(), e())) {}
+
+    // Returns the value associated with the specified index.
+    // Requires `0 <= index < _len`.
+    S get(int index) const {
+        assert(0 <= index && index < _len);
+        return _seg[BIT_WIDTH].get(index);
+    }
+
+    // Sets the value associated with the specified index.
+    // Requires `0 <= index < _len`.
+    void set(int index, S val) {
+        assert(0 <= index && index < _len);
+        _seg[BIT_WIDTH].set(index, val);
+        for (int k = BIT_WIDTH - 1; k >= 0; k--) {
+            if (!_mat[k].get(index)) index = _mat[k].rank0(index);
+            else index = _mat[k].zeros + _mat[k].rank1(index);
+            _seg[k].set(index, val);
+        }
+    }
+
+    // Returns the maximum `upper < 1 << BIT_WIDTH` such that `g(prod(l, r, upper)) == true`.
+    // Requires `0 <= l <= r <= _len`.
+    // Requires `bool g(S x)` to be a monotonic predicate.
+    // Requires `g(e()) == true`.
+    template <typename G> uint64_t max_upper(int l, int r, G g) const {
+        assert(0 <= l && l <= r && r <= _len);
+        assert(g(e()));
+        uint64_t result = 0;
+        S acc = e();
+        for (int k = BIT_WIDTH - 1; k >= 0; k--) {
+            int l0 = _mat[k].rank0(l), r0 = _mat[k].rank0(r);
+            S new_acc = op(acc, _seg[k].prod(l0, r0));
+            if (!g(new_acc)) {
+                l = l0;
+                r = r0;
+            } else {
+                result |= 1ULL << k;
+                acc = new_acc;
+                l += _mat[k].zeros - l0;
+                r += _mat[k].zeros - r0;
+            }
+        }
+        return result;
+    }
+
+    // Returns the product of values of elements less than `upper` in the specified interval `[l, r)`.
+    // Requires `0 <= l <= r <= _len`.
+    S prod(int l, int r, uint64_t upper) const {
+        assert(0 <= l && l <= r && r <= _len);
+        if (BIT_WIDTH < 64 && upper >= 1ULL << BIT_WIDTH) return _seg[BIT_WIDTH].prod(l, r);
+        S result = e();
+        for (int k = BIT_WIDTH - 1; k >= 0; k--) {
+            bool b = upper >> k & 1u;
+            int l0 = _mat[k].rank0(l), r0 = _mat[k].rank0(r);
+            if (!b) {
+                l = l0;
+                r = r0;
+            } else {
+                result = op(result, _seg[k].prod(l0, r0));
+                l += _mat[k].zeros - l0;
+                r += _mat[k].zeros - r0;
+            }
+        }
+        return result;
     }
 };
 
