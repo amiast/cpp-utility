@@ -11,12 +11,12 @@
 
 namespace kotone {
 
-// Retuens a `bool` indicating whether `n` is prime.
+// Returns a `bool` indicating whether `n` is prime.
 // Requires compiler-provided type `__int128`.
 bool is_prime(int64_t n) {
-    constexpr static int bases[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
+    constexpr int bases[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
     if (n <= 2) return n == 2;
-    if (~n & 1) return false;
+    if (n % 2 == 0) return false;
     int64_t s = std::bit_width(uint64_t((n - 1) & -(n - 1))) - 1;
     int64_t d = (n - 1) >> s;
     for (int a : bases) {
@@ -96,6 +96,9 @@ int64_t least_primitive_root(int64_t p) {
         }
         if (flag) return n;
     }
+    // A result cannot be found because the input is invalid.
+    assert(false);
+    return -1;
 }
 
 }  // namespace kotone
