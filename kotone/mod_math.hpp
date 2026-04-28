@@ -60,6 +60,6 @@ template <std::integral T> uint64_t pow_mod(T n, uint64_t k, uint64_t m) {
     return result;
 }
 
-}
+}  // namespace kotone
 
 #endif  // KOTONE_MOD_MATH_HPP
