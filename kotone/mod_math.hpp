@@ -48,9 +48,8 @@ template <std::integral S, std::integral T> uint64_t prod_mod(S a, T b, uint64_t
 // Returns `1 % m` if `n == k == 0`.
 // Requires `m > 0`.
 // Requires compiler-provided type `__int128`.
-template<std::integral T> uint64_t pow_mod(T n, uint64_t k, uint64_t m) {
+template <std::integral T> uint64_t pow_mod(T n, uint64_t k, uint64_t m) {
     assert(m > 0u);
-    if (k == 0) return m > 1u;
     uint64_t un = mod(n, m);
     uint64_t result = 1 % m;
     while (k) {
