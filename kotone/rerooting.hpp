@@ -7,7 +7,7 @@
 
 namespace kotone {
 
-// Maintains dynamic programming for monoids at different roots of trees in a forest.
+// Maintains dynamic programming for commutative monoids at different roots of trees in a forest.
 // Requires the following functions:
 // - `S merge(S dp_l, S dp_r)`
 // - `S apply(S dp_child, int child, int parent)`
