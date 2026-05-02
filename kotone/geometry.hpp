@@ -145,8 +145,8 @@ std::vector<point<T>> convex_hull_lower(const std::vector<point<T>> &vec) {
             if (*std::prev(iter) == *iter) continue;
         }
         while (lower.size() >= 2u) {
-            point<T> a = *std::prev(lower.end(), 2);
-            point<T> b = lower.back();
+            const point<T> &a = *std::prev(lower.end(), 2);
+            const point<T> &b = lower.back();
             if ((b - a).cross(*iter - a) > T{}) break;
             lower.pop_back();
         }
@@ -167,8 +167,8 @@ std::vector<point<T>> convex_hull_upper(const std::vector<point<T>> &vec) {
             if (*std::prev(iter) == *iter) continue;
         }
         while (upper.size() >= 2u) {
-            point<T> a = *std::prev(upper.end(), 2);
-            point<T> b = upper.back();
+            const point<T> &a = *std::prev(upper.end(), 2);
+            const point<T> &b = upper.back();
             if ((b - a).cross(*iter - a) > T{}) break;
             upper.pop_back();
         }
@@ -190,6 +190,65 @@ std::vector<point<T>> convex_hull(const std::vector<point<T>> &vec) {
     lower.insert(lower.end(), upper.begin(), upper.end());
     return lower;
 }
+
+// A dynamic data structure that maintains the lower convex hull of two-dimensional points.
+// Reference: https://www.youtube.com/watch?v=CEUTTd1gHxU
+template <signed_number T> struct dynamic_convex_hull {
+  private:
+    std::vector<std::vector<point<T>>> _vec;
+
+  public:
+    // Adds the specified point.
+    void add(const point<T> &p) {
+        std::vector<point<T>> acc{p};
+        while (_vec.size() && _vec.back().size() <= acc.size()) {
+            int n = acc.size();
+            acc.insert(acc.end(), _vec.back().begin(), _vec.back().end());
+            _vec.pop_back();
+            std::inplace_merge(acc.begin(), acc.begin() + n, acc.end());
+            std::vector<point<T>> nacc;
+            for (const point<T> &p : acc) {
+                while (nacc.size() >= 2u) {
+                    const point<T> &a = *std::prev(nacc.end(), 2);
+                    const point<T> &b = nacc.back();
+                    if ((b - a).cross(p - a) > T{}) break;
+                    nacc.pop_back();
+                }
+                nacc.push_back(p);
+            }
+            acc = nacc;
+        }
+        _vec.push_back(acc);
+    }
+
+    // Adds the specified point.
+    void add(T x, T y) {
+        add(point(x, y));
+    }
+
+    // Returns a point whose dot product with `p` is minimum.
+    // Requires at least one point to exist.
+    point<T> minimize(const point<T> &p) {
+        assert(!_vec.empty());
+        point<T> result = _vec[0][0];
+        for (std::vector<point<T>> &v : _vec) {
+            int low = 0, high = v.size();
+            while (low + 1 < high) {
+                int mid = (low + high) / 2;
+                if (p.dot(v[mid - 1]) > p.dot(v[mid])) low = mid;
+                else high = mid;
+            }
+            if (p.dot(result) > p.dot(v[low])) result = v[low];
+        }
+        return result;
+    }
+
+    // Returns a point whose dot product with `(a, b)` is minimum.
+    // Requires at least one point to exist.
+    point<T> minimize(T a, T b) {
+        return minimize(point(a, b));
+    }
+};
 
 }  // namespace kotone
 
