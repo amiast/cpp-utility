@@ -19,7 +19,7 @@ namespace kotone {
 // - `F id()`
 //
 // Reference: https://nyaannyaan.github.io/library/rbst/treap.hpp
-template <typename S, S (*op)(S, S), S (*e)(), typename F, S (*mapping)(F, S), F (*composition)(F, F), F(*id)()>
+template <typename S, S (*op)(S, S), S (*e)(), typename F, S (*mapping)(F, S), F (*composition)(F, F), F (*id)()>
 struct lazy_treap_manager {
     // A node for treap-related operations.
     struct lazy_treap {
