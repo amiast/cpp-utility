@@ -34,14 +34,13 @@ template <typename S, S (*op)(S, S)> struct associative_queue {
     // Requires the queue to be non-empty.
     void pop() {
         assert(!empty());
-        if (_mid == 0) {
-            _mid = _deque.size();
-            for (int i = _mid - 1; i > 0; i--) {
-                _deque[i - 1] = op(_deque[i - 1], _deque[i]);
-            }
-        }
         _deque.pop_front();
         _mid--;
+        if (_mid >= 0) return;
+        _mid = size();
+        for (int i = _mid - 1; i > 0; i--) {
+            _deque[i - 1] = op(_deque[i - 1], _deque[i]);
+        }
     }
 
     // Returns the product of elements in the queue.
