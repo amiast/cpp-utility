@@ -51,19 +51,18 @@ template <compatible_modint mint> std::vector<mint> inv_factorials(const std::ve
 template <compatible_modint mint> struct modint_utility {
   private:
     std::vector<mint> _inv, _fact, _ifact;
-    int _p = -1, _max_n = 0;
+    int _p = -1, _max_n = -1;
 
     void _build(int new_max) {
         if (new_max <= _max_n) return;
-
         _inv.resize(new_max + 1, 1);
         _fact.resize(new_max + 1, 1);
         _ifact.resize(new_max + 1, 1);
-        for (int i = std::max(_max_n, 2); i <= new_max; i++) {
+        for (int i = std::max(_max_n + 1, 2); i <= new_max; i++) {
             _inv[i] = -(_p / i) * _inv[_p % i];
         }
-        for (int i = std::max(_max_n, 2); i < new_max; i++) _fact[i] = i * _fact[i - 1];
-        for (int i = std::max(_max_n, 2); i < new_max; i++) _ifact[i] = _inv[i] * _ifact[i - 1];
+        for (int i = std::max(_max_n + 1, 2); i <= new_max; i++) _fact[i] = i * _fact[i - 1];
+        for (int i = std::max(_max_n + 1, 2); i <= new_max; i++) _ifact[i] = _inv[i] * _ifact[i - 1];
         _max_n = new_max;
     }
 
