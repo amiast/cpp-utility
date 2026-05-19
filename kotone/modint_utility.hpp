@@ -9,12 +9,13 @@ namespace kotone {
 
 // Returns a length-`(n+1)` vector `reciprocal` such that `reciprocal[i]` is the modular inverse of `i`.
 // The value of `reciprocal[0]` is undefined.
-// Requires `n >= 1`.
+// Requires `mint::mod()` to be prime.
+// Requires `1 <= n < mint::mod()`.
 template <compatible_modint mint> std::vector<mint> reciprocals(int n) {
-    assert(1 <= n && n <= 100000000);
+    int p = mint::mod();
+    assert(1 <= n && n <= p);
     std::vector<mint> result(n + 1);
     result[1] = 1;
-    int p = mint::mod();
     for (int i = 2; i <= n; i++) {
         result[i] = -(p / i) * result[p % i];
     }
@@ -24,7 +25,7 @@ template <compatible_modint mint> std::vector<mint> reciprocals(int n) {
 // Returns a vector containing the first `n + 1` factorials (`0!, 1!, ..., n!`).
 // Requires `n >= 0`.
 template <compatible_modint mint> std::vector<mint> factorials(int n) {
-    assert(0 <= n && n <= 100000000);
+    assert(n >= 0);
     std::vector<mint> result(n + 1);
     result[0] = 1;
     for (int i = 1; i <= n; i++) result[i] = i * result[i - 1];
@@ -32,82 +33,98 @@ template <compatible_modint mint> std::vector<mint> factorials(int n) {
 }
 
 // Returns a vector of inverse factorials given the vector of factorials.
-// This function should usually be called with `factorials`.
-// Requires `vec_factorial` to be a valid vector.
+// Requires `vec_factorial` to match the format of the output of `factorials()`.
+// Requires `mint::mod()` to be prime.
+// Requires `1 <= vec_factorial.size() <= mint::mod()`.
 template <compatible_modint mint> std::vector<mint> inv_factorials(const std::vector<mint> &vec_factorial) {
-    assert(!vec_factorial.empty());
-    int n = vec_factorial.size();
-    std::vector<mint> result(n);
-    assert(vec_factorial[n - 1] != 0);
-    result[n - 1] = vec_factorial[n - 1].inv();
-    for (int i = n - 1; i > 0; i--) result[i - 1] = i * result[i];
+    int len = vec_factorial.size();
+    int p = mint::mod();
+    assert(1 <= len && len <= p);
+    std::vector<mint> result(len);
+    assert(vec_factorial[len - 1] != 0);
+    result[len - 1] = vec_factorial[len - 1].inv();
+    for (int i = len - 1; i > 0; i--) result[i - 1] = i * result[i];
     return result;
 }
 
 // A wrapper class for combinatorial functions with modint.
 template <compatible_modint mint> struct modint_utility {
   private:
-    int _n = 0;
-    std::vector<mint> _fact, _ifact;
+    std::vector<mint> _inv, _fact, _ifact;
+    int _p = -1, _max_n = 0;
 
-    void _build(int new_n) {
-        if (new_n <= _n) return;
-        assert(new_n <= 100000000);
+    void _build(int new_max) {
+        if (new_max <= _max_n) return;
 
-        _fact.resize(new_n, 1);
-        _ifact.resize(new_n, 1);
-        for (int i = std::max(_n, 1); i < new_n; i++) _fact[i] = i * _fact[i - 1];
-        assert(_fact[new_n - 1] != 0);
-        _ifact[new_n - 1] = _fact[new_n - 1].inv();
-        for (int i = new_n - 1; i > _n; i--) _ifact[i - 1] = i * _ifact[i];
-        _n = new_n;
+        _inv.resize(new_max + 1, 1);
+        _fact.resize(new_max + 1, 1);
+        _ifact.resize(new_max + 1, 1);
+        for (int i = std::max(_max_n, 2); i <= new_max; i++) {
+            _inv[i] = -(_p / i) * _inv[_p % i];
+        }
+        for (int i = std::max(_max_n, 2); i < new_max; i++) _fact[i] = i * _fact[i - 1];
+        for (int i = std::max(_max_n, 2); i < new_max; i++) _ifact[i] = _inv[i] * _ifact[i - 1];
+        _max_n = new_max;
     }
 
   public:
     modint_utility() {}
 
     // Instantiates with the first `n + 1` factorials (`0!, 1!, ..., n!`) precomputed.
+    // Requires `mint::mod()` to be prime.
+    // Requires `mint::mod()` to be invariant.
+    // Requires `n < mint::mod()`.
     modint_utility(int n) {
-        _build(n + 1);
+        _p = mint::mod();
+        assert(n < _p);
+        _build(n);
+    }
+
+    // Returns the modular inverse of `n`.
+    // Requires `1 <= n < mint::mod()`.
+    mint inv(int n) {
+        assert(1 <= n && n < _p);
+        if (n >= _max_n) _build(n);
+        return _inv[n];
     }
 
     // Returns `n!`.
-    // Requires `n >= 0`.
+    // Requires `0 <= n < mint::mod()`.
     mint factorial(int n) {
-        assert(n >= 0);
-        if (n >= _n) _build(n + 1);
+        assert(0 <= n && n < _p);
+        if (n >= _max_n) _build(n);
         return _fact[n];
     }
 
     // Returns the modular inverse of `n!`.
-    // Requires `n >= 0`.
+    // Requires `0 <= n < mint::mod()`.
     mint inv_factorial(int n) {
-        assert(n >= 0);
-        if (n >= _n) _build(n + 1);
+        assert(0 <= n && n < _p);
+        if (n >= _max_n) _build(n);
         return _ifact[n];
     }
 
     // Returns the number of permutations of `k` of `n` objects.
-    // Requires `0 <= k <= n`.
+    // Requires `0 <= k <= n < mint::mod()`.
     mint perm(int n, int k) {
-        assert(0 <= k && k <= n);
-        if (n >= _n) _build(n + 1);
+        assert(0 <= k && k <= n && n < _p);
+        if (n >= _max_n) _build(n);
         return _fact[n] * _ifact[n - k];
     }
 
     // Returns the number of combinations of `k` of `n` objects.
-    // Requires `0 <= k <= n`.
+    // Requires `0 <= k <= n < mint::mod()`.
     mint comb(int n, int k) {
-        assert(0 <= k && k <= n);
-        if (n >= _n) _build(n + 1);
+        assert(0 <= k && k <= n && n < _p);
+        if (n >= _max_n) _build(n);
         return _fact[n] * _ifact[k] * _ifact[n - k];
     }
 
     // Returns the `n`-th Catalan number.
-    // Requires `n >= 0`.
+    // Requires `0 <= n * 2 < _p`.
     mint catalan(int n) {
-        assert(n >= 0);
-        if (n * 2 >= _n) _build(n * 2 + 1);
+        assert(0 <= n && n * 2 < _p);
+        if (n * 2 >= _max_n) _build(n * 2);
         return _fact[n * 2] * _ifact[n + 1] * _ifact[n];
     }
 };
