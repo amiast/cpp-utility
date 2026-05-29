@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/kth_term_of_linearly_recurrent_sequence
-// Details: https://judge.yosupo.jp/submission/319385
+// Details: https://judge.yosupo.jp/submission/375725
 
 #include <iostream>
 #include <vector>
