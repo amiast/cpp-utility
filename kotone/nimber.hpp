@@ -11,7 +11,7 @@ namespace kotone {
 // Reference: https://maspypy.com/library-checker-nim-product
 struct nimber {
   private:
-    const static inline std::array<std::array<uint8_t, 256>, 256> _small = [](){
+    const static inline std::array<std::array<uint8_t, 256>, 256> _TABLE = [](){
         std::array<std::array<uint8_t, 256>, 256> table{};
         table[1][1] = 1;
         for (int k = 1; k < 8; k *= 2) {
@@ -39,15 +39,15 @@ struct nimber {
     static uint16_t _prod_16(uint16_t a, uint16_t b) noexcept {
         uint8_t au = a >> 8, al = a & _MAX_U8;
         uint8_t bu = b >> 8, bl = b & _MAX_U8;
-        uint8_t pu = _small[au][bu];
-        uint8_t pm = _small[au ^ al][bu ^ bl];
-        uint8_t pl = _small[al][bl];
-        return uint16_t(pm ^ pl) << 8 | (_small[pu][1 << 7] ^ pl);
+        uint8_t pu = _TABLE[au][bu];
+        uint8_t pm = _TABLE[au ^ al][bu ^ bl];
+        uint8_t pl = _TABLE[al][bl];
+        return uint16_t(pm ^ pl) << 8 | (_TABLE[pu][1 << 7] ^ pl);
     }
 
     static uint16_t _prod_by_15(uint16_t a) noexcept {
         uint8_t au = a >> 8, al = a & _MAX_U8;
-        return uint16_t(_small[au ^ al][1 << 7]) << 8 | _small[_small[au][1 << 7]][1 << 7];
+        return uint16_t(_TABLE[au ^ al][1 << 7]) << 8 | _TABLE[_TABLE[au][1 << 7]][1 << 7];
     }
 
     static uint32_t _prod_32(uint32_t a, uint32_t b) noexcept {
