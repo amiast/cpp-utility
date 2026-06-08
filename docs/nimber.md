@@ -3,7 +3,7 @@
 The nimbers, also known as Grundy numbers, are known for applications in game theory. When equipped with addition and multiplication, nimbers satisfy a range of properties that make them a suitable candidate for rolling hash.
 
 The nimber sum of two nonnegative integers, denoted $a\oplus b$, has the following properties:
-- Equivalence with XOR: $a\oplus b=a\operatorname{xor} b$
+- Equivalence with XOR: $a\oplus b=a\text{ xor } b$
 - Associativity: $(a\oplus b)\oplus c=a\oplus(b\oplus c)$
 - Commutativity: $a\oplus b=b\oplus a$
 - Identity: $a\oplus0=a$
