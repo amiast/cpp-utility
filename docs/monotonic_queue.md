@@ -1,20 +1,20 @@
-# Monotonic deque
+# Monotonic queue
 
-The `monotonic_deque` is a deque that maintains the minimum or maximum value of an implicit queue $Q$. Its application is also known as the sliding window technique.
+The `monotonic_queue` is a deque that maintains the minimum or maximum value of an implicit queue $Q$. Its application is also known as the sliding window technique.
 
 <br>
 
 ## Constructor
 
 ```cpp
-(1) kotone::monotonic_deque<T> md()
-(2) kotone::monotonic_deque<T, comp_pred> md()
+(1) kotone::monotonic_queue<T> md()
+(2) kotone::monotonic_queue<T, comp_pred> md()
 ```
 
-Constructs a deque for an empty queue $Q$ of data type `T`.
+Constructs a queue for an empty queue $Q$ of data type `T`.
 
-* (1) The deque maintains $\min Q$.
-* (2) The deque maintains a minimal element of $Q$ under `comp_pred`.
+* (1) The queue maintains $\min Q$.
+* (2) The queue maintains a minimal element of $Q$ under `comp_pred`.
     - Corresponds to $\min Q$ when using `std::less<T>` as `comp_pred`.
     - Corresponds to $\max Q$ when using `std::greater<T>` as `comp_pred`.
 
