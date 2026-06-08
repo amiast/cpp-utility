@@ -75,6 +75,8 @@ std::cout << a;
 <details><summary>Click to unfold (spoilers)</summary>
 
 - [ABC 274 Ex - XOR Sum of Arrays](https://atcoder.jp/contests/abc274/tasks/abc274_h)
+- [yukicoder No. 1775 - Love Triangle 2](https://yukicoder.me/problems/no/1775)
+- [NDPC S - Two doors](https://atcoder.jp/contests/ndpc/tasks/ndpc2026_s)
 
 </details>
 
