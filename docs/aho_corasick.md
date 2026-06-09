@@ -2,10 +2,7 @@
 
 The Aho–Corasick automaton resembles a trie with additional edges for transitions that would ordinarily "fail" in a trie. More precisely, given a sequence of string patterns, the Aho–Corasick automaton is a collection of states each representing a prefix of some pattern.
 
-Given a state $S$, the transition $\delta(S, c)$ on character $c$ is defined as the unique $S^\prime$ such that:
-
-- $S^\prime$ is present as a state in the automaton; and
-- $S^\prime$ is the longest suffix of $S+c$.
+Given a state $S$, the transition $\delta(S, c)$ on character $c$ is defined as the longest suffix of $S+c$ present as a state in the automaton.
 
 Thus, if $S+c$ is not a state in the automaton, then $S^\prime$ is obtained by recursively traversing the **suffix link** of $S$ until it reaches the root or a state with transition on $c$. The suffix link of $S$ is the longest proper suffix of $S$ that is also present in the automaton.
 
