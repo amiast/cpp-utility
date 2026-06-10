@@ -37,7 +37,7 @@ template <std::signed_integral T> struct fraction {
 
   public:
     // Constructs fraction at the root of the Stern-Brocot tree.
-    fraction() {}
+    fraction() noexcept {}
 
     // Constructs fraction from the specified numerator and denominator.
     // Requires `num >= 1 && denom >= 1`.
@@ -68,23 +68,31 @@ template <std::signed_integral T> struct fraction {
         for (T d : rle) descend(d);
     }
 
+    friend bool operator==(const fraction &l, const fraction &r) noexcept {
+        return l._mp == r._mp && l._mq == r._mq;
+    }
+
+    friend auto operator<=>(const fraction &l, const fraction &r) noexcept {
+        return l._mp * r._mq <=> l._mq * r._mp;
+    }
+
     // Returns the value of the fraction as a numerator-denominator pair.
-    std::pair<T, T> val() const { return {_mp, _mq}; }
+    std::pair<T, T> val() const noexcept { return {_mp, _mq}; }
 
     // Returns the lower bound of the vertex as a numerator-denominator pair.
-    std::pair<T, T> lower_bound() const { return {_lp, _lq}; }
+    std::pair<T, T> lower_bound() const noexcept { return {_lp, _lq}; }
 
     // Returns the upper bound of the vertex as a numerator-denominator pair.
-    std::pair<T, T> upper_bound() const { return {_rp, _rq}; }
+    std::pair<T, T> upper_bound() const noexcept { return {_rp, _rq}; }
 
     // Returns the depth of the vertex relative to the root.
-    T depth() const { return _depth; }
+    T depth() const noexcept { return _depth; }
 
     // Returns the run-length encoding for the path from the root to the current vertex.
     std::vector<T> rle() const { return _rle; }
 
     // Resets fraction to the root of the Stern-Brocot tree.
-    void clear() {
+    void clear() noexcept {
         _rle.clear();
         _lp = 0, _lq = 1, _mp = 1, _mq = 1, _rp = 1, _rq = 0;
         _depth = 0;
