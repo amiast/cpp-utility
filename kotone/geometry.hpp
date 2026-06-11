@@ -108,18 +108,16 @@ template <signed_number T> struct point {
 
 // Returns a tuple `{a, b, c}` representing the equation of a line `ax + by + c = 0`
 // that passes through the two specified points.
-// The function may return any valid equation that meets one of the following conditions:
-// - `a > 0`, or
-// - `a == 0 && b > 0`.
+// The function may return any valid equation such that `a > 0 || a == 0 && b > 0`.
 //
 // Requires `(px, py) != (qx, qy)`.
 template <signed_number T> std::tuple<T, T, T> linear_equation(T px, T py, T qx, T qy) {
-    T dx = px - qx;
-    T dy = py - qy;
-    if (dy < 0) dx = -dx, dy = -dy;
-    if (dy == 0 && dx > 0) dx = -dx;
-    T c = py * dx - px * dy;
-    return {dy, -dx, c};
+    assert(px != qx || py != qy);
+    T a = py - qy;
+    T b = qx - px;
+    T c = -(a * px + b * py);
+    if (a < 0 || (a == 0 && b < 0)) a = -a, b = -b, c = -c;
+    return {a, b, c};
 }
 
 // Returns a tuple `{a, b, c}` representing the equation of a line `ax + by + c = 0`
