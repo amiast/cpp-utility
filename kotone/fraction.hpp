@@ -9,8 +9,8 @@ namespace kotone {
 
 // A positive fraction represented as a vertex in the Stern-Brocot tree.
 // Uses run-length encoding for path. A nonzero integer `d` in the RLE represents:
-// - traversal to the `d`-th right descendent if `d > 0`; or
-// - traversal to the `-d`-th left descendent if `d < 0`.
+// - traversal to the `d`-th right descendant if `d > 0`; or
+// - traversal to the `-d`-th left descendant if `d < 0`.
 //
 // Reference: https://nyaannyaan.github.io/library/math/stern-brocot-tree.hpp
 template <std::signed_integral T> struct fraction {
@@ -98,34 +98,35 @@ template <std::signed_integral T> struct fraction {
         _depth = 0;
     }
 
-    // Traverses descendents by the specified relative depth.
-    // If `d > 0`, traverses to the `d`-th right descendent.
-    // Otherwise, traverses to the `-d`-th left descendent.
-    void descend(T depth) {
-        if (depth == 0) return;
-        if (depth > 0) _descend_right(depth);
-        else _descend_left(depth);
+    // Traverses descendants by the specified number of steps.
+    // If `steps > 0`, traverses the right descendants.
+    // Otherwise, traverses the left descendants.
+    void descend(T steps) {
+        if (steps == 0) return;
+        if (steps > 0) _descend_right(steps);
+        else _descend_left(steps);
     }
 
-    // Traverses ancestors by the specified relative depth.
-    // Stops at the root if `depth` is greater than current depth.
-    void ascend(T depth) {
-        assert(depth >= 0);
-        if (depth >= _depth) {
+    // Traverses ancestors by the specified number of steps.
+    // Stops at the root if `steps` is greater than the current depth.
+    // Requires `steps >= 0`.
+    void ascend(T steps) {
+        assert(steps >= 0);
+        if (steps >= _depth) {
             clear();
             return;
         }
-        _depth -= depth;
-        while (depth) {
+        _depth -= steps;
+        while (steps) {
             if (_rle.back() > 0) {
-                T d = std::min(depth, _rle.back());
-                depth -= d;
+                T d = std::min(steps, _rle.back());
+                steps -= d;
                 _mp -= _rp * d, _mq -= _rq * d;
                 _lp = _mp - _rp, _lq = _mq - _rq;
                 _rle.back() -= d;
             } else {
-                T d = std::max(-depth, _rle.back());
-                depth += d;
+                T d = std::max(-steps, _rle.back());
+                steps += d;
                 _mp += _lp * d, _mq += _lq * d;
                 _rp = _mp - _lp, _rq = _mq - _lq;
                 _rle.back() -= d;
@@ -147,7 +148,7 @@ template <std::signed_integral T> struct fraction {
     }
 };
 
-// Given monotone function `bool f(std::pair<T, T> frac)` and integer `bound`, returns a pair containing:
+// Given monotone predicate `bool f(std::pair<T, T> frac)` and integer `bound`, returns a pair containing:
 // - `first`: the greatest positive fraction `x = {num, denom}` for which `f(x) == true && num <= bound && denom <= bound`;
 // - `second`: the least fraction `y = {num, denom}` for which `f(y) == false && num <= bound && denom <= bound`.
 //
