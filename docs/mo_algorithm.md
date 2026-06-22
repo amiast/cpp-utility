@@ -4,9 +4,9 @@ Mo's algorithm is a technique for efficiently answering two-dimensional offline 
 
 For instance, Mo's algorithm can efficiently answer range queries for a sequence.
 
-> Given a sequence $A=(A_0, \dots, A_{N-1})$ of $N$ elements, let $A_{\ell, r}=(A_\ell, \dots, A_{r-1})$ be the contiguous subsequence in the half-open interval $[\ell, r)$ for $0\leq\ell\leq r\leq N$. Note that $[\ell, r)$ is empty when $\ell=r$.
+> Given a sequence $A=(A_0, \dots, A_{N-1})$ of $N$ elements, let $A_{\ell, r}=(A_\ell, \dots, A_{r-1})$ be the subarray in the half-open interval $[\ell, r)$ for $0\leq\ell\leq r\leq N$. Note that $[\ell, r)$ is empty when $\ell=r$.
 >
-> Given a function $f$ that maps contiguous subsequences of $A$ to some values, a range query to evaluate $f(A_{\ell, r})$ can be expressed as the half-open interval $[\ell, r)$.
+> Given a function $f$ that maps subarrays of $A$ to some values, a range query to evaluate $f(A_{\ell, r})$ can be expressed as the half-open interval $[\ell, r)$.
 
 Instead of processing each query individually, it may be more efficient to modify previous results when computing new queries. More precisely, the result to a new range query can be obtained by a combination of the following transformations:
 
@@ -15,7 +15,7 @@ Instead of processing each query individually, it may be more efficient to modif
 * $\text{DEL}_L(f(A_{\ell, r}))=f(A_{\ell+1, r})$
 * $\text{DEL}_R(f(A_{\ell, r}))=f(A_{\ell, r-1})$
 
-Mo's algorithm stores the current range query $[\ell, r)$ and its result $f(A_{\ell, r})$ during each step of computation. To answer a new query $[\ell^\prime, r^\prime)$, the algorithm iteratively expands or contracts the interval via $\text{ADD}$ and $\text{DEL}$ operations to "add" and "delete" elements at the start and end of the subsequence. For example, to evaluate $[\ell, r+10)$ after evaluating $[\ell, r)$, the algorithm iteratively applies $\text{ADD}_R$ to compute $[\ell, r+1), \dots, [\ell, r+10)$. Likewise, to compute $[\ell+10, r)$ from $[\ell, r)$, the algorithm contracts the interval via $\text{DEL}_L$ and computes $[\ell+1, r), \dots, [\ell+10, r)$.
+Mo's algorithm stores the current range query $[\ell, r)$ and its result $f(A_{\ell, r})$ during each step of computation. To answer a new query $[\ell^\prime, r^\prime)$, the algorithm iteratively expands or contracts the interval via $\text{ADD}$ and $\text{DEL}$ operations to "add" and "delete" elements at the start and end of the subarray. For example, to evaluate $[\ell, r+10)$ after evaluating $[\ell, r)$, the algorithm iteratively applies $\text{ADD}_R$ to compute $[\ell, r+1), \dots, [\ell, r+10)$. Likewise, to compute $[\ell+10, r)$ from $[\ell, r)$, the algorithm contracts the interval via $\text{DEL}_L$ and computes $[\ell+1, r), \dots, [\ell+10, r)$.
 
 In general, Mo's algorithm works for offline queries that can be described by two non-negative integer parameters $(x, y)$. This implementation follows the convention of using $[\ell, r)$ to represent range queries, but it also works for non-range queries where $\ell\gt r$.
 
@@ -62,21 +62,23 @@ Inserts range query $[\ell, r)$ and returns its query index.
 ## Evaluate queries
 
 ```cpp
-(1) void mo.eval_queries(order_ &&order, add_l_ &&add_l, add_r_ && add_r, del_l_ &&del_l, del_r_ &&del_r, solve_ &&solve)
-(2) void mo.eval_queries(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve)
+(1) void mo.eval_queries(order_ order, incr_l_ incr_l, incr_r_ incr_r, decr_l_ decr_l, decr_r_ decr_r, solve_ solve)
+(2) void mo.eval_queries_add_del(order_ order, add_ add, del_ del, solve_ solve)
 ```
 
 Evaluates range queries using the provided functions.
 
 * The algorithm assumes $[0, 0)$ as the initial state.
-* `T order(int l, int r)` returns some value of type `T` that can be sorted with respect to the `<` operator. It is used for optimizing query order.
-* (1) `void add_l(int l, int r)` modifies the result of range query $[\ell+1, r)$ to evaluate $[\ell, r)$, thereby "adding" $A_\ell$ to the start of the subsequence.
-* (1) `void add_r(int l, int r)` modifies the result of range query $[\ell, r)$ to evaluate $[\ell, r+1)$, thereby "adding" $A_r$ to the end of the subsequence.
-* (1) `void del_l(int l, int r)` modifies the result of range query $[\ell, r)$ to evaluate $[\ell+1, r)$, thereby "deleting" $A_\ell$ from the start of the subsequence.
-* (1) `void del_r(int l, int r)` modifies the result of range query $[\ell, r+1)$ to evaluate $[\ell, r)$, thereby "deleting" $A_r$ from the end of the subsequence.
-* (2) `void add(int i)` is a specialized version of `add_l` and `add_r` that depends on only the modified dimension. It is equivalent to `add_l(i, j)` on $[i + 1, j)$ and `add_r(j, i)` on $[j, i)$ for arbitrary $j$, thereby "adding" $A_i$ to the appropriate end of the subsequence.
-* (2) `void del(int i)` is a specialized version of `del_l` and `del_r` that depends on only the modified dimension. It is equivalent to `del_l(i, j)` on $[i, j)$ and `del_r(j, i)` on $[j, i+1)$ for arbitrary $j$, thereby "deleting" $A_i$ from the appropriate end of the subsequence.
+* `T order(int l, int r)` returns some value of type `T` that can be sorted with respect to the `<` operator. It is used for selecting query order.
+* (1) `void incr_l(int l, int r)` modifies the result of range query $[\ell, r)$ to evaluate $[\ell+1, r)$.
+* (1) `void decr_l(int l, int r)` modifies the result of range query $[\ell+1, r)$ to evaluate $[\ell, r)$.
+* (1) `void incr_r(int l, int r)` modifies the result of range query $[\ell, r)$ to evaluate $[\ell, r+1)$.
+* (1) `void decr_r(int l, int r)` modifies the result of range query $[\ell, r+1)$ to evaluate $[\ell, r)$.
+* (2) `void add(int i)` is equivalent to `decr_l(i, j)` on $[i + 1, j)$ and `incr_r(j, i)` on $[j, i)$ for arbitrary $j$, thereby "adding" $A_i$ to the appropriate end of the subarray.
+* (2) `void del(int i)` is equivalent to `incr_l(i, j)` on $[i, j)$ and `decr_r(j, i)` on $[j, i+1)$ for arbitrary $j$, thereby "deleting" $A_i$ from the appropriate end of the subarray.
 * `void solve(int i)` evaluates the `i`-th query.
+
+If all queries $[\ell, r)$ satisfy $\ell\leq r$, the evaluation guarantees that the modified intervals $[\ell^\prime, r^\prime)$ satisfy $\ell^\prime\leq r^\prime$ as well.
 
 ### Time complexity
 
@@ -180,6 +182,8 @@ int main() {
 * [ABC 293 G - Triple Index](https://atcoder.jp/contests/abc293/tasks/abc293_g)
 * [ABC 384 G - Abs Sum](https://atcoder.jp/contests/abc384/tasks/abc384_g)
 * [ABC 405 G - Range Shuffle Query](https://atcoder.jp/contests/abc405/tasks/abc405_g)
+* [ABC 448 F - Authentic Traveling Salesman Problem](https://atcoder.jp/contests/abc448/tasks/abc448_f)
+* [ABC 463 G - Random Walk Distance](https://atcoder.jp/contests/abc463/tasks/abc463_g)
 
 </details>
 

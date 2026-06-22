@@ -29,13 +29,13 @@ struct mo_alg {
     // Evaluates range queries using the provided functions.
     // Specialized for operations that depend on both dimensions.
     // - `order(l, r)` returns the index of `[l, r)` for sorting queries.
-    // - `add_l(l, r)` modifies `[l + 1, r)` into `[l, r)`.
-    // - `add_r(l, r)` modifies `[l, r)` into `[l, r + 1)`.
-    // - `del_l(l, r)` modifies `[l, r)` into `[l + 1, r)`.
-    // - `del_r(l, r)` modifies `[l, r + 1)` into `[l, r)`.
+    // - `incr_l(l, r)` modifies `[l, r)` into `[l + 1, r)`.
+    // - `decr_l(l, r)` modifies `[l + 1, r)` into `[l, r)`.
+    // - `incr_r(l, r)` modifies `[l, r)` into `[l, r + 1)`.
+    // - `decr_r(l, r)` modifies `[l, r + 1)` into `[l, r)`.
     // - `solve(i)` evaluates the `i`-th query.
-    template <typename order_, typename add_l_, typename add_r_, typename del_l_, typename del_r_, typename solve_>
-    void eval_queries(order_ &&order, add_l_ &&add_l, add_r_ && add_r, del_l_ &&del_l, del_r_ &&del_r, solve_ &&solve) {
+    template <typename order_, typename incr_l_, typename decr_l_, typename incr_r_, typename decr_r_, typename solve_>
+    void eval_queries(order_ &&order, incr_l_ &&incr_l, decr_l_ &&decr_l, incr_r_ && incr_r, decr_r_ &&decr_r, solve_ &&solve) {
         std::vector<int> indices(_num_queries);
         std::vector<int64_t> ordering(_num_queries);
         for (int i = 0; i < _num_queries; i++) {
@@ -45,10 +45,10 @@ struct mo_alg {
         std::sort(indices.begin(), indices.end(), [&ordering](int i, int j){ return ordering[i] < ordering[j]; });
         int nl = 0, nr = 0;
         for (int i : indices) {
-            while (nl > _l[i]) add_l(--nl, nr);
-            while (nr < _r[i]) add_r(nl, nr++);
-            while (nl < _l[i]) del_l(nl++, nr);
-            while (nr > _r[i]) del_r(nl, --nr);
+            while (nl > _l[i]) decr_l(--nl, nr);
+            while (nr < _r[i]) incr_r(nl, nr++);
+            while (nl < _l[i]) incr_l(nl++, nr);
+            while (nr > _r[i]) decr_r(nl, --nr);
             solve(i);
         }
     }
@@ -64,12 +64,12 @@ struct mo_alg {
     // ** `[y, x + 1)` into `[y, x)`.
     // - `solve(i)` evaluates the `i`-th query.
     template <typename order_, typename add_, typename del_, typename solve_>
-    void eval_queries(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve) {
-        auto add_l = [add](int l, int) { add(l); };
-        auto add_r = [add](int, int r) { add(r); };
-        auto del_l = [del](int l, int) { del(l); };
-        auto del_r = [del](int, int r) { del(r); };
-        eval_queries(order, add_l, add_r, del_l, del_r, solve);
+    void eval_queries_add_del(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve) {
+        auto decr_l = [add](int l, int) { add(l); };
+        auto incr_r = [add](int, int r) { add(r); };
+        auto incr_l = [del](int l, int) { del(l); };
+        auto decr_r = [del](int, int r) { del(r); };
+        eval_queries(order, incr_l, decr_l, incr_r, decr_r, solve);
     }
 };
 
