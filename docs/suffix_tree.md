@@ -52,3 +52,15 @@ Constructs a suffix tree of $S$ given its suffix array `sa` and LCP array `lcp`.
 * $\Theta(N)$
 
 <br>
+
+## Related problems (external links)
+
+<details><summary>Click to unfold (spoilers)</summary>
+
+- [ABC 280 Ex - Substring Sort](https://atcoder.jp/contests/abc280/tasks/abc280_h)
+- [ABC 433 G - Substring Game](https://atcoder.jp/contests/abc433/tasks/abc433_g)
+- [PAST 23 N - Sorting Substrings](https://atcoder.jp/contests/past23-open/tasks/past23_n)
+
+</details>
+
+<br>
