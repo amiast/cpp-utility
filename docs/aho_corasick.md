@@ -46,7 +46,6 @@ Returns a pair containing:
 
 - $0\leq c\lt|\Sigma|$ for each character $c$ in a pattern.
 
-
 ### Time complexity
 
 - $\mathcal{O}(M|\Sigma|)$, where $M$ is the total number of characters in `patterns`, and $|\Sigma|$ is the size of the alphabet.
