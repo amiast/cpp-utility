@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <concepts>
 #include <cassert>
+#include <kotone/internal_type_traits>
 
 namespace kotone {
 
@@ -107,6 +108,7 @@ template <typename derived_tree, compatible_node node> struct link_cut_tree_base
 
     // Exposes the preferred path from node `n` to the root of its tree.
     // Moves `n` to the root of its splay tree.
+    // Can be redefined in derived classes to maintain information of subtrees.
     void _access(node *n) {
         node *last = nullptr;
         for (node *curr = n; curr; curr = curr->parent) {
@@ -120,14 +122,14 @@ template <typename derived_tree, compatible_node node> struct link_cut_tree_base
 
     // Reorients the tree and moves node `n` to the root.
     void _make_root(node *n) {
-        _access(n);
+        derived()._access(n);
         n->lazy_reverse ^= true;
         derived()._push(n);
     }
 
     // Returns a pointer to the root of the tree containing node `n`.
     node* _get_root(node *n) {
-        _access(n);
+        derived()._access(n);
         while (n->light) {
             derived()._push(n);
             n = n->light;
@@ -168,7 +170,10 @@ template <typename derived_tree, compatible_node node> struct link_cut_tree_base
         assert(0 <= v && v < size());
         node *node_u = &_nodes[u], *node_v = &_nodes[v];
         _make_root(node_u);
-        if (_get_root(node_v) != node_u) node_u->parent = node_v;
+        if (_get_root(node_v) == node_u) return;
+        derived()._access(node_v);
+        node_u->parent = node_v;
+        derived()._update(node_v);
     }
 
     // Removes the edge connecting nodes `u` and `v` if it exists.
@@ -178,25 +183,16 @@ template <typename derived_tree, compatible_node node> struct link_cut_tree_base
         assert(0 <= v && v < size());
         node *node_u = &_nodes[u], *node_v = &_nodes[v];
         _make_root(node_u);
-        _access(node_v);
-        if (node_v->light == node_u && !node_u->heavy) {
-            node_v->light = nullptr;
-            node_u->parent = nullptr;
-            derived()._update(node_v);
-            return;
-        }
-        _make_root(node_v);
-        _access(node_u);
-        if (node_u->light == node_v && !node_v->heavy) {
-            node_u->light = nullptr;
-            node_v->parent = nullptr;
-            derived()._update(node_u);
-        }
+        derived()._access(node_v);
+        if (node_v->light != node_u || node_u->heavy) return;
+        node_v->light = nullptr;
+        node_u->parent = nullptr;
+        derived()._update(node_v);
     }
 
     // Returns whether `u` and `v` are connected.
     // Requires `u` and `v` to be valid indices.
-    int connected(int u, int v) {
+    bool connected(int u, int v) {
         assert(0 <= u && u < size());
         assert(0 <= v && v < size());
         return _get_root(&_nodes[u]) == _get_root(&_nodes[v]);
@@ -209,15 +205,14 @@ struct link_cut_tree : link_cut_tree_base<link_cut_tree, link_cut_node> {};
 template <typename W> struct extended_node {
     extended_node *parent = nullptr, *light = nullptr, *heavy = nullptr;
     bool lazy_reverse = false;
-    int size = 1;
     int index;
-    W weight{};
-    W sum{};
+    int path_size = 1, subtree_size = 1, virtual_size = 0;
+    W node_weight{}, path_weight{}, subtree_weight{}, virtual_weight{};
     extended_node(int node_index) : index(node_index) {}
 };
 
 // A link-cut tree with extended functionalities.
-template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extended_link_cut_tree<W>, extended_node<W>> {
+template <mutable_additive W> struct extended_link_cut_tree : link_cut_tree_base<extended_link_cut_tree<W>, extended_node<W>> {
     friend class link_cut_tree_base<extended_link_cut_tree<W>, extended_node<W>>;
 
   protected:
@@ -225,9 +220,7 @@ template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extende
     using base = link_cut_tree_base<extended_link_cut_tree<W>, extended_node<W>>;
     using base::_nodes;
     using base::_push;
-    using base::_access;
     using base::_splay;
-    using base::_get_root;
     using base::_make_root;
     using base::base;
     using base::size;
@@ -235,15 +228,42 @@ template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extende
 
     void _update(node *n) {
         if (!n) return;
-        n->size = 1;
-        n->sum = n->weight;
-        if (n->light) n->size += n->light->size, n->sum += n->light->sum;
-        if (n->heavy) n->size += n->heavy->size, n->sum += n->heavy->sum;
+        n->path_size = 1;
+        n->path_weight = n->node_weight;
+        if (n->light) {
+            n->path_size += n->light->path_size;
+            n->path_weight += n->light->path_weight;
+        }
+        if (n->heavy) {
+            n->path_size += n->heavy->path_size;
+            n->path_weight += n->heavy->path_weight;
+        }
+        n->subtree_size = n->path_size + n->virtual_size;
+        n->subtree_weight = n->path_weight + n->virtual_weight;
+    }
+
+    void _access(node *n) {
+        node *last = nullptr;
+        for (node *curr = n; curr; curr = curr->parent) {
+            _splay(curr);
+            if (curr->heavy) {
+                curr->virtual_size += curr->heavy->subtree_size;
+                curr->virtual_weight += curr->heavy->subtree_weight;
+            }
+            if (last) {
+                curr->virtual_size -= last->subtree_size;
+                curr->virtual_weight -= last->subtree_weight;
+            }
+            curr->heavy = last;
+            _update(curr);
+            last = curr;
+        }
+        _splay(n);
     }
 
     node* _get_nth(node *n, int index) {
         _push(n);
-        int light_size = n->light ? n->light->size : 0;
+        int light_size = n->light ? n->light->path_size : 0;
         if (index < light_size) return _get_nth(n->light, index);
         if (index == light_size) return n;
         return _get_nth(n->heavy, index - light_size - 1);
@@ -258,13 +278,6 @@ template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extende
     }
 
   public:
-    // Returns the number of nodes in the tree containing node `v`.
-    // Requires `v` to be a valid index.
-    int get_size(int v) {
-        assert(0 <= v && v < size());
-        return _get_root(&_nodes[v])->size;
-    }
-
     // Returns the number of edges between nodes `u` and `v`.
     // If `u` and `v` are not connected, returns `-1` instead.
     // Requires `u` and `v` to be valid indices.
@@ -273,33 +286,33 @@ template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extende
         node *node_u = &_nodes[u], *node_v = &_nodes[v];
         _make_root(node_u);
         _access(node_v);
-        return node_v->size - 1;
+        return node_v->path_size - 1;
     }
 
-    // Returns the index of the lowest common ancestor of nodes `u` and `v`.
-    // If `u` and `v` are not connected, returns `-1` instead.
-    // Requires `u` and `v` to be valid indices.
-    int get_lca(int u, int v) {
-        if (!connected(u, v)) return -1;
-        node *node_u = &_nodes[u], *node_v = &_nodes[v];
+    // Designates `root` as the root and returns the number of nodes in the subtree rooted at node `v`.
+    // If `root` and `v` are not connected, returns `0` instead.
+    // Requires `root` and `v` to be valid indices.
+    int get_subtree_size(int root, int v) {
+        if (!connected(root, v)) return 0;
+        node *node_r = &_nodes[root], *node_v = &_nodes[v];
+        _make_root(node_r);
+        _access(node_v);
+        return node_v->subtree_size;
+    }
+
+    // Designates `root` as the root and returns the lowest common ancestor of nodes `u` and `v`.
+    // If `root`, `u` and `v` are not connected, returns `-1` instead.
+    // Requires `root`, `u` and `v` to be valid indices.
+    int get_lca(int root, int u, int v) {
+        if (!connected(root, u)) return -1;
+        if (!connected(root, v)) return -1;
+        node *node_r = &_nodes[root], *node_u = &_nodes[u], *node_v = &_nodes[v];
+        _make_root(node_r);
         _access(node_u);
         _access(node_v);
         _splay(node_u);
         if (_nodes[u].parent) return _nodes[u].parent->index;
         return u;
-    }
-
-    // Designates `root` as the new root of its tree and returns the lowest common ancestor of nodes `u` and `v`.
-    // If either `u` or `v` is not in the same tree as `root`, returns `-1` instead.
-    // Requires `u`, `v` and `root` to be valid indices.
-    int get_lca(int u, int v, int root) {
-        assert(0 <= u && u < size());
-        assert(0 <= v && v < size());
-        assert(0 <= root && root < size());
-        node *node_u = &_nodes[u], *node_v = &_nodes[v], *node_r = &_nodes[root];
-        _make_root(node_r);
-        if (_get_root(node_u) != node_r || _get_root(node_v) != node_r) return -1;
-        return get_lca(u, v);
     }
 
     // Returns the node at the specified index in the path from `u` to `v`.
@@ -315,7 +328,7 @@ template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extende
         node *node_u = &_nodes[u], *node_v = &_nodes[v];
         _make_root(node_u);
         _access(node_v);
-        if (index < 0 || index >= node_v->size) return -1;
+        if (index < 0 || index >= node_v->path_size) return -1;
         return _get_nth(node_v, index)->index;
     }
 
@@ -339,7 +352,7 @@ template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extende
         assert(0 <= v && v < size());
         node *node_v = &_nodes[v];
         _access(node_v);
-        return node_v->weight;
+        return node_v->node_weight;
     }
 
     // Sets the new weight of node `v`.
@@ -348,19 +361,30 @@ template <typename W> struct extended_link_cut_tree : link_cut_tree_base<extende
         assert(0 <= v && v < size());
         node *node_v = &_nodes[v];
         _access(node_v);
-        node_v->weight = new_weight;
+        node_v->node_weight = new_weight;
         _update(node_v);
     }
 
-    // Returns the sum of weights of nodes in the path from `u` to `v`.
+    // Returns the total weight of nodes in the path from `u` to `v`.
     // If `u` and `v` are not connected, returns `W{}`.
     // Requires `u` and `v` to be valid indices.
-    W get_path_sum(int u, int v) {
+    W get_path_weight(int u, int v) {
         if (!connected(u, v)) return {};
         node *node_u = &_nodes[u], *node_v = &_nodes[v];
         _make_root(node_u);
         _access(node_v);
-        return node_v->sum;
+        return node_v->path_weight;
+    }
+
+    // Designates `root` as the root and returns the weight of nodes in the subtree rooted at node `v`.
+    // If `root` and `v` are not connected, returns `W{}` instead.
+    // Requires `root` and `v` to be valid indices.
+    W get_subtree_weight(int root, int v) {
+        if (!connected(root, v)) return {};
+        node *node_r = &_nodes[root], *node_v = &_nodes[v];
+        _make_root(node_r);
+        _access(node_v);
+        return node_v->subtree_weight;
     }
 };
 

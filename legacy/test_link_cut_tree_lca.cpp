@@ -17,6 +17,6 @@ int main() {
     while (Q--) {
         int u, v;
         std::cin >> u >> v;
-        std::cout << tree.get_lca(u, v) << std::endl;
+        std::cout << tree.get_lca(0, u, v) << std::endl;
     }
 }
