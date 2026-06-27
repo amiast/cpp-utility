@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/dynamic_tree_vertex_set_path_composite
-// Details: https://judge.yosupo.jp/submission/382546
+// Details: https://judge.yosupo.jp/submission/382668
 
 #include <iostream>
 #include <vector>
@@ -7,17 +7,21 @@
 #include <kotone/link_cut_tree>
 
 using mint = atcoder::modint998244353;
-std::vector<std::pair<mint, mint>> affine, acc, rev;
+using S = std::pair<mint, mint>;
+std::vector<S> affine, acc, rev;
+S compose(S a, S b) { return {a.first * b.first, a.first * b.second + a.second}; }
 void on_update(int p, int l, int r) {
     acc[p] = rev[p] = affine[p];
-    if (l != -1) acc[p] = {acc[p].first * acc[l].first, acc[p].first * acc[l].second + acc[p].second};
-    if (r != -1) acc[p] = {acc[r].first * acc[p].first, acc[r].first * acc[p].second + acc[r].second};
-    if (r != -1) rev[p] = {rev[p].first * rev[r].first, rev[p].first * rev[r].second + rev[p].second};
-    if (l != -1) rev[p] = {rev[l].first * rev[p].first, rev[l].first * rev[p].second + rev[l].second};
+    if (l != -1) {
+        acc[p] = compose(acc[p], acc[l]);
+        rev[p] = compose(rev[l], rev[p]);
+    }
+    if (r != -1) {
+        acc[p] = compose(acc[r], acc[p]);
+        rev[p] = compose(rev[p], rev[r]);
+    }
 }
-void on_reverse(int p, int, int) {
-    std::swap(acc[p], rev[p]);
-}
+void on_reverse(int p, int, int) { std::swap(acc[p], rev[p]); }
 
 int main() {
     std::ios::sync_with_stdio(false);

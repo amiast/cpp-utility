@@ -10,13 +10,14 @@ namespace kotone {
 // Optionally, provide the following functions to enable aggregation queries:
 // - `void on_update(int parent, int left, int right)`
 // - `void on_reverse(int parent, int left, int right)`
-// - `void on_push(int parent, int child)`
+// - `void on_push(int parent, int left, int right)`
 //
 // Reference: https://usaco.guide/adv/link-cut-tree
+// Reference: https://nyaannyaan.github.io/library/lct/link-cut-base.hpp
 template <
     void (*on_update)(int, int, int) = nullptr,
     void (*on_reverse)(int, int, int) = nullptr,
-    void (*on_push)(int, int) = nullptr
+    void (*on_push)(int, int, int) = nullptr
 > struct link_cut_tree {
   private:
     struct splay_vertex {
@@ -48,10 +49,7 @@ template <
             if (r != -1) _reverse(r);
             _vec[v].rev = false;
         }
-        if constexpr (on_push) {
-            if (l != -1) on_push(v, l);
-            if (r != -1) on_push(v, r);
-        }
+        if constexpr (on_push) on_push(v, l, r);
     }
 
     int _dir(int v) const noexcept {
@@ -88,6 +86,7 @@ template <
             _push(v);
             if (_dir(v) == _dir(_vec[v].parent)) _rotate(_vec[v].parent);
             else _rotate(v);
+            _rotate(v);
         }
         if (_dir(v) >= 0) {
             _push(_vec[v].parent);
@@ -190,8 +189,7 @@ template <
         assert(_vec[v].left == -1);
         assert(v != root(p));
         _access(p);
-        _merge(v, p, 0);
-        _update(v);
+        _vec[v].parent = p;
     }
 
     // Reorients the tree containing `v` such that `v` becomes the new root.
