@@ -36,7 +36,7 @@ template <
 
     void _reverse(int v) {
         int &l = _vec[v].left, &r = _vec[v].right;
-        if constexpr(on_reverse) on_reverse(v, l, r);
+        if constexpr (on_reverse) on_reverse(v, l, r);
         std::swap(l, r);
         _vec[v].rev ^= true;
     }
