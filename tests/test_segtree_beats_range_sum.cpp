@@ -1,11 +1,13 @@
 // Verified with: https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum
-// Details: https://judge.yosupo.jp/submission/318866
+// Details: https://judge.yosupo.jp/submission/382691
 
 #include <iostream>
 #include <vector>
 #include <kotone/segtree_beats>
 
 int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
     int N, Q;
     std::cin >> N >> Q;
     std::vector<int64_t> A(N);
