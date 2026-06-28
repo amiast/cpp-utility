@@ -1,11 +1,13 @@
 // Verified with: https://judge.yosupo.jp/problem/segment_add_get_min
-// Details: https://judge.yosupo.jp/submission/323085
+// Details: https://judge.yosupo.jp/submission/382693
 
 #include <iostream>
 #include <vector>
 #include <kotone/lichao_tree>
 
 int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
     int N, Q;
     std::cin >> N >> Q;
     std::vector<int64_t> L(N), R(N), A(N), B(N);
