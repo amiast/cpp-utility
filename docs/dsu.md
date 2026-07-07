@@ -5,58 +5,85 @@ The `dsu` is a data structure that maintains disjoint subsets in a partition of 
 Given an undirected graph $G=(V, E)$ with $N$ nodes labeled $0, \dots, N-1$, a DSU can add edges between nodes and check connectivity in $\mathcal{O}(\alpha(N))$ amortized time per operation. Here, $\alpha$ denotes the inverse Ackermann function. For each connected component of $G$, the DSU assigns a member node as its leader. When the DSU merges two connected components, it reassigns a member node as the new leader.
 
 The potential difference between two connected nodes in $G$ is a function $f:C\rightarrow T$ with the following properties:
-* $C\subseteq V^2$ is the set of pairs of connected nodes in $G$
-* $T$ is an additive group
-* $f(u, v)=-f(v, u)$
-* For all simple paths $(v_1, \dots, v_k)$ in $G$, $f(v_1, v_k)=\sum_{i=1}^{k-1}f(v_i, v_{i+1})$
 
-<br>
+- $C\subseteq V^2$ is the set of pairs of connected nodes in $G$
+- $T$ is an additive group
+- $f(u, v)=-f(v, u)$
+- For all simple paths $(v_1, \dots, v_k)$ in $G$, $f(v_1, v_k)=\sum_{i=1}^{k-1}f(v_i, v_{i+1})$
 
-The `extended_dsu`, derived from `dsu`, maps connected components to user-defined values. When the extended DSU merges two connected components, it merges their images under the mapping as well. More formally, the mapping is a function $g:(\mathcal{P}(V)\setminus\{\varnothing\})\rightarrow S$ with the following properties:
-* $S$ is a commutative semigroup equipped with a binary operation $h$
-* When two disjoint subsets $X, Y$ merge, the mapping obeys $g(X\cup Y)=h(g(X), g(Y))$
 
-<br>
+With user-provided methods, the DSU also maps connected components with commutative monoids. See [Construction](#constructor) for more information.
 
 This documentation assumes the following operations can be performed in $\mathcal{O}(1)$ time:
 
-* Initializing an instance of `T`
-* Adding and subtracting two instances of `T`
-* Initializing an instance of `S`
-* Computing $h(s_1, s_2)$ for two instances $s_1, s_2$ of `S`
+- `pd_type`: initialization, addition, and subtraction
+- `on_init`
 
 <br>
 
 ## Constructor
 
 ```cpp
-(1) kotone::dsu<T> d(int num_nodes)
-(2) kotone::extended_dsu<S, op, T> d(int num_nodes)
-(3) kotone::extended_dsu<S, op, T> d(int num_nodes, S init_x)
-(4) kotone::extended_dsu<S, op, T> d(std::vector<S> vec)
+(1) kotone::dsu d()
+(2) kotone::dsu d(int num_nodes)
+
+(3) kotone::dsu<pd_type> d()
+(4) kotone::dsu<pd_type> d(int num_nodes)
+
+(5) kotone::dsu<pd_type, on_init, on_merge> d()
+(6) kotone::dsu<pd_type, on_init, on_merge> d(int num_nodes)
 ```
 
 Constructs a DSU for an undirected graph $G$ with no edges. Each node is initially in its own connected component.
 
-* The number of nodes $N$ is specified by:
-    * (1), (2), (3): `num_nodes`;
-    * (4): the size of `vec`.
-* The initial mapping $g$ for each connected component in `ed` is:
-    * (2): a value-initialized instance of `S`;
-    * (3): a copy of `init_x`;
-    * (4): $g(\{v\})=$`vec[v]` for $v\in\{0, \dots, N-1\}$.
-* `T` is `int` by default.
+- The number of nodes $N$ is:
+    - (1), (3), (5): $0$; or
+    - (2), (4), (6): `num_nodes`.
+- The numeric type of potential difference is:
+    - (1), (2): `int`; or
+    - (3-6): `pd_type`.
+- (5), (6): Uses the following functions:
+    - Calls `void on_init(int node)` after adding a new node to $G$.
+    - Calls `void on_merge(int new_leader, int old_leader)` after merging two distinct connected components.
 
 ### Constraints
 
-* `T` is default-constructible
-* `T` supports addition (`+`) and subtraction (`-`) operators
-* `S` is default-constructible
-* `S op(S a, S b)` is associative and commutative
+- `pd_type` default-initializes to $0$.
+- `pd_type` supports `operator+` and `operator-`.
 
 ### Time complexity
 
-* $\mathcal{O}(N)$
+- $\mathcal{O}(N)$
+
+<br>
+
+## Graph size
+
+```cpp
+int d.num_nodes()
+```
+
+Returns $N$.
+
+### Time complexity
+
+- $\mathcal{O}(1)$
+
+<br>
+
+## Vertex insertion
+
+```cpp
+int d.add_vertex()
+```
+
+Adds a new vertex to $G$ and returns its index.
+
+- Calls `on_init` if provided.
+
+### Time complexity
+
+- Amortized $\mathcal{O}(1)$
 
 <br>
 
@@ -70,11 +97,11 @@ Returns the leader of the connected component containing $v$.
 
 ### Constraints
 
-* $0\leq v\lt N$
+- $0\leq v\lt N$
 
 ### Time complexity
 
-* Amortized $\mathcal{O}(\alpha(N))$
+- Amortized $\mathcal{O}(\alpha(N))$
 
 <br>
 
@@ -84,15 +111,15 @@ Returns the leader of the connected component containing $v$.
 bool d.connected(int u, int v)
 ```
 
-Returns whether $u$ and $v$ are connected. Equivalently, returns whether $u$ and $v$ belong to the same connected component.
+Returns whether $u$ and $v$ are connected.
 
 ### Constraints
 
-* $0\leq u, v\lt N$
+- $0\leq u, v\lt N$
 
 ### Time complexity
 
-* Amortized $\mathcal{O}(\alpha(N))$
+- Amortized $\mathcal{O}(\alpha(N))$
 
 <br>
 
@@ -100,42 +127,43 @@ Returns whether $u$ and $v$ are connected. Equivalently, returns whether $u$ and
 
 ```cpp
 (1) int d.merge(int u, int v)
-(2) int d.merge(int u, int v, T pd)
+(2) int d.merge(int u, int v, pd_type pd)
 ```
 
 Adds an edge between $u$ and $v$, then returns the leader of the merged connected component.
 
-* If `d` is an `extended_dsu` and $u, v$ belong to distinct connected components, `d` also merges their images under $g$ via `op` and assigns the result to the new component.
-* (1) `d` does not define the potential difference from $u$ to $v$, and subsequent calls to `potential_diff()` will trigger an assertion failure.
-* (2) If $u, v$ are not formerly connected, defines `pd` as the potential difference from $u$ to $v$. If $u, v$ are already connected, discards `pd` to avoid redefinition.
+- If $u, v$ are connected, this method does not modify $G$.
+- (1) If $u, v$ are disconnected, sets $0$ as the potential difference from $u$ to $v$.
+- (2) If $u, v$ are disconnected, sets `pd` as the potential difference from $u$ to $v$.
+- If provided, calls `void on_merge(int new_leader, int old_leader)` after the merge is complete.
+    - Does not call `on_merge` if $u, v$ are already connected.
 
 ### Constraints
 
-* $0\leq u, v\lt N$
+- $0\leq u, v\lt N$
 
 ### Time complexity
 
-* Amortized $\mathcal{O}(\alpha(N))$
+- Amortized $\mathcal{O}(\alpha(N)+T(N))$, where $T(N)$ is the amortized computational cost of `on_merge`.
 
 <br>
 
 ## Potential difference
 
 ```cpp
-T d.potential_diff(int u, int v)
+pd_type d.potential_diff(int u, int v)
 ```
 
-Returns the potential difference from $u$ to $v$.
+Returns the potential difference $f(u, v)$.
 
 ### Constraints
 
-* $0\leq u, v\lt N$
-* $u$ and $v$ are connected
-* All previous `merge()` calls define potential differences
+- $0\leq u, v\lt N$
+- $u$ and $v$ are connected
 
 ### Time complexity
 
-* Amortized $\mathcal{O}(\alpha(N))$
+- Amortized $\mathcal{O}(\alpha(N))$
 
 <br>
 
@@ -149,11 +177,11 @@ Returns the size of the connected component containing $v$.
 
 ### Constraints
 
-* $0\leq v\lt N$
+- $0\leq v\lt N$
 
 ### Time complexity
 
-* Amortized $\mathcal{O}(\alpha(N))$
+- Amortized $\mathcal{O}(\alpha(N))$
 
 <br>
 
@@ -165,48 +193,12 @@ std::vector<std::vector<int>> d.components()
 
 Returns a vector of connected components of $G$.
 
-* The order of connected components is undefined.
-* Each connected component is a vector of indices of member nodes in ascending order.
+- The order of connected components is undefined.
+- Each connected component is a vector of indices of member nodes in ascending order.
 
 ### Time complexity
 
-* $\mathcal{O}(N)$
-
-<br>
-
-## Mapping retrieval (`extended_dsu` only)
-
-```cpp
-S d.get(int v)
-```
-
-Returns a copy of $g(C_v)$ where $C_v$ is the connected component containing $v$.
-
-### Constraints
-
-* $0\leq v\lt N$
-
-### Time complexity
-
-* Amortized $\mathcal{O}(\alpha(N))$
-
-<br>
-
-## Mapping assignment (`extended_dsu` only)
-
-```cpp
-int d.set(int v, S x)
-```
-
-Reassigns $g(C_v)$ as $x$ then returns the leader of $C_v$, where $C_v$ is the connected component containing $v$.
-
-### Constraints
-
-* $0\leq v\lt N$
-
-### Time complexity
-
-* Amortized $\mathcal{O}(\alpha(N))$
+- $\mathcal{O}(N)$
 
 <br>
 
@@ -214,9 +206,9 @@ Reassigns $g(C_v)$ as $x$ then returns the leader of $C_v$, where $C_v$ is the c
 
 <details><summary>Click to unfold (spoilers)</summary>
 
-* [ABC 235 E - MST + 1](https://atcoder.jp/contests/abc235/tasks/abc235_e)
-* [ABC 280 F - Pay or Receive](https://atcoder.jp/contests/abc280/tasks/abc280_f)
-* [ABC 328 F - Good Set Query](https://atcoder.jp/contests/abc328/tasks/abc328_f)
+- [ABC 280 F - Pay or Receive](https://atcoder.jp/contests/abc280/tasks/abc280_f)
+- [ABC 328 F - Good Set Query](https://atcoder.jp/contests/abc328/tasks/abc328_f)
+- [ABC 451 F - Make Bipartite 3](https://atcoder.jp/contests/abc451/tasks/abc451_f)
 
 </details>
 

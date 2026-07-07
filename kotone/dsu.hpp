@@ -4,37 +4,64 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
+#include <kotone/internal_type_traits>
 
 namespace kotone {
 
 // A basic data structure that monitors connectivity in a graph.
 // Optionally monitors the potential differences between nodes.
+// Pass the following functions to monitor connected components with commutative monoids:
+// - `void on_init(int node)`
+// - `void on_merge(int new_leader, int old_leader)`
+//
 // Reference: AtCoder Library
-template <typename T = int> struct dsu {
-  protected:
-    int _num_nodes;
-    bool _defines_pd = true;
+template <
+    additive pd_type = int,
+    void (*on_init)(int) = nullptr,
+    void (*on_merge)(int, int) = nullptr
+> struct dsu {
+  private:
     std::vector<int> _parent_or_size;
-    std::vector<T> _p;
+    std::vector<pd_type> _p;
 
-    T _potential(int v) {
+    pd_type _potential(int v) {
         leader(v);
         return _p[v];
     }
 
   public:
-    dsu() : _num_nodes(0) {}
+    // Initializes DSU with an empty graph.
+    dsu() {}
 
-    // Creates a graph with the specified `num_nodes` and no edges.
-    dsu(int num_nodes) : _num_nodes(num_nodes), _parent_or_size(num_nodes, -1), _p(num_nodes) {
+    // Initializes DSU with the specified `num_nodes` and no edges.
+    // If provided, calls `on_init(v)` for each node `v`.
+    // Requires `num_nodes >= 0`.
+    dsu(int num_nodes) {
         assert(num_nodes >= 0);
-        assert(num_nodes <= 100000000);
+        _parent_or_size.assign(num_nodes, -1);
+        _p.resize(num_nodes);
+        if constexpr (on_init) for (int v = 0; v < num_nodes; v++) on_init(v);
+    }
+
+    // Returns the number of nodes.
+    int num_nodes() const noexcept {
+        return _parent_or_size.size();
+    }
+
+    // Creates a new vertex and returns its index.
+    // If provided, calls `on_init(v)` for the new node `v`.
+    int add_vertex() {
+        int v = num_nodes();
+        _parent_or_size.push_back(-1);
+        _p.emplace_back();
+        if constexpr (on_init) on_init(v);
+        return v;
     }
 
     // Returns the leader of the connected component containing `v`.
+    // Requires `0 <= v < num_nodes`.
     int leader(int v) {
-        assert(v >= 0);
-        assert(v < _num_nodes);
+        assert(0 <= v && v < num_nodes());
         if (_parent_or_size[v] < 0) return v;
         int l = leader(_parent_or_size[v]);
         _p[v] = _p[v] + _p[_parent_or_size[v]];
@@ -48,25 +75,17 @@ template <typename T = int> struct dsu {
 
     // Returns the potential difference from `u` to `v`.
     // Requires `u` and `v` to be connected.
-    // Requires all previous `merge()` calls to define potential differences.
-    T potential_diff(int u, int v) {
+    pd_type potential_diff(int u, int v) {
         assert(connected(u, v));
-        assert(_defines_pd);
         return _potential(v) - _potential(u);
     };
 
     // Adds an edge between `u` and `v`,
     // then returns the leader of the merged component.
-    virtual int merge(int u, int v) {
-        _defines_pd = false;
-        return merge(u, v, T{});
-    }
-
-    // Adds an edge between `u` and `v`,
-    // then returns the leader of the merged component.
-    // If `u` and `v` are not formerly connected,
-    // defines the potential difference from `u` to `v` as `pd`.
-    virtual int merge(int u, int v, T pd) {
+    // If `u` and `v` are disconnected, sets `pd` as the potential difference from `u` to `v`.
+    // Chooses the new leader via union by size.
+    // Calls `on_merge` if provided.
+    int merge(int u, int v, pd_type pd = {}) {
         if (connected(u, v)) return leader(u);
         pd = pd + _potential(u) - _potential(v);
         u = leader(u);
@@ -78,6 +97,7 @@ template <typename T = int> struct dsu {
         _parent_or_size[u] += _parent_or_size[v];
         _parent_or_size[v] = u;
         _p[v] = pd;
+        if constexpr (on_merge) on_merge(u, v);
         return u;
     }
 
@@ -88,71 +108,17 @@ template <typename T = int> struct dsu {
 
     // Returns a vector of connected components as vectors of node indices.
     // The order of components is undefined.
-    // Node indices in each group's vector appear in ascending order.
+    // Each component contains member nodes in ascending order.
     std::vector<std::vector<int>> components() {
-        std::vector<std::vector<int>> temp(_num_nodes), result;
-        for (int i = 0; i < _num_nodes; i++) temp[leader(i)].emplace_back(i);
-        for (int i = 0; i < _num_nodes; i++) {
+        int n = num_nodes();
+        std::vector<std::vector<int>> temp(n), result;
+        for (int i = 0; i < n; i++) temp[leader(i)].emplace_back(i);
+        for (int i = 0; i < n; i++) {
             if (temp[i].size()) {
                 result.push_back(std::move(temp[i]));
             }
         }
         return result;
-    }
-};
-
-// An extended DSU with internal mapping between connected components and a semigroup.
-// Optionally monitors the potential differences between nodes.
-template <typename S, S (*op)(S, S), typename T = int> struct extended_dsu : dsu<T> {
-  protected:
-    std::vector<S> _map;
-
-  public:
-    extended_dsu() : dsu<T>() {}
-
-    // Creates a graph with the specified `num_nodes` and no edges.
-    // Each connected component is mapped to a value-initialized instance of `S`.
-    extended_dsu(int num_nodes) : dsu<T>(num_nodes), _map(num_nodes) {}
-
-    // Creates a graph with the specified `num_nodes` and no edges.
-    // Each connected component is mapped to a copy of `init_x`.
-    extended_dsu(int num_nodes, S init_x) : dsu<T>(num_nodes), _map(num_nodes, init_x) {}
-
-    // Creates a graph with no edges.
-    // For all `v`, maps connected component containing `v` to `vec[v]`.
-    extended_dsu(const std::vector<S> &vec) : dsu<T>(vec.size()), _map(vec) {}
-
-    // Adds an edge between `u` and `v`,
-    // then returns the leader of the merged component.
-    // Also merges their images under the mapping.
-    int merge(int u, int v) override {
-        this->_defines_pd = false;
-        return merge(u, v, T{});
-    }
-
-    // Adds an edge between `u` and `v`,
-    // then returns the leader of the merged component.
-    // Also merges their images under the mapping.
-    // If `u` and `v` are not formerly connected,
-    // defines the potential difference from `u` to `v` as `pd`.
-    int merge(int u, int v, T pd) override {
-        if (this->connected(u, v)) return this->leader(u);
-        S result = op(_map[this->leader(u)], _map[this->leader(v)]);
-        _map[dsu<T>::merge(u, v, pd)] = std::move(result);
-        return this->leader(u);
-    }
-
-    // Returns a copy of the image mapped from the connected component containing `v`.
-    S get(int v) {
-        return _map[this->leader(v)];
-    }
-
-    // Reassigns `x` as the image mapped from the connected component containing `v`,
-    // then returns the leader of the modified component.
-    int set(int v, S x) {
-        v = this->leader(v);
-        _map[v] = std::move(x);
-        return v;
     }
 };
 
