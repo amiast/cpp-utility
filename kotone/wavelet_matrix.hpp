@@ -364,7 +364,7 @@ template <typename S, int BIT_WIDTH> struct wavelet_matrix_additive : wavelet_ma
     // Returns the maximum `upper < 1 << BIT_WIDTH` such that `g(sum(l, r, upper)) == true`.
     // Requires `0 <= l <= r <= _len`.
     // Requires `bool g(S x)` to be a monotonic predicate.
-    // Requires `g(e()) == true`.
+    // Requires `g(S{}) == true`.
     template <typename G> uint64_t max_upper(int l, int r, G g) {
         assert(0 <= l && l <= r && r <= _len);
         assert(g(S{}));
