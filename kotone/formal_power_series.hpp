@@ -56,6 +56,19 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
     // Returns a copy of negated `*this`.
     fps operator-() const { return fps{} - *this; }
 
+    // Returns `*this` evaluated at `m`.
+    mint operator()(const mint &m) const {
+        mint result = 0, acc = 1;
+        for (std::size_t i = 0; i < this->size(); i++) {
+            result += (*this)[i] * acc;
+            acc *= m;
+        }
+        return result;
+    }
+
+    // Strips trailing `0`'s.
+    void strip() const { while (this->size() && this->back() == 0) this->pop_back(); }
+
     // Returns the sum of `a` and `b`.
     friend fps operator+(const fps &a, const fps &b) { fps c = a; return c += b; }
     // Returns the difference of `a` and `b`.
