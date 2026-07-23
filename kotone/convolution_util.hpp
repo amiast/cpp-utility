@@ -78,7 +78,10 @@ template <compatible_modint mint> std::vector<mint> log_fps(const std::vector<mi
     assert(fps[0] == 1);
     assert(n >= 0);
     if (n == 0) return {};
-    std::vector<mint> dfps = derivative(fps), ifps = inv_fps(fps, n);
+    std::vector<mint> dfps;
+    if (int len = fps.size(); len <= n) dfps = derivative(fps);
+    else dfps = derivative(std::vector<mint>{fps.begin(), fps.begin() + n});
+    std::vector<mint> ifps = inv_fps(fps, n - 1);
     std::vector<mint> prod = atcoder::convolution(dfps, ifps);
     prod.resize(n - 1);
     std::vector<mint> result = integral(prod);
@@ -87,15 +90,17 @@ template <compatible_modint mint> std::vector<mint> log_fps(const std::vector<mi
 }
 
 // Returns the exponential of the formal power series up to the first `n` coefficients.
-// If `fps` is empty, returns a vector of `n` elements filled with `0`.
-// Requires `fps[0] == 0` if `fps` is not empty.
+// Requires `fps.empty() || fps[0] == 0`.
 // Requires `n >= 0`.
 template <compatible_modint mint> std::vector<mint> exp_fps(const std::vector<mint> &fps, int n) {
+    assert(fps.empty || fps[0] == 0);
     assert(n >= 0);
-    if (fps.empty()) return std::vector<mint>(n);
-    assert(fps[0] == 0);
     if (n == 0) return {};
     std::vector<mint> result{1};
+    if (fps.empty()) {
+        result.resize(n);
+        return result;
+    }
     int m = 1;
     while (m < n) {
         m = std::min(m * 2, n);
