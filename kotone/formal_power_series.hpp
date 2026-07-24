@@ -67,7 +67,7 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
     }
 
     // Strips trailing `0`'s.
-    void strip() const { while (this->size() && this->back() == 0) this->pop_back(); }
+    void strip() { while (this->size() && this->back() == 0) this->pop_back(); }
 
     // Returns the sum of `a` and `b`.
     friend fps operator+(const fps &a, const fps &b) { fps c = a; return c += b; }
