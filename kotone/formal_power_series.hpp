@@ -69,6 +69,70 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
     // Strips trailing `0`'s.
     void strip() { while (this->size() && this->back() == 0) this->pop_back(); }
 
+    // Divides `*this` by `other` and assigns the quotient to `*this`.
+    // Requires `other` to contain nonzero coefficients.
+    fps& operator/=(const fps &other) {
+        fps denom(other.begin(), other.end());
+        denom.strip();
+        assert(!denom.empty());
+        fps num(this->begin(), this->end());
+        num.strip();
+        int n = num.size(), m = denom.size();
+        if (n < m) {
+            this->clear();
+            return *this;
+        }
+        std::reverse(denom.begin(), denom.end());
+        std::reverse(num.begin(), num.end());
+        *this = num * inverse(denom, n - m + 1);
+        this->resize(n - m + 1);
+        std::reverse(this->begin(), this->end());
+        return *this;
+    }
+
+    // Divides `*this` by `other` and assigns the remainder to `*this`.
+    // Requires `other` to contain nonzero coefficients.
+    fps& operator%=(const fps &other) {
+        fps denom(other.begin(), other.end());
+        denom.strip();
+        assert(!denom.empty());
+        fps num(this->begin(), this->end());
+        num.strip();
+        int n = num.size(), m = denom.size();
+        if (n < m) return *this;
+        std::reverse(denom.begin(), denom.end());
+        std::reverse(num.begin(), num.end());
+        fps quo = num * inverse(denom, n - m + 1);
+        quo.resize(n - m + 1);
+        std::reverse(quo.begin(), quo.end());
+        *this -= quo * other;
+        this->resize(m - 1);
+        return *this;
+    }
+
+    // Returns a `vector` containing the results of evaluating `*this` at each point in `vec`.
+    std::vector<mint> eval(const std::vector<mint> &vec) {
+        int m = vec.size(), len = 1;
+        while (len < m) len *= 2;
+        std::vector<fps> nodes(len * 2);
+        for (int i = 0; i < m; i++) nodes[len + i] = {-vec[i], 1};
+        for (int i = m; i < len; i++) nodes[len + i] = {1};
+        for (int i = len - 1; i > 0; i--) nodes[i] = nodes[i * 2] * nodes[i * 2 + 1];
+        std::vector<mint> result(m);
+        auto solve = [&](auto &solve, int i, fps poly) {
+            if (i >= len + m) return;
+            poly %= nodes[i];
+            if (i >= len) {
+                result[i - len] = poly[0];
+                return;
+            }
+            solve(solve, i * 2, poly);
+            solve(solve, i * 2 + 1, poly);
+        };
+        solve(solve, 1, *this);
+        return result;
+    }
+
     // Returns the sum of `a` and `b`.
     friend fps operator+(const fps &a, const fps &b) { fps c = a; return c += b; }
     // Returns the difference of `a` and `b`.
@@ -82,6 +146,12 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
     // Returns `a` with its coefficients divided by `b`.
     // Requires `b != 0`.
     friend fps operator/(const fps &a, const mint &b) { assert(b != 0); fps c = a; return c /= b; }
+    // Returns the quotient of `a` and `b`.
+    // Requires `b` to contain nonzero coefficients.
+    friend fps operator/(const fps &a, const fps &b) { fps c = a; return c /= b; }
+    // Returns the remainder of `a` and `b`.
+    // Requires `b` to contain nonzero coefficients.
+    friend fps operator%(const fps &a, const fps &b) { fps c = a; return c %= b; }
 
     // Returns the inverse of `f` up to the first `n` coefficients.
     // Requires `!f.empty()`.
