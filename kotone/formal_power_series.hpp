@@ -352,6 +352,27 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
         numerator.resize(n);
         return bostan_mori(numerator, denominator, k);
     }
+
+    // Given a vector of pairs `{x_i, y_i}`, returns `f` such that `f(x_i) == y_i` for all `i`.
+    // Requires `vec` to contain distinct `x_i`'s.
+    static fps interpolate(const std::vector<std::pair<mint, mint>> &vec) {
+        int m = vec.size(), len = 1;
+        while (len < m) len *= 2;
+        std::vector<fps> nodes(len * 2);
+        for (int i = 0; i < m; i++) nodes[i + len] = {-vec[i].first, 1};
+        for (int i = m; i < len; i++) nodes[i + len] = {1};
+        for (int i = len - 1; i > 0; i--) nodes[i] = nodes[i * 2] * nodes[i * 2 + 1];
+        auto solve = [&](auto &solve, int i, fps poly) -> fps {
+            if (i >= len + m) return {};
+            poly %= nodes[i];
+            if (i >= len) {
+                assert(poly[0] != 0);
+                return {vec[i - len].second / poly[0]};
+            }
+            return solve(solve, i * 2, poly) * nodes[i * 2 + 1] + solve(solve, i * 2 + 1, poly) * nodes[i * 2];
+        };
+        return solve(solve, 1, fps::derivative(nodes[1]));
+    }
 };
 
 }  // namespace kotone
