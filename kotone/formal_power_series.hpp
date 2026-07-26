@@ -180,6 +180,27 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
         return result;
     }
 
+    // Returns a `pair` containing the quotient and remainder of `f` and `g`.
+    // Requires `g` to contain nonzero coefficients.
+    static std::pair<fps, fps> divmod(const fps &f, const fps &g) {
+        fps denom(g.begin(), g.end());
+        denom.strip();
+        assert(!denom.empty());
+        fps num(f.begin(), f.end());
+        num.strip();
+        int n = num.size(), m = denom.size();
+        if (n < m) return {{}, f};
+        std::reverse(denom.begin(), denom.end());
+        std::reverse(num.begin(), num.end());
+        fps quo = num * inverse(denom, n - m + 1);
+        quo.resize(n - m + 1);
+        std::reverse(quo.begin(), quo.end());
+        std::reverse(num.begin(), num.end());
+        num -= quo * g;
+        num.resize(m - 1);
+        return {quo, num};
+    }
+
     // Returns the derivative of `f`.
     // Returns an empty vector if `f` is empty.
     static fps derivative(const fps &f) {
