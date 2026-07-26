@@ -212,7 +212,7 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
 
     // Returns the integral of `f`.
     // Sets the `0`-th coefficent of the integral as `0`.
-    // If `fps` is empty, returns an empty vector.
+    // If `f` is empty, returns an empty vector.
     static fps integral(const fps &f) {
         if (f.empty()) return {};
         int len = f.size();
@@ -236,7 +236,7 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
         if (n == 0) return {};
         fps prod;
         if (int len = f.size(); len <= n) prod = derivative(f);
-        else prod = derivative(fps{f.begin(), f.begin() + n});
+        else prod = derivative({f.begin(), f.begin() + n});
         prod *= inverse(f, n - 1);
         prod.resize(n - 1);
         fps result = integral(prod);
@@ -245,7 +245,7 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
     }
 
     // Returns the exponential of `f` up to the first `n` coefficients.
-    // Requires `f.empty() || fps[0] == 0`.
+    // Requires `f.empty() || f[0] == 0`.
     // Requires `n >= 0`.
     static fps exponential(const fps &f, int n) {
         assert(f.empty() || f[0] == 0);
