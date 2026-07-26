@@ -58,10 +58,10 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
 
     // Returns `*this` evaluated at `m`.
     mint operator()(const mint &m) const {
-        mint result = 0, acc = 1;
-        for (std::size_t i = 0; i < this->size(); i++) {
-            result += (*this)[i] * acc;
-            acc *= m;
+        mint result = 0;
+        for (std::size_t i = this->size(); i--;) {
+            result *= m;
+            result += (*this)[i];
         }
         return result;
     }
