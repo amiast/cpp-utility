@@ -118,6 +118,7 @@ Returns the index of the coordinates $(x, y)$ on a zigzagging path on the plane 
 
 * Pass this function to `mo_alg::eval_queries` to determine a query order.
 * The path zigzags between blocks of width $B$ defined by `block_width`.
+* For $N$ points on $[0, W)^2$, the total distance is bounded by $W^2/B+NB+4W$ and minimizes at $B\approx W/\sqrt N$.
 
 ### Constraints
 
@@ -137,6 +138,7 @@ The sample code is a solution to the following problem:
 <details><summary>Click to unfold (spoilers)</summary>
 
 * [ABC 242 G - Range Pairing Query](https://atcoder.jp/contests/abc242/tasks/abc242_g)
+* [ABC 448 F - Authentic Traveling Salesman Problem](https://atcoder.jp/contests/abc448/tasks/abc448_f)
 
 </details>
 
