@@ -92,7 +92,7 @@ template <
                     r++;
                     if (_seg[r].sfx_max + sum < 0) {
                         sum += _seg[r].sum;
-                        r--;;
+                        r--;
                     }
                 }
                 return r - _len;
