@@ -105,9 +105,14 @@ template <
     int _get_min_add(int time) const {
         int index = 0, bridge = _next_bridge(time);
         for (int l = _len, r = bridge + 1 + _len; l < r; l >>= 1, r >>= 1) {
-            if (~r & 1) continue;
-            r--;
-            if (_comp(_seg[r].min_add, index)) index = _seg[r].min_add;
+            if (l & 1) {
+                if (_comp(_seg[l].min_add, index)) index = _seg[l].min_add;
+                l++;
+            }
+            if (r & 1) {
+                r--;
+                if (_comp(_seg[r].min_add, index)) index = _seg[r].min_add;
+            }
         }
         return index;
     }
@@ -115,9 +120,14 @@ template <
     int _get_max_del(int time) const {
         int index = -1, bridge = _prev_bridge(time);
         for (int l = bridge + _len, r = _len * 2; l < r; l >>= 1, r >>= 1) {
-            if (~l & 1) continue;
-            if (_seg[l].max_del != -1 && (index == -1 || _comp(index, _seg[l].max_del))) index = _seg[l].max_del;
-            l++;
+            if (l & 1) {
+                if (_seg[l].max_del != -1 && (index == -1 || _comp(index, _seg[l].max_del))) index = _seg[l].max_del;
+                l++;
+            }
+            if (r & 1) {
+                r--;
+                if (_seg[r].max_del != -1 && (index == -1 || _comp(index, _seg[r].max_del))) index = _seg[r].max_del;
+            }
         }
         return index;
     }
