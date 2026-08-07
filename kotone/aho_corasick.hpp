@@ -22,7 +22,7 @@ namespace kotone {
 //
 // Requires `ALPHABET_SIZE >= 0`.
 // Requires `0 <= c < ALPHABET_SIZE` for each character `c` in each pattern.
-template <int ALPHABET_SIZE, void (*init)(int) = nullptr, void (*apply)(int, int) = nullptr, void (push)(int, int) = nullptr>
+template <int ALPHABET_SIZE, void (*init)(int) = nullptr, void (*apply)(int, int) = nullptr, void (*push)(int, int) = nullptr>
 std::pair<std::vector<std::array<int, ALPHABET_SIZE>>, std::vector<int>>
 construct_automaton(const std::vector<std::vector<int>> &patterns) {
     static_assert(ALPHABET_SIZE >= 0);
