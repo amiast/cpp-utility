@@ -67,7 +67,7 @@ template <compatible_modint mint> struct modint_utility {
     }
 
   public:
-    modint_utility() {}
+    modint_utility() : _p(mint::mod()) {}
 
     // Instantiates with the first `n + 1` factorials (`0!, 1!, ..., n!`) precomputed.
     // Requires `mint::mod()` to be prime.
