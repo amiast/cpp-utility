@@ -1,5 +1,5 @@
-#ifndef KOTONE_PERSISTENT_DSU_HPP
-#define KOTONE_PERSISTENT_DSU_HPP 1
+#ifndef KOTONE_PARTIALLY_PERSISTENT_DSU_HPP
+#define KOTONE_PARTIALLY_PERSISTENT_DSU_HPP 1
 
 #include <vector>
 #include <algorithm>
@@ -8,17 +8,17 @@
 namespace kotone {
 
 // A partially persistent DSU that monitors connectivity in different versions of a graph.
-struct persistent_dsu {
+struct partially_persistent_dsu {
   private:
     int _num_nodes = 0, _version = 0;
     std::vector<std::vector<std::pair<int, int>>> _vec;
 
   public:
-    persistent_dsu() {}
+    partially_persistent_dsu() {}
 
     // Constructs DSU for a graph with the specified number of nodes and no edges.
     // Requires `0 <= num_nodes <= 100000000`.
-    persistent_dsu(int num_nodes) : _num_nodes(num_nodes), _vec(num_nodes, {{0, -1}}) {
+    partially_persistent_dsu(int num_nodes) : _num_nodes(num_nodes), _vec(num_nodes, {{0, -1}}) {
         assert(0 <= num_nodes && num_nodes <= 100000000);
     }
 
@@ -72,4 +72,4 @@ struct persistent_dsu {
 
 }  // namespace kotone
 
-#endif  // KOTONE_PERSISTENT_DSU_HPP
+#endif  // KOTONE_PARTIALLY_PERSISTENT_DSU_HPP
