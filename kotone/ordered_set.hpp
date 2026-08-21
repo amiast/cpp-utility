@@ -89,25 +89,28 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
     }
 
     template <typename U>
-    std::pair<node*, bool> _insert(node *root, U &&val, node *parent = nullptr) {
+    std::pair<node*, bool> _insert(node *root, U &&val, node *&ptr_found, node *parent = nullptr) {
         if (!root) {
             node *new_node = _pool.allocate(std::forward<U>(val));
             new_node->_parent = parent;
-            if (!_min_node || _comp(val, _min_node->_val)) _min_node = new_node;
-            if (!_max_node || _comp(_max_node->_val, val)) _max_node = new_node;
+            ptr_found = new_node;
+            if (!_min_node || _comp(new_node->_val, _min_node->_val)) _min_node = new_node;
+            if (!_max_node || _comp(_max_node->_val, new_node->_val)) _max_node = new_node;
             return {new_node, true};
         }
-        if (_eq(val, root->_val)) return {root, false};
-        std::pair<node*, bool> result;
+        if (_eq(val, root->_val)) {
+            ptr_found = root;
+            return {root, false};
+        }
         if (_comp(val, root->_val)) {
-            auto [child, inserted] = _insert(root->_left, val, root);
+            auto [child, inserted] = _insert(root->_left, val, ptr_found, root);
             if (inserted) {
                 root->_left = child;
                 root = _balance(root);
             }
             return {root, inserted};
         }
-        auto [child, inserted] = _insert(root->_right, val, root);
+        auto [child, inserted] = _insert(root->_right, val, ptr_found, root);
         if (inserted) {
             root->_right = child;
             root = _balance(root);
@@ -192,7 +195,7 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
         return _size(root->_left) + _order_of(root->_right, val) + 1;
     }
 
-    node* _build_sorted(const std::vector<T> &vec, int l, int r, node *parent = nullptr) noexcept {
+    node* _build_sorted(const std::vector<T> &vec, int l, int r, node *parent = nullptr) {
         if (l >= r) return nullptr;
         int m = (l + r) / 2;
         node *root = _pool.allocate(vec[m]);
@@ -342,18 +345,20 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
     // - an iterator to the value in the set
     // - whether the value has been newly inserted
     std::pair<iterator, bool> insert(const T &val) {
-        auto [new_root, inserted] = _insert(_root, val);
+        node *new_node = nullptr;
+        auto [new_root, inserted] = _insert(_root, val, new_node);
         _root = new_root;
-        return {iterator(*this, _find(_root, val)), inserted};
+        return {iterator(*this, new_node), inserted};
     }
 
     // Inserts the specified rvalue into the set, then returns a pair of:
     // - an iterator to the value in the set
     // - whether the value has been newly inserted
     std::pair<iterator, bool> insert(T &&val) {
-        auto [new_root, inserted] = _insert(_root, std::move(val));
+        node *new_node = nullptr;
+        auto [new_root, inserted] = _insert(_root, std::move(val), new_node);
         _root = new_root;
-        return {iterator(*this, _find(_root, val)), inserted};
+        return {iterator(*this, new_node), inserted};
     }
 
     // Inserts the specified value in place using args for construction, then returns a pair of:
@@ -362,9 +367,10 @@ template <typename T, typename comp_pred = std::less<T>> struct ordered_set {
     template <typename ...Args>
     std::pair<iterator, bool> emplace(Args &&...args) {
         T val(std::forward<Args>(args)...);
-        auto [new_root, inserted] = _insert(_root, std::move(val));
+        node *new_node = nullptr;
+        auto [new_root, inserted] = _insert(_root, std::move(val), new_node);
         _root = new_root;
-        return {iterator(*this, _find(_root, val)), inserted};
+        return {iterator(*this, new_node), inserted};
     }
 
     // Removes the specified value from the set,
