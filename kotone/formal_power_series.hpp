@@ -373,6 +373,29 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
         };
         return solve(solve, 1, fps::derivative(nodes[1]));
     }
+
+    // Given `f(x)`, returns `f(y)` where `y == x + offset`.
+    static fps taylor_shift(const fps &f, mint offset) {
+        int len = f.size();
+        fps result(len, 1), p(len), q(len);
+        for (int i = 2, p = mint::mod(); i < len; i++) {
+            result[i] = p / i * -result[p % i];
+        }
+        for (int i = 1; i < len; i++) result[i] *= result[i - 1];
+        mint acc = 1;
+        for (int i = 0; i < len; i++) {
+            p[len - 1 - i] = f[i] * acc;
+            acc *= i + 1;
+        }
+        acc = 1;
+        for (int i = 0; i < len; i++) {
+            q[i] = result[i] * acc;
+            acc *= offset;
+        }
+        fps r = p * q;
+        for (int i = 0; i < len; i++) result[i] *= r[len - 1 - i];
+        return result;
+    }
 };
 
 }  // namespace kotone
