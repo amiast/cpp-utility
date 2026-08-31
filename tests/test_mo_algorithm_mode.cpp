@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/static_range_mode_query
-// Details: https://judge.yosupo.jp/submission/394847
+// Details: https://judge.yosupo.jp/submission/397995
 
 #include <iostream>
 #include <vector>
@@ -15,12 +15,8 @@ int main() {
     std::cin >> N >> Q;
     std::vector<int> A(N);
     for (int &a : A) std::cin >> a;
-    kotone::mo_alg mo;
-    for (int i = 0; i < Q; i++) {
-        int l, r;
-        std::cin >> l >> r;
-        mo.insert_query(l, r);
-    }
+    std::vector<std::pair<int, int>> queries(Q);
+    for (auto &[l, r] : queries) std::cin >> l >> r;
 
     std::vector<std::unordered_set<int>> occ(N + 1);
     occ[0] = {A.begin(), A.end()};
@@ -49,6 +45,6 @@ int main() {
         if (occ[c].empty()) list.erase(pos[c]);
     };
 
-    mo.eval_queries_add_del(kotone::zigzag_index<100001, 317>, add, del, solve);
+    kotone::eval_range_queries_add_del(queries, kotone::zigzag_index<100001, 317>, add, del, solve);
     for (auto [v, c] : result) std::cout << v << ' ' << c << '\n';
 }

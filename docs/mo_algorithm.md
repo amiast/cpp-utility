@@ -19,51 +19,17 @@ Mo's algorithm stores the current range query $[\ell, r)$ and its result $f(A_{\
 
 In general, Mo's algorithm works for offline queries that can be described by two non-negative integer parameters $(x, y)$. This implementation follows the convention of using $[\ell, r)$ to represent range queries, but it also works for non-range queries where $\ell\gt r$.
 
-The original Mo's algorithm uses square-root decomposition to determine the order of query evaluation. This implementation also provides the Hilbert curve as a heuristic to minimize the total number of evaluations needed to answer all queries.
+Additionally, this implementation offers two heuristics, `hilbert_index` and `zigzag_index`, for determining the order of query evaluation.
 
 The implementation is based on [Takeshi Masumoto's Algorithm Book](https://take44444.github.io/Algorithm-Book/range/mo/main.html) (in Japanese).
-
-<br>
-
-## Constructor
-
-```cpp
-kotone::mo_alg mo()
-```
-
-Constructs an empty instance to store range queries.
-
-### Time complexity
-
-* $\mathcal{O}(1)$
-
-<br>
-
-## Insert queries
-
-```cpp
-int mo.insert_query(int l, int r)
-```
-
-Inserts range query $[\ell, r)$ and returns its query index.
-
-### Constraints
-
-* $\ell\geq0$
-* $r\geq0$
-* For range queries, $0\leq\ell\leq r\leq N$
-
-### Time complexity
-
-* $\mathcal{O}(1)$
 
 <br>
 
 ## Evaluate queries
 
 ```cpp
-(1) void mo.eval_queries(order_ order, incr_l_ incr_l, incr_r_ incr_r, decr_l_ decr_l, decr_r_ decr_r, solve_ solve)
-(2) void mo.eval_queries_add_del(order_ order, add_ add, del_ del, solve_ solve)
+(1) void eval_range_queries(std::vector<std::pair<int, int>> queries, auto order, auto incr_l, auto incr_r, auto decr_l, auto decr_r, auto solve)
+(2) void eval_range_queries_add_del(std::vector<std::pair<int, int>> queries, auto order, auto add, auto del, auto solve)
 ```
 
 Evaluates range queries using the provided functions.
@@ -118,7 +84,7 @@ Returns the index of the coordinates $(x, y)$ on a zigzagging path on the plane 
 
 * Pass this function to `mo_alg::eval_queries` to determine a query order.
 * The path zigzags between blocks of width $B$ defined by `block_width`.
-* For $N$ points on $[0, W)^2$, the total distance is bounded by $W^2/B+NB+4W$ and minimizes at $B\approx W/\sqrt N$.
+* For $Q$ points on $[0, W)^2$, the total distance is bounded by $W^2/B+QB+4W$ and minimizes at $B\approx W/\sqrt Q$.
 
 ### Constraints
 
@@ -128,51 +94,6 @@ Returns the index of the coordinates $(x, y)$ on a zigzagging path on the plane 
 ### Time complexity
 
 * $\mathcal{O}(1)$
-
-<br>
-
-## Sample code
-
-The sample code is a solution to the following problem:
-
-<details><summary>Click to unfold (spoilers)</summary>
-
-* [ABC 242 G - Range Pairing Query](https://atcoder.jp/contests/abc242/tasks/abc242_g)
-* [ABC 448 F - Authentic Traveling Salesman Problem](https://atcoder.jp/contests/abc448/tasks/abc448_f)
-
-</details>
-
-<br>
-
-```cpp
-#include <iostream>
-#include <vector>
-#include <kotone/mo_algorithm>
-
-int main() {
-    int N;
-    std::cin >> N;
-    std::vector<int> A(N);
-    for (int &a : A) std::cin >> a;
-
-    int Q;
-    std::cin >> Q;
-    kotone::mo_alg mo;
-    for (int i = 0, l, r; i < Q; i++) {
-        std::cin >> l >> r;
-        mo.insert_query(l - 1, r);
-    }
-
-    std::vector<int> count(N + 1), result(Q);
-    int total_count = 0;
-    auto add = [&](int i) { if (++count[A[i]] % 2 == 0) total_count++; };
-    auto del = [&](int i) { if (--count[A[i]] % 2 == 1) total_count--; };
-    auto solve = [&](int i) { result[i] = total_count; };
-    mo.eval_queries(kotone::hilbert_index<17>, add, del, solve);
-
-    for (int r : result) std::cout << r << std::endl;
-}
-```
 
 <br>
 

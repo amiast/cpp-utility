@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/static_range_inversions_query
-// Details: https://judge.yosupo.jp/submission/393789
+// Details: https://judge.yosupo.jp/submission/397993
 
 #include <iostream>
 #include <vector>
@@ -20,13 +20,8 @@ int main() {
         M = map.size();
         for (int &a : A) a = map[a];
     }
-
-    kotone::mo_alg mo;
-    for (int i = 0; i < Q; i++) {
-        int l, r;
-        std::cin >> l >> r;
-        mo.insert_query(l, r);
-    }
+    std::vector<std::pair<int, int>> queries(Q);
+    for (auto &[l, r] : queries) std::cin >> l >> r;
 
     atcoder::fenwick_tree<int> bit(M);
     int64_t acc = 0;
@@ -49,6 +44,6 @@ int main() {
     };
     auto solve = [&](int i) { result[i] = acc; };
 
-    mo.eval_queries(kotone::zigzag_index<100001, 316>, incr_l, decr_l, incr_r, decr_r, solve);
+    kotone::eval_range_queries(queries, kotone::zigzag_index<100001, 316>, incr_l, decr_l, incr_r, decr_r, solve);
     for (int64_t r : result) std::cout << r << '\n';
 }

@@ -7,71 +7,76 @@
 
 namespace kotone {
 
-// A data structure that maintains range queries on a sequence of elements.
-// Also supports two-dimensional queries in general.
+// Processes offline range queries (and 2D queries in general).
+// Requires the following functions:
+// - `order(l, r)` returns the index of `[l, r)` for sorting queries.
+// - `incr_l(l, r)` modifies `[l, r)` into `[l + 1, r)`.
+// - `decr_l(l, r)` modifies `[l + 1, r)` into `[l, r)`.
+// - `incr_r(l, r)` modifies `[l, r)` into `[l, r + 1)`.
+// - `decr_r(l, r)` modifies `[l, r + 1)` into `[l, r)`.
+// - `solve(i)` evaluates the `i`-th query.
+//
+// Requires `l, r >= 0` for all queries `[l, r)`.
 // Reference: https://take44444.github.io/Algorithm-Book/range/mo/main.html
-struct mo_alg {
-  private:
-    int _num_queries = 0;
-    std::vector<int> _l, _r;
-
-  public:
-    // Inserts a range query `[l, r)` and returns the index of the given query.
-    // Requires `l` and `r` to be non-negative.
-    int insert_query(int l, int r) {
+template <typename order_, typename incr_l_, typename decr_l_, typename incr_r_, typename decr_r_, typename solve_>
+void eval_range_queries(
+    const std::vector<std::pair<int, int>> &queries,
+    order_ &&order,
+    incr_l_ &&incr_l,
+    decr_l_ &&decr_l,
+    incr_r_ && incr_r,
+    decr_r_ &&decr_r,
+    solve_ &&solve
+) {
+    for (auto [l, r] : queries) {
         assert(l >= 0);
         assert(r >= 0);
-        _l.emplace_back(l);
-        _r.emplace_back(r);
-        return _num_queries++;
     }
+    int n = queries.size();
+    std::vector<int> indices(n);
+    std::vector<int64_t> ordering(n);
+    for (int i = 0; i < n; i++) {
+        indices[i] = i;
+        ordering[i] = order(queries[i].first, queries[i].second);
+    }
+    std::sort(indices.begin(), indices.end(), [&ordering](int i, int j){ return ordering[i] < ordering[j]; });
+    int l = 0, r = 0;
+    for (int i : indices) {
+        while (l > queries[i].first) decr_l(--l, r);
+        while (r < queries[i].second) incr_r(l, r++);
+        while (l < queries[i].first) incr_l(l++, r);
+        while (r > queries[i].second) decr_r(l, --r);
+        solve(i);
+    }
+}
 
-    // Evaluates range queries using the provided functions.
-    // Specialized for operations that depend on both dimensions.
-    // - `order(l, r)` returns the index of `[l, r)` for sorting queries.
-    // - `incr_l(l, r)` modifies `[l, r)` into `[l + 1, r)`.
-    // - `decr_l(l, r)` modifies `[l + 1, r)` into `[l, r)`.
-    // - `incr_r(l, r)` modifies `[l, r)` into `[l, r + 1)`.
-    // - `decr_r(l, r)` modifies `[l, r + 1)` into `[l, r)`.
-    // - `solve(i)` evaluates the `i`-th query.
-    template <typename order_, typename incr_l_, typename decr_l_, typename incr_r_, typename decr_r_, typename solve_>
-    void eval_queries(order_ &&order, incr_l_ &&incr_l, decr_l_ &&decr_l, incr_r_ && incr_r, decr_r_ &&decr_r, solve_ &&solve) {
-        std::vector<int> indices(_num_queries);
-        std::vector<int64_t> ordering(_num_queries);
-        for (int i = 0; i < _num_queries; i++) {
-            indices[i] = i;
-            ordering[i] = order(_l[i], _r[i]);
-        }
-        std::sort(indices.begin(), indices.end(), [&ordering](int i, int j){ return ordering[i] < ordering[j]; });
-        int nl = 0, nr = 0;
-        for (int i : indices) {
-            while (nl > _l[i]) decr_l(--nl, nr);
-            while (nr < _r[i]) incr_r(nl, nr++);
-            while (nl < _l[i]) incr_l(nl++, nr);
-            while (nr > _r[i]) decr_r(nl, --nr);
-            solve(i);
-        }
-    }
-
-    // Evaluates range queries using the provided functions.
-    // Specialized for operations that depend only on the added/deleted dimension.
-    // - `order(l, r)` returns the index of `[l, r)` for sorting queries.
-    // - For arbitrary `y`, `add(x)` modifies:
-    // ** `[x + 1, y)` into `[x, y)`, and
-    // ** `[y, x)` into `[y, x + 1)`.
-    // - For arbitrary `y`, `del(x)` modifies:
-    // ** `[x, y)` into `[x + 1, y)`, and
-    // ** `[y, x + 1)` into `[y, x)`.
-    // - `solve(i)` evaluates the `i`-th query.
-    template <typename order_, typename add_, typename del_, typename solve_>
-    void eval_queries_add_del(order_ &&order, add_ &&add, del_ &&del, solve_ &&solve) {
-        auto decr_l = [add](int l, int) { add(l); };
-        auto incr_r = [add](int, int r) { add(r); };
-        auto incr_l = [del](int l, int) { del(l); };
-        auto decr_r = [del](int, int r) { del(r); };
-        eval_queries(order, incr_l, decr_l, incr_r, decr_r, solve);
-    }
-};
+// Processes offline range queries with specialized add/del operations.
+// Requires the following functions:
+// - `order(l, r)` returns the index of `[l, r)` for sorting queries.
+// - For arbitrary `y`, `add(x)` modifies:
+// ** `[x + 1, y)` into `[x, y)`, and
+// ** `[y, x)` into `[y, x + 1)`.
+// - For arbitrary `y`, `del(x)` modifies:
+// ** `[x, y)` into `[x + 1, y)`, and
+// ** `[y, x + 1)` into `[y, x)`.
+// - `solve(i)` evaluates the `i`-th query.
+//
+// Requires `l, r >= 0` for all queries `[l, r)`.
+// Reference: https://take44444.github.io/Algorithm-Book/range/mo/main.html
+template <typename order_, typename add_, typename del_, typename solve_>
+void eval_range_queries_add_del(
+    const std::vector<std::pair<int, int>> &queries,
+    order_ &&order,
+    add_ &&add,
+    del_ &&del,
+    solve_ &&solve
+) {
+    auto decr_l = [add](int l, int) { add(l); };
+    auto incr_r = [add](int, int r) { add(r); };
+    auto incr_l = [del](int l, int) { del(l); };
+    auto decr_r = [del](int, int r) { del(r); };
+    eval_range_queries(queries, order, incr_l, decr_l, incr_r, decr_r, solve);
+}
 
 // Returns the index of the given coordinates `(x, y)` on a Hilbert curve.
 // Requires `0 <= bit_width <= 30`.
