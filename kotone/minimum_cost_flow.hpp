@@ -31,9 +31,9 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
 
   private:
     std::vector<std::tuple<int, int, Cap, Cost>> _edges;
-    std::vector<Cap> _balance;
+    std::vector<Cap> _balance, _flow;
     std::vector<bool> _rev;
-    mincost_flow _result;
+    Cost _cost{};
 
   public:
     mincost_network_graph(int num_nodes) {
@@ -44,23 +44,28 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
     mincost_network_graph() : mincost_network_graph(0) {}
 
     // Returns the number of nodes in the graph.
-    int size() const {
+    int num_nodes() const {
         return _balance.size();
+    }
+
+    // Returns the number of edges in the graph.
+    int num_edges() const {
+        return _flow.size();
     }
 
     // Adds a node to the graph and returns its index.
     int add_node() {
         _balance.emplace_back();
-        return size() - 1;
+        return num_nodes() - 1;
     }
 
     // Adds an edge from `u` to `v` with the specified capacity constraints and cost,
     // then returns the index of the edge.
-    // Requires `0 <= u, v < size()`.
+    // Requires `0 <= u, v < num_nodes()`.
     // Requires `lower <= upper`.
     int add_edge(int u, int v, Cap lower, Cap upper, Cost cost) {
-        assert(0 <= u && u < size());
-        assert(0 <= v && v < size());
+        assert(0 <= u && u < num_nodes());
+        assert(0 <= v && v < num_nodes());
         assert(lower <= upper);
         _rev.push_back(cost < Cost{});
         if (_rev.back()) {
@@ -72,67 +77,66 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
         }
         _balance[u] -= lower;
         _balance[v] += lower;
-        _result.cost += lower * cost;
-        _result.flow.push_back(lower);
+        _cost += lower * cost;
+        _flow.push_back(lower);
         _edges.emplace_back(u, v, upper - lower, cost);
-        return _edges.size() - 1;
+        return num_edges() - 1;
     }
 
     // Adds the specified flow balance to node `v`.
-    // Requires `0 <= v < size()`.
+    // Requires `0 <= v < num_nodes()`.
     void add_balance(int v, Cap balance) {
-        assert(0 <= v && v < size());
+        assert(0 <= v && v < num_nodes());
         _balance[v] += balance;
     }
 
-    // Computes and returns a minimum-cost flow in the network.
-    // This method should only be called once.
-    mincost_flow flow() {
-        atcoder::mcf_graph<Cap, Cost> graph(size() + 2);
-        int source = size(), sink = source + 1;
+    // Computes and returns a minimum-cost flow in the network via successive shortest path.
+    // Requires `<atcoder/mincostflow>`.
+    mincost_flow flow_ssp() {
+        atcoder::mcf_graph<Cap, Cost> graph(num_nodes() + 2);
+        int source = num_nodes(), sink = source + 1;
         for (auto &[u, v, cap, cost] : _edges) graph.add_edge(u, v, cap, cost);
         Cap pos{}, neg{};
-        for (int v = 0; v < size(); v++) {
+        for (int v = 0; v < num_nodes(); v++) {
             if (_balance[v] == Cap{}) continue;
             if (_balance[v] > Cap{}) {
-                graph.add_edge(source, v, _balance[v], Cost{});
+                graph.add_edge(source, v, _balance[v], {});
                 pos += _balance[v];
             } else {
-                graph.add_edge(v, sink, -_balance[v], Cost{});
+                graph.add_edge(v, sink, -_balance[v], {});
                 neg -= _balance[v];
             }
         }
         if (pos != neg) return {};
         auto [f, c] = graph.flow(source, sink);
         if (f < pos) return {};
-        _result.feasible = true;
-        _result.cost += c;
-        std::vector<std::vector<std::pair<int, Cost>>> residual(size());
-        for (std::size_t i = 0; i < _result.flow.size(); i++) {
+        mincost_flow result{_flow, {}, _cost + c, true};
+        std::vector<std::vector<std::pair<int, Cost>>> residual(num_nodes());
+        for (int i = 0; i < num_edges(); i++) {
             auto edge = graph.get_edge(i);
             if (edge.flow < edge.cap) residual[edge.from].emplace_back(edge.to, edge.cost);
             if (edge.flow > Cap{}) residual[edge.to].emplace_back(edge.from, -edge.cost);
-            _result.flow[i] += edge.flow;
-            if (_rev[i]) _result.flow[i] = -_result.flow[i];
+            result.flow[i] += edge.flow;
+            if (_rev[i]) result.flow[i] = -result.flow[i];
         }
-        _result.potential.resize(size());
+        result.potential.resize(num_nodes());
         std::queue<int> queue;
-        for (int i = 0; i < size(); i++) queue.push(i);
-        std::vector<bool> in_queue(size(), true);
+        for (int i = 0; i < num_nodes(); i++) queue.push(i);
+        std::vector<bool> in_queue(num_nodes(), true);
         while (queue.size()) {
             int u = queue.front();
             queue.pop();
             in_queue[u] = false;
             for (auto &[v, c] : residual[u]) {
-                if (_result.potential[u] + c >= _result.potential[v]) continue;
-                _result.potential[v] = _result.potential[u] + c;
+                if (result.potential[u] + c >= result.potential[v]) continue;
+                result.potential[v] = result.potential[u] + c;
                 if (!in_queue[v]) {
                     queue.push(v);
                     in_queue[v] = true;
                 }
             }
         }
-        return _result;
+        return result;
     }
 };
 

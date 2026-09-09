@@ -37,7 +37,7 @@ int main() {
         std::cin >> s >> t >> l >> u >> c;
         graph.add_edge(s, t, l, u, c);
     }
-    auto result = graph.flow();
+    auto result = graph.flow_ssp();
     if (!result.feasible) std::cout << "infeasible\n";
     else {
         std::cout << result.cost << '\n';
