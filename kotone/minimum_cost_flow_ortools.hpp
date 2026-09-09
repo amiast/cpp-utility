@@ -113,8 +113,9 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
     }
 
     // Computes and returns a minimum-cost flow in the network via successive shortest path.
+    // If `compute_potential == true`, also computes potential of each node in the dual problem.
     // Requires `<atcoder/mincostflow>`.
-    mincost_flow flow_ssp() const {
+    mincost_flow flow_ssp(bool compute_potential = false) const {
         atcoder::mcf_graph<Cap, Cost> graph(num_nodes() + 2);
         int source = num_nodes(), sink = source + 1;
         for (auto &[u, v, cap, cost] : _edges) graph.add_edge(u, v, cap, cost);
@@ -141,15 +142,16 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
             result.flow[i] += edge.flow;
             if (_rev[i]) result.flow[i] = -result.flow[i];
         }
-        result.potential = _to_potential(std::move(residual));
+        if (compute_potential) result.potential = _to_potential(std::move(residual));
         return result;
     }
 
     // Computes and returns a minimum-cost flow in the network via cost-scaling push-relabel.
+    // If `compute_potential == true`, also computes potential of each node in the dual problem.
     // Requires Google OR-Tools `"ortools/graph/min_cost_flow.h"`.
     // Requires `Cap` and `Cost` to be integer types representable by `int64_t`.
     // Reference: https://or-tools.github.io/docs/cpp/min__cost__flow_8h_source.html
-    mincost_flow flow_cspr() const {
+    mincost_flow flow_cspr(bool compute_potential = false) const {
         using cspr_graph = operations_research::SimpleMinCostFlow;
         cspr_graph graph(num_nodes());
         for (auto &[u, v, cap, cost] : _edges) graph.AddArcWithCapacityAndUnitCost(u, v, cap, cost);
@@ -166,7 +168,7 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
             result.flow[i] += flow;
             if (_rev[i]) result.flow[i] = -result.flow[i];
         }
-        result.potential = _to_potential(std::move(residual));
+        if (compute_potential) result.potential = _to_potential(std::move(residual));
         return result;
     }
 };

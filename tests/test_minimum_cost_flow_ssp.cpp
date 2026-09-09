@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/min_cost_b_flow
-// Details: https://judge.yosupo.jp/submission/400846 (TLE)
+// Details: https://judge.yosupo.jp/submission/401210 (TLE)
 
 #include <iostream>
 #include <vector>
@@ -37,7 +37,7 @@ int main() {
         std::cin >> s >> t >> l >> u >> c;
         graph.add_edge(s, t, l, u, c);
     }
-    auto result = graph.flow_ssp();
+    auto result = graph.flow_ssp(true);
     if (!result.feasible) std::cout << "infeasible\n";
     else {
         std::cout << result.cost << '\n';
