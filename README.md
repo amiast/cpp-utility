@@ -1,5 +1,5 @@
 # cpp-utility
-A collection of useful C++20 data structures and algorithms for [AtCoder](https://atcoder.jp/home) (and AtCoder-like platforms).
+A collection of useful C++23 data structures and algorithms for [AtCoder](https://atcoder.jp/home) (and AtCoder-like platforms). All implementations are compatible with AtCoder's environment (C++23 GCC 15.2.0 as of November 2025).
 
 > [!WARNING]
 > **This repository is under construction.**
@@ -28,4 +28,4 @@ Some headers in this library depend on the [AtCoder Library (ACL)](https://githu
 
 2. Place it in the same directory as your C++ files.
 
-Refer to the [official ACL documentation](https://atcoder.github.io/ac-library/production/document_en/) for more details.
+Refer to the [official ACL repository](https://github.com/atcoder/ac-library) for more details.
