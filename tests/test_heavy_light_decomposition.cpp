@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/vertex_set_path_composite
-// Details: https://judge.yosupo.jp/submission/401517
+// Details: https://judge.yosupo.jp/submission/401518
 
 #include <iostream>
 #include <vector>
@@ -42,7 +42,7 @@ int main() {
             continue;
         }
         affine prod = e();
-        for (auto [s, t] : tree.aggregate(u, v)) {
+        for (auto [s, t] : tree.to_subpaths(u, v)) {
             int l = tree.order(s), r = tree.order(t);
             if (l <= r) prod = op(prod, seg.prod(l, r + 1));
             else prod = op(prod, segrev.prod(r, l + 1));

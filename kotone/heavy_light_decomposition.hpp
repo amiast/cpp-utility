@@ -48,8 +48,8 @@ struct heavy_light_decomposition_tree {
 
     // Constructs a rooted tree from the given undirected edges.
     // Requires `edges` to be a valid representation of an undirected tree.
-    // Requires `0 <= u, v <= m` for each edge `{u, v}` where `m` is the number of edges.
-    // Requires `0 <= root <= m`.
+    // Requires `0 <= u, v < num_nodes` for each edge `{u, v}`, where `num_nodes == edges.size() + 1`.
+    // Requires `0 <= root < num_nodes`.
     heavy_light_decomposition_tree(const std::vector<std::pair<int, int>> &edges, int root = 0) {
         int m = edges.size();
         assert(0 <= root && root <= m);
@@ -81,14 +81,14 @@ struct heavy_light_decomposition_tree {
         return _parent[v];
     }
 
-    // Returns the head of the subpath containing vertex `v` in the tree.
+    // Returns the head of the subpath containing node `v` in the tree.
     // Requires `0 <= v < num_nodes`.
     int head(int v) const {
         assert(0 <= v && v < _num_nodes);
         return _head[v];
     }
 
-    // Returns the DFS pre-order position of vertex `v` in the tree.
+    // Returns the DFS pre-order position of node `v` in the tree.
     // Requires `0 <= v < num_nodes`.
     int order(int v) const {
         assert(0 <= v && v < _num_nodes);
@@ -98,7 +98,7 @@ struct heavy_light_decomposition_tree {
     // Returns the path from `u` to `v` as a sequence of directed subpaths.
     // Each `s`-`t` subpath is represented as a pair `{s, t}`.
     // Requires `0 <= u, v < num_nodes`.
-    std::vector<std::pair<int, int>> aggregate(int u, int v) const {
+    std::vector<std::pair<int, int>> to_subpaths(int u, int v) const {
         assert(0 <= u && u < _num_nodes);
         assert(0 <= v && v < _num_nodes);
         std::vector<std::pair<int, int>> front, back;
