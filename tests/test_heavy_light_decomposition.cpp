@@ -1,10 +1,11 @@
 // Verified with: https://judge.yosupo.jp/problem/vertex_set_path_composite
-// Details: https://judge.yosupo.jp/submission/349942
+// Details: https://judge.yosupo.jp/submission/401517
 
 #include <iostream>
 #include <vector>
 #include <atcoder/modint>
 #include <atcoder/segtree>
+#include <kotone/heavy_light_decomposition>
 
 using mint = atcoder::modint998244353;
 using affine = std::pair<mint, mint>;
@@ -13,6 +14,8 @@ affine op_rev(affine p, affine u) { return op(u, p); }
 affine e() { return {1, 0}; }
 
 int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
     int N, Q;
     std::cin >> N >> Q;
     std::vector<affine> init(N);
@@ -21,42 +24,12 @@ int main() {
         std::cin >> a >> b;
         init[i].first = a, init[i].second = b;
     }
-
-    std::vector<std::vector<int>> tree(N);
-    for (int i = 1; i < N; i++) {
-        int u, v;
-        std::cin >> u >> v;
-        tree[u].push_back(v);
-        tree[v].push_back(u);
-    }
-
-    std::vector<int> size(N), parent(N);
-    auto eval_size = [&](auto &eval_size, int u, int p) -> void {
-        size[u] = 1;
-        parent[u] = p;
-        for (int &v : tree[u]) {
-            if (v == p) continue;
-            eval_size(eval_size, v, u);
-            size[u] += size[v];
-            if (size[v] > size[tree[u][0]]) std::swap(v, tree[u][0]);
-        }
-    };
-    eval_size(eval_size, 0, 0);
-
-    int id = 0;
-    std::vector<int> order(N), head(N);
-    auto eval_order = [&](auto &eval_order, int u, int p) -> void {
-        order[u] = id++;
-        for (int v : tree[u]) {
-            if (v == p) continue;
-            head[v] = v == tree[u][0] ? head[u] : v;
-            eval_order(eval_order, v, u);
-        }
-    };
-    eval_order(eval_order, 0, 0);
+    std::vector<std::pair<int, int>> edges(N - 1);
+    for (auto &[u, v] : edges) std::cin >> u >> v;
+    kotone::heavy_light_decomposition_tree tree(edges);
 
     std::vector<affine> vec(N);
-    for (int i = 0; i < N; i++) vec[order[i]] = init[i];
+    for (int i = 0; i < N; i++) vec[tree.order(i)] = init[i];
     atcoder::segtree<affine, op, e> seg(vec);
     atcoder::segtree<affine, op_rev, e> segrev(vec);
 
@@ -64,25 +37,17 @@ int main() {
         int t, u, v, x;
         std::cin >> t >> u >> v >> x;
         if (t == 0) {
-            seg.set(order[u], {v, x});
-            segrev.set(order[u], {v, x});
+            seg.set(tree.order(u), {v, x});
+            segrev.set(tree.order(u), {v, x});
             continue;
         }
-        affine pfx = e(), sfx = e();
-        while (head[u] != head[v]) {
-            if (order[u] < order[v]) {
-                sfx = op(seg.prod(order[head[v]], order[v] + 1), sfx);
-                v = parent[head[v]];
-            } else {
-                pfx = op(pfx, segrev.prod(order[head[u]], order[u] + 1));
-                u = parent[head[u]];
-            }
+        affine prod = e();
+        for (auto [s, t] : tree.aggregate(u, v)) {
+            int l = tree.order(s), r = tree.order(t);
+            if (l <= r) prod = op(prod, seg.prod(l, r + 1));
+            else prod = op(prod, segrev.prod(r, l + 1));
         }
-        affine mid;
-        if (order[u] <= order[v]) mid = seg.prod(order[u], order[v] + 1);
-        else mid = segrev.prod(order[v], order[u] + 1);
-        affine composition = op(pfx, op(mid, sfx));
-        mint result = composition.first * x + composition.second;
-        std::cout << result.val() << std::endl;
+        mint result = prod.first * x + prod.second;
+        std::cout << result.val() << '\n';
     }
 }
