@@ -17,9 +17,9 @@ struct heavy_light_decomposition_tree {
         _size.assign(_num_nodes, 1);
         _parent.assign(_num_nodes, -1);
         auto go = [&](auto &go, int u) -> void {
-            if (_parent[u] != -1) std::erase(_tree[u], _parent[u]);
             for (int &v : _tree[u]) {
                 _parent[v] = u;
+                std::erase(_tree[v], u);
                 go(go, v);
                 _size[u] += _size[v];
                 if (_size[v] > _size[_tree[u][0]]) std::swap(v, _tree[u][0]);
