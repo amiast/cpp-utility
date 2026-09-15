@@ -7,6 +7,11 @@
 #include <cassert>
 #include <atcoder/mincostflow>
 
+#if __has_include("ortools/graph/min_cost_flow.h")
+#define USING_ORTOOLS_MCF 1
+#include "ortools/graph/min_cost_flow.h"
+#endif
+
 namespace kotone {
 
 // A graph representing the minimum-cost network flow problem, in which:
@@ -144,6 +149,34 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
         if (compute_potential) result.potential = _to_potential(std::move(residual));
         return result;
     }
+
+#ifdef USING_ORTOOLS_MCF
+    // Computes and returns a minimum-cost flow in the network via cost-scaling push-relabel.
+    // If `compute_potential == true`, also computes potential of each node in the dual problem.
+    // Requires Google OR-Tools `"ortools/graph/min_cost_flow.h"`.
+    // Requires `Cap` and `Cost` to be integer types representable by `int64_t`.
+    // Reference: https://or-tools.github.io/docs/cpp/min__cost__flow_8h_source.html
+    mincost_flow flow_cspr(bool compute_potential = false) const {
+        using cspr_graph = operations_research::SimpleMinCostFlow;
+        cspr_graph graph(num_nodes());
+        for (auto &[u, v, cap, cost] : _edges) graph.AddArcWithCapacityAndUnitCost(u, v, cap, cost);
+        for (int v = 0; v < num_nodes(); v++) graph.SetNodeSupply(v, _balance[v]);
+        if (int status = graph.Solve(); status != cspr_graph::OPTIMAL) return {};
+        mincost_flow result{_flow, {}, _cost + graph.OptimalCost(), true};
+        std::vector<std::vector<std::pair<int, Cost>>> residual(num_nodes());
+        for (int i = 0; i < num_edges(); i++) {
+            int tail = graph.Tail(i), head = graph.Head(i);
+            Cap flow = graph.Flow(i), cap = graph.Capacity(i);
+            Cost cost = graph.UnitCost(i);
+            if (flow < cap) residual[tail].emplace_back(head, cost);
+            if (flow > Cap{}) residual[head].emplace_back(tail, -cost);
+            result.flow[i] += flow;
+            if (_rev[i]) result.flow[i] = -result.flow[i];
+        }
+        if (compute_potential) result.potential = _to_potential(std::move(residual));
+        return result;
+    }
+#endif  // USING_ORTOOLS_MCF
 };
 
 }  // namespace kotone
