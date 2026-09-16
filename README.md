@@ -1,5 +1,8 @@
 # cpp-utility
-A collection of useful C++23 data structures and algorithms for [AtCoder](https://atcoder.jp/home) (and AtCoder-like platforms). All implementations are compatible with AtCoder's environment (C++23 GCC 15.2.0 as of November 2025).
+
+The `kotone` library is a collection of useful C++23 data structures and algorithms for [AtCoder](https://atcoder.jp/home) and AtCoder-like platforms. All implementations are compatible with AtCoder's latest environment (C++23 GCC 15.2.0 since November 2025).
+
+The library features self-contained implementations that programmers can use without modifying the internal code. The exception is `kotone/misc`, which includes snippets, notes, and many other files that do not belong to the aforementioned category.
 
 > [!WARNING]
 > **This repository is under construction.**
