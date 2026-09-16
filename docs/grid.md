@@ -4,7 +4,7 @@ A $H\times W$ grid is a collection of $HW$ cells organized into $H$ rows and $W$
 
 In most grid-related problems, edges only exist between adjacent cells. Say cells $(i, j)$ and $(i^\prime, j^\prime)$ are orthogonal neighbors if and only if their Manhattan distance $|i-i^\prime|+|j-j^\prime|$ is $1$. This implementation simply refers to orthogonal neighbors as "neighbors".
 
-Less commonly, edges can exist between both orthogonal and diagonal cells. Say cells $(i, j)$ and $(i^\prime, j^\prime)$ are orthogonal or diagonal neighbors if and only if their Chebyshev distance $\max\{|i-i^\prime|, |j-j^\prime|\}$ is $1$. Since there are at most eight neighboring cells $(i^\prime, j^\prime)$ for each $(i, j)$, this implementation refers to such neighbors as "eight-neighbors".
+Less commonly, edges can exist between both orthogonal and diagonal cells. Say cells $(i, j)$ and $(i^\prime, j^\prime)$ are orthogonal or diagonal neighbors if and only if their Chebyshev distance $\max\lbrace|i-i^\prime|, |j-j^\prime|\rbrace$ is $1$. Since there are at most eight neighboring cells $(i^\prime, j^\prime)$ for each $(i, j)$, this implementation refers to such neighbors as "eight-neighbors".
 
 The `grid` struct provides utilities for identifying neighboring cells in a grid.
 

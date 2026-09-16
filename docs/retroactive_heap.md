@@ -131,7 +131,7 @@ Returns a copy of the top element of the final $Q$.
 
 In the context of retroactive heaps, $A=(A_0, \dots, A_{N-1})$ is a sequence of $N$ integers such that:
 
-- $|A_i|\leq1$ for $i\in\{0, \dots, N-1\}$;
+- $|A_i|\leq1$ for $i\in\lbrace0, \dots, N-1\rbrace$;
 - the sum of $A$ is $0$; and
 - all prefix sums of $A$ are nonnegative.
 

@@ -66,11 +66,11 @@ Thus, a meet-in-the-middle algorithm is as follows:
 
 The sign in $x=pn+q$ ensures that the $x$ returned is minimum when the baby-step is evaluated in ascending order of $q$.
 
-## Bonus: the set of solutions $\{x\,|\,a^x\equiv b\pmod m\}$
+## Bonus: the set of solutions $\lbrace x\,|\,a^x\equiv b\pmod m\rbrace$
 
-Let $x_0$ be the minimum solution. If $\gcd(a,m)=1$, then the set of solutions is $\{x_0, x_0+\text{ord}_m(a), x_0+2\text{ord}_m(a), \dots\}$ where $\text{ord}_m(a)$ is the multiplicative order of $a$ modulo $m$. See also [`totient.py`](totient.py).
+Let $x_0$ be the minimum solution. If $\gcd(a,m)=1$, then the set of solutions is $\lbrace x_0, x_0+\text{ord}_m(a), x_0+2\text{ord}_m(a), \dots\rbrace$ where $\text{ord}_m(a)$ is the multiplicative order of $a$ modulo $m$. See also [`totient.py`](totient.py).
 
-If $\gcd(a,m)\neq1$, then the set of solutions does not follow a simple pattern. For example, the set of solutions to $2^x\equiv4\pmod8$ is $\{2\}$, while the set of solutions to $2^x\equiv0\pmod8$ is $\{3, 4, \dots\}$.
+If $\gcd(a,m)\neq1$, then the set of solutions does not follow a simple pattern. For example, the set of solutions to $2^x\equiv4\pmod8$ is $\lbrace2\rbrace$, while the set of solutions to $2^x\equiv0\pmod8$ is $\lbrace3, 4, \dots\rbrace$.
 
 ## Related problems & articles
 

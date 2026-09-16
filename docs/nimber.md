@@ -16,7 +16,7 @@ The nimber product of two nonnegative integers, denoted $a\otimes b$, has the fo
 - Identity: $a\otimes1=a$
 - Inverse for $a\neq0$
 
-For $n\in\{0, 1, \dots\}$, the set of nimbers less than $2^{2^n}$ form the finite field $\mathbb{F}_{2^{2^n}}$, which leads to applications in rolling hash for problems concerning the XOR of elements in a sequence.
+For $n\in\lbrace0, 1, \dots\rbrace$, the set of nimbers less than $2^{2^n}$ form the finite field $\mathbb{F}_{2^{2^n}}$, which leads to applications in rolling hash for problems concerning the XOR of elements in a sequence.
 
 The current implementation supports nimber addition and multiplication for $n=6$.
 
