@@ -14,7 +14,7 @@ template <typename S, S (*op)(S, S), S (*e)()> struct segment_tree {
         int left = -1, right = -1;
     };
 
-    const int64_t _low, _high;
+    int64_t _low, _high;
     std::vector<node> _nodes;
 
     void _set(int index, int64_t l, int64_t r, int64_t pos, S val) {
