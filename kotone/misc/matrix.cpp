@@ -58,6 +58,7 @@ mint determinant(std::vector<std::vector<mint>> mat) {
                 std::swap(mat[i], mat[k]);
                 result = -result;
             }
+            break;
         }
         if (mat[k][k] == 0) return 0;
         result *= mat[k][k];
@@ -79,9 +80,8 @@ std::pair<std::vector<std::vector<mint>>, bool> inverse(std::vector<std::vector<
     for (int k = 0; k < n; k++) {
         for (int i = k; i < n; i++) {
             if (mat[i][k] == 0) continue;
-            if (i != k) {
-                std::swap(mat[i], mat[k]);
-            }
+            if (i != k) std::swap(mat[i], mat[k]);
+            break;
         }
         if (mat[k][k] == 0) return {{}, false};
         mint inv = mat[k][k].inv();
