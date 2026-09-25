@@ -179,7 +179,7 @@ template <
 
     // Copies the RBST rooted at `i` then returns the index of its root.
     // If `i == -1`, returns `-1`.
-    // Requires `0 <= i < size()`.
+    // Requires `-1 <= i < size()`.
     // Requires `i` to be the index of the root of a RBST.
     int copy(int i) {
         assert(-1 <= i && i < size());
