@@ -7,6 +7,7 @@
 using mint = atcoder::modint998244353;
 
 std::vector<std::vector<mint>> prod(const std::vector<std::vector<mint>> &a, const std::vector<std::vector<mint>> &b) {
+    // assert(!a.empty() && !b.empty() && a[0].size() == b.size());
     int n = a.size(), m = b.size(), l = b[0].size();
     std::vector result(n, std::vector<mint>(l));
     for (int i = 0; i < n; i++) {
@@ -20,7 +21,8 @@ std::vector<std::vector<mint>> prod(const std::vector<std::vector<mint>> &a, con
 }
 
 std::vector<std::vector<mint>> pow(const std::vector<std::vector<mint>> &a, int64_t k) {
-    if (k <= 1) return a;
+    // assert(k > 0);
+    if (k == 1) return a;
     std::vector<std::vector<mint>> result = pow(a, k / 2);
     result = prod(result, result);
     if (k % 2 == 1) result = prod(result, a);
