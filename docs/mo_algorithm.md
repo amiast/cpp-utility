@@ -10,10 +10,10 @@ For instance, Mo's algorithm can efficiently answer range queries for a sequence
 
 Instead of processing each query individually, it may be more efficient to modify previous results when computing new queries. More precisely, the result to a new range query can be obtained by a combination of the following transformations:
 
-* $\text{ADD}_L(f(A_{\ell, r}))=f(A_{\ell-1, r})$
-* $\text{ADD}_R(f(A_{\ell, r}))=f(A_{\ell, r+1})$
-* $\text{DEL}_L(f(A_{\ell, r}))=f(A_{\ell+1, r})$
-* $\text{DEL}_R(f(A_{\ell, r}))=f(A_{\ell, r-1})$
+* $\text{ADD} _ L(f(A_{\ell, r}))=f(A_{\ell-1, r})$
+* $\text{ADD} _ R(f(A_{\ell, r}))=f(A_{\ell, r+1})$
+* $\text{DEL} _ L(f(A_{\ell, r}))=f(A_{\ell+1, r})$
+* $\text{DEL} _ R(f(A_{\ell, r}))=f(A_{\ell, r-1})$
 
 Mo's algorithm stores the current range query $[\ell, r)$ and its result $f(A_{\ell, r})$ during each step of computation. To answer a new query $[\ell^\prime, r^\prime)$, the algorithm iteratively expands or contracts the interval via $\text{ADD}$ and $\text{DEL}$ operations to "add" and "delete" elements at the start and end of the subarray. For example, to evaluate $[\ell, r+10)$ after evaluating $[\ell, r)$, the algorithm iteratively applies $\text{ADD}_R$ to compute $[\ell, r+1), \dots, [\ell, r+10)$. Likewise, to compute $[\ell+10, r)$ from $[\ell, r)$, the algorithm contracts the interval via $\text{DEL}_L$ and computes $[\ell+1, r), \dots, [\ell+10, r)$.
 
