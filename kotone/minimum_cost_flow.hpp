@@ -8,7 +8,7 @@
 #include <atcoder/mincostflow>
 
 #if __has_include("ortools/graph/min_cost_flow.h")
-#define USING_ORTOOLS_MCF 1
+#define KOTONE_USING_ORTOOLS_MCF 1
 #include "ortools/graph/min_cost_flow.h"
 #endif
 
@@ -150,7 +150,7 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
         return result;
     }
 
-#ifdef USING_ORTOOLS_MCF
+    #ifdef KOTONE_USING_ORTOOLS_MCF
     // Computes and returns a minimum-cost flow in the network via cost-scaling push-relabel.
     // If `compute_potential == true`, also computes potential of each node in the dual problem.
     // Requires Google OR-Tools `"ortools/graph/min_cost_flow.h"`.
@@ -176,7 +176,7 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
         if (compute_potential) result.potential = _to_potential(std::move(residual));
         return result;
     }
-#endif  // USING_ORTOOLS_MCF
+    #endif  // KOTONE_USING_ORTOOLS_MCF
 };
 
 }  // namespace kotone
