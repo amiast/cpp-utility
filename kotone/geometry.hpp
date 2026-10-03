@@ -189,6 +189,45 @@ std::vector<point<T>> convex_hull(const std::vector<point<T>> &vec) {
     return lower;
 }
 
+// Returns the Minkowski sum of convex polygons `a` and `b`.
+// The order of points in the returned convex polygon is counterclockwise.
+// Requires `a` and `b` to contain distinct, counterclockwise vertices.
+// Reference: https://atcoder.jp/contests/abc478/editorial/26504
+template <signed_number T>
+std::vector<point<T>> minkowski_sum(const std::vector<point<T>> &a, const std::vector<point<T>> &b) {
+    int n = a.size(), m = b.size();
+    if (n == 0 || m == 0) return {};
+    if (n == 1 || m == 1) {
+        std::vector<point<T>> result(n * m);
+        for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) result[i + j] = a[i] + b[j];
+        return result;
+    }
+    auto pos_min_arg = [&](const std::vector<point<T>> &vec) {
+        int n = vec.size(), k = n - 1;
+        point<T> diff = vec[0] - vec[n - 1];
+        for (int i = 0; i < n - 1; i++) {
+            point<T> d = vec[i + 1] - vec[i];
+            if (d.compare_args(diff) == -1) k = i, diff = d;
+        }
+        return k;
+    };
+    int a0 = pos_min_arg(a), b0 = pos_min_arg(b);
+    std::vector<point<T>> result{a[a0] + b[b0]}, e(n), f(m);
+    for (int i = 0; i < n; i++) e[i] = a[(a0 + i + 1) % n] - a[(a0 + i) % n];
+    for (int i = 0; i < m; i++) f[i] = b[(b0 + i + 1) % m] - b[(b0 + i) % m];
+    for (int i = 0, j = 0; i < n || j < m; ) {
+        if (j == m || i < n && e[i].compare_args(f[j]) == -1) {
+            result.push_back(result.back() + e[i++]);
+        } else if (i == n || j < m && f[j].compare_args(e[i]) == -1) {
+            result.push_back(result.back() + f[j++]);
+        } else {
+            result.push_back(result.back() + e[i++] + f[j++]);
+        }
+    }
+    result.pop_back();
+    return result;
+}
+
 // A dynamic data structure that maintains the lower convex hull of two-dimensional points.
 // Reference: https://www.youtube.com/watch?v=CEUTTd1gHxU
 template <signed_number T> struct dynamic_convex_hull {
