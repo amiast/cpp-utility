@@ -6,12 +6,14 @@
 
 namespace kotone {
 
-// Performs golden-section search and returns a pair `{x, f(x)}` for which `f(x)` is maximum in the interval `[low, high]`.
+// Performs golden-section search and returns a pair `{x, f(x)}`
+// for which `f(x)` is maximum in the interval `[low, high]` with respect to `comp_pred`.
 // Performs the specified number of steps such that the error is at most `(high - low) * pow(phi, -num_steps)`.
 // Requires `low <= high`.
 // Requires `num_steps >= 0`.
 // Requires `T f(double x)` to be a concave function on the interval `[low, high]`.
-template <typename T> std::pair<double, T> golden_search(double low, double high, int num_steps, const auto &f) {
+template <typename T, typename comp_pred = std::less<T>>
+std::pair<double, T> golden_search(double low, double high, int num_steps, const auto &f) {
     assert(low <= high);
     assert(num_steps >= 0);
     constexpr double INV_PHI_SQ = 0.38196601125010515;
@@ -19,10 +21,11 @@ template <typename T> std::pair<double, T> golden_search(double low, double high
     double mr = high - (high - low) * INV_PHI_SQ;
     T vl = f(ml), vr = vl;
     bool chosen_low = true;
+    comp_pred comp{};
     while (num_steps--) {
         if (chosen_low) vr = f(mr);
         else vl = f(ml);
-        if (vl < vr) {
+        if (comp(vl, vr)) {
             low = ml;
             ml = mr;
             vl = vr;
@@ -39,22 +42,25 @@ template <typename T> std::pair<double, T> golden_search(double low, double high
     return {ml, vl};
 }
 
-// Performs golden-section search and returns a pair `{x, f(x)}` for which `f(x)` is maximum in the interval `[low, high]`.
+// Performs golden-section search and returns a pair `{x, f(x)}`
+// for which `f(x)` is maximum in the interval `[low, high]` with respect to `comp_pred`.
 // Requires `low <= high`.
 // Requires `T f(int64_t x)` to be a concave function on the interval `[low, high]`.
-template <typename T> std::pair<int64_t, T> golden_search_discrete(int64_t low, int64_t high, const auto &f) {
+template <typename T, typename comp_pred = std::less<T>>
+std::pair<int64_t, T> golden_search_discrete(int64_t low, int64_t high, const auto &f) {
     assert(low <= high);
     int64_t a = 1, b = 2;
     while (b < high - low + 2) a += b, std::swap(a, b);
     int64_t l = low - 1, m = l + b - a, r = l + a;
     T vm = f(m), vr = vm;
     bool chosen_low = true;
+    comp_pred comp{};
     while (m < r) {
         b -= a;
         std::swap(a, b);
         if (chosen_low && r <= high) vr = f(r);
         else if (!chosen_low) vm = f(m);
-        if (r <= high && vm < vr) {
+        if (r <= high && comp(vm, vr)) {
             l = m;
             m = r;
             vm = vr;
