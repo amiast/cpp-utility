@@ -9,10 +9,10 @@
 
 struct fraction {
     int64_t num, denom;
-    auto operator<=>(const fraction &other) {
+    auto operator<=>(const fraction &other) const {
         return num * other.denom <=> other.num * denom;
     }
-    auto operator<=>(int64_t b) {
+    auto operator<=>(int64_t b) const {
         return num <=> b * denom;
     }
 };
