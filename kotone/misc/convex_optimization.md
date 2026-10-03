@@ -111,7 +111,7 @@ def maximize(K, min_p, max_p):
 - https://noshi91.github.io/algorithm-encyclopedia/d-edge-shortest-path-monge
 - https://info.atcoder.jp/entry/algorithm_lectures/alien_trick
 - [ABC 218 H - Red and Blue Lamps](https://atcoder.jp/contests/abc218/tasks/abc218_h) - maximization
-- [ABC 305 Ex - Shojin](https://atcoder.jp/contests/abc305/tasks/abc305_h) - minimization
+- [ABC 305 Ex - Shojin](https://atcoder.jp/contests/abc305/tasks/abc305_h) - submodular optimization; minimization with special ternary search conditions
 - [ARC 168 E - Subsegments with Large Sums](https://atcoder.jp/contests/arc168/tasks/arc168_e) - minimization with special binary search conditions
 - [ABC 355 G - Baseball](https://atcoder.jp/contests/abc355/tasks/abc355_g) - Monge minimization with ternary search via Larmore–Schieber DP (online algorithm for totally monotone, lower-triangular matrix); see also SMAWK algorithm
 - [ABC 462 F - More ABC](https://atcoder.jp/contests/abc462/tasks/abc462_f) - minimization
@@ -180,11 +180,15 @@ Consider the problem of maximizing the weight of an independent set where each e
 2. For each $x\in E$ in descending order of $w(x)$, if $S\cup\lbrace x\rbrace\in\mathcal{I}$, add $x$ to $S$.
 3. Output $S$.
 
+This algorithm is a generalization of Kruskal's algorithm. In particular, this algorithm always finds a basis.
+
+If weights are allowed to be negative and the problem does not require the independent set to have full rank, the algorithm can be modified to ignore elements with negative weights.
+
 ## Aliens method for matroids
 
 > There is a connected, weighted simple graph $G=(V, E)$. Furthermore, each edge $e\in E$ is colored either black or white. Find the minimum weight of a spanning tree that contains exactly $K$ black edges.
 
-The above problem can be solved by iterating Kruskal's algorithm with respect to some constant $p$. In this case, the weight of a black edge $e$ is $w(e)-p$, whereas the weight of a white edge $e^\prime$ remains $w(e^\prime)$. The above problem can hence be solved in $\mathcal{O}(|E|\log|E|)$ time.
+The above problem can be solved by iterating Kruskal's algorithm with respect to some constant $p$. In this case, the weight of a black edge $e$ is $w(e)-p$, whereas the weight of a white edge $e^\prime$ remains $w(e^\prime)$. The time complexity is $\mathcal{O}(|E|\log|E|)$.
 
 This approach can be generalized other matroids when minimizing the cost of a basis containing $K$ elements of a certain category.
 
