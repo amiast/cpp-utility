@@ -216,9 +216,9 @@ std::vector<point<T>> minkowski_sum(const std::vector<point<T>> &a, const std::v
     for (int i = 0; i < n; i++) e[i] = a[(a0 + i + 1) % n] - a[(a0 + i) % n];
     for (int i = 0; i < m; i++) f[i] = b[(b0 + i + 1) % m] - b[(b0 + i) % m];
     for (int i = 0, j = 0; i < n || j < m; ) {
-        if (j == m || i < n && e[i].compare_args(f[j]) == -1) {
+        if (j == m || (i < n && e[i].compare_args(f[j]) == -1)) {
             result.push_back(result.back() + e[i++]);
-        } else if (i == n || j < m && f[j].compare_args(e[i]) == -1) {
+        } else if (i == n || (j < m && f[j].compare_args(e[i]) == -1)) {
             result.push_back(result.back() + f[j++]);
         } else {
             result.push_back(result.back() + e[i++] + f[j++]);
