@@ -136,21 +136,22 @@ template <signed_number T> std::tuple<T, T, T> linear_equation(const point<T> &p
 // Requires `vec` to be sorted.
 template <signed_number T>
 std::vector<point<T>> convex_hull_lower(const std::vector<point<T>> &vec) {
-    std::vector<point<T>> lower;
-    for (typename std::vector<point<T>>::const_iterator iter = vec.begin(); iter != vec.end(); iter++) {
-        if (iter != vec.begin()) {
-            assert(*std::prev(iter) <= *iter);
-            if (*std::prev(iter) == *iter) continue;
+    int n = vec.size();
+    std::vector<point<T>> stack;
+    for (int i = 0; i < n; i++) {
+        if (i) {
+            assert(vec[i - 1] <= vec[i]);
+            if (vec[i - 1] == vec[i]) continue;
         }
-        while (lower.size() >= 2u) {
-            const point<T> &a = *std::prev(lower.end(), 2);
-            const point<T> &b = lower.back();
-            if ((b - a).cross(*iter - a) > T{}) break;
-            lower.pop_back();
+        while (stack.size() >= std::size_t(2)) {
+            const point<T> &a = stack[stack.size() - 2];
+            const point<T> &b = stack.back();
+            if ((b - a).cross(vec[i] - a) > T{}) break;
+            stack.pop_back();
         }
-        lower.push_back(*iter);
+        stack.push_back(vec[i]);
     }
-    return lower;
+    return stack;
 }
 
 // Returns the upper half of the convex hull of the set of points in `vec`.
@@ -158,21 +159,22 @@ std::vector<point<T>> convex_hull_lower(const std::vector<point<T>> &vec) {
 // Requires `vec` to be sorted.
 template <signed_number T>
 std::vector<point<T>> convex_hull_upper(const std::vector<point<T>> &vec) {
-    std::vector<point<T>> upper;
-    for (typename std::vector<point<T>>::const_reverse_iterator iter = vec.rbegin(); iter != vec.rend(); iter++) {
-        if (iter != vec.rbegin()) {
-            assert(*std::prev(iter) >= *iter);
-            if (*std::prev(iter) == *iter) continue;
+    int n = vec.size();
+    std::vector<point<T>> stack;
+    for (int i = n - 1; i >= 0; i--) {
+        if (i) {
+            assert(vec[i - 1] <= vec[i]);
+            if (vec[i - 1] == vec[i]) continue;
         }
-        while (upper.size() >= 2u) {
-            const point<T> &a = *std::prev(upper.end(), 2);
-            const point<T> &b = upper.back();
-            if ((b - a).cross(*iter - a) > T{}) break;
-            upper.pop_back();
+        while (stack.size() >= std::size_t(2)) {
+            const point<T> &a = stack[stack.size() - 2];
+            const point<T> &b = stack.back();
+            if ((b - a).cross(vec[i] - a) > T{}) break;
+            stack.pop_back();
         }
-        upper.push_back(*iter);
+        stack.push_back(vec[i]);
     }
-    return upper;
+    return stack;
 }
 
 // Returns the convex hull of the set of points in `vec`.
@@ -181,7 +183,7 @@ std::vector<point<T>> convex_hull_upper(const std::vector<point<T>> &vec) {
 template <signed_number T>
 std::vector<point<T>> convex_hull(const std::vector<point<T>> &vec) {
     std::vector<point<T>> lower = convex_hull_lower(vec);
-    if (lower.size() <= 1u) return lower;
+    if (lower.size() <= std::size_t(1)) return lower;
     std::vector<point<T>> upper = convex_hull_upper(vec);
     lower.pop_back();
     upper.pop_back();
@@ -202,27 +204,18 @@ std::vector<point<T>> minkowski_sum(const std::vector<point<T>> &a, const std::v
         for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) result[i + j] = a[i] + b[j];
         return result;
     }
-    auto pos_min_arg = [&](const std::vector<point<T>> &vec) {
-        int n = vec.size(), k = n - 1;
-        point<T> diff = vec[0] - vec[n - 1];
-        for (int i = 0; i < n - 1; i++) {
-            point<T> d = vec[i + 1] - vec[i];
-            if (d.compare_args(diff) == -1) k = i, diff = d;
-        }
-        return k;
-    };
-    int a0 = pos_min_arg(a), b0 = pos_min_arg(b);
-    std::vector<point<T>> result{a[a0] + b[b0]}, e(n), f(m);
-    for (int i = 0; i < n; i++) e[i] = a[(a0 + i + 1) % n] - a[(a0 + i) % n];
-    for (int i = 0; i < m; i++) f[i] = b[(b0 + i + 1) % m] - b[(b0 + i) % m];
-    for (int i = 0, j = 0; i < n || j < m; ) {
-        if (j == m || (i < n && e[i].compare_args(f[j]) == -1)) {
-            result.push_back(result.back() + e[i++]);
-        } else if (i == n || (j < m && f[j].compare_args(e[i]) == -1)) {
-            result.push_back(result.back() + f[j++]);
-        } else {
-            result.push_back(result.back() + e[i++] + f[j++]);
-        }
+    std::vector<point<T>> e(n), f(m);
+    for (int i = 0; i < n; i++) e[i] = a[(i + 1) % n] - a[i];
+    for (int i = 0; i < m; i++) f[i] = b[(i + 1) % m] - b[i];
+    int e0 = 0, f0 = 0;
+    for (int i = 1; i < n; i++) if (e[i].compare_args(e[e0]) == -1) e0 = i;
+    for (int i = 1; i < m; i++) if (f[i].compare_args(f[f0]) == -1) f0 = i;
+    std::vector<point<T>> result{a[e0] + b[f0]};
+    for (int i = 0, j = 0; i < n || j < m;) {
+        int d = i == n ? 1 : j == m ? -1 : e[(e0 + i) % n].compare_args(f[(f0 + j) % m]);
+        if (d == -1) result.push_back(result.back() + e[(e0 + i++) % n]);
+        else if (d == 1) result.push_back(result.back() + f[(f0 + j++) % m]);
+        else result.push_back(result.back() + e[(e0 + i++) % n] + f[(f0 + j++) % m]);
     }
     result.pop_back();
     return result;
