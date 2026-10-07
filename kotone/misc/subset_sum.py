@@ -15,7 +15,7 @@ def subset_sum(nums: list[int], target: int) -> list[bool] | None:
     """
     if not nums:
         return [] if target == 0 else None
-    assert(all(n >= 0 for n in nums))
+    assert all(n >= 0 for n in nums)
     S = sum(nums)
     if not (0 <= target <= S):
         return None

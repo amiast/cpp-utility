@@ -7,7 +7,7 @@
 
 px, py = ...
 qx, qy = ...
-assert(px != qx)
+assert px != qx
 intercept = (py * qx - qy * px) / (qx - px)
 
 """ Alternatively, the following snippet computes the `y`-intercept
@@ -17,7 +17,7 @@ intercept = (py * qx - qy * px) / (qx - px)
 a = py - qy
 b = qx - px
 c = -(a * px + b * py)
-assert(a * px + b * py + c == a * qx + b * qy + c == 0)
+assert a * px + b * py + c == a * qx + b * qy + c == 0
 intercept = -c / b
 
 # normalization (optional)
