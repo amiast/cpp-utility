@@ -42,7 +42,7 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
     std::vector<bool> _rev;
     Cost _cost{};
 
-    std::vector<Cost> _to_potential(std::vector<std::vector<std::pair<int, Cost>>> &&residual) const {
+    std::vector<Cost> _to_potential(const std::vector<std::vector<std::pair<int, Cost>>> &residual) const {
         std::vector<Cost> potential(num_nodes());
         std::queue<int> queue;
         for (int i = 0; i < num_nodes(); i++) queue.push(i);
@@ -148,7 +148,7 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
             result.flow[i] += edge.flow;
             if (_rev[i]) result.flow[i] = -result.flow[i];
         }
-        if (compute_potential) result.potential = _to_potential(std::move(residual));
+        if (compute_potential) result.potential = _to_potential(residual);
         return result;
     }
 
@@ -175,7 +175,7 @@ template <typename Cap, typename Cost> struct mincost_network_graph {
             result.flow[i] += flow;
             if (_rev[i]) result.flow[i] = -result.flow[i];
         }
-        if (compute_potential) result.potential = _to_potential(std::move(residual));
+        if (compute_potential) result.potential = _to_potential(residual);
         return result;
     }
     #endif  // KOTONE_USING_ORTOOLS_MCF
