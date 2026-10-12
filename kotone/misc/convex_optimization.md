@@ -56,7 +56,6 @@ If the codomain of $f$ is the set of integers, then all marginal values $f(k)-f(
 ```python
 def maximize(K, min_p, max_p):
     def solve(p): ... # Returns (f(k)-p*k, k) where k is the maximum value maximizing f(k)-p*k.
-        ...
     low = min_p
     high = max_p + 1
     while low + 1 < high:
@@ -108,8 +107,9 @@ def maximize(K, min_p, max_p):
 ```
 
 ## Related articles and problems
-- https://noshi91.github.io/algorithm-encyclopedia/d-edge-shortest-path-monge
-- https://info.atcoder.jp/entry/algorithm_lectures/alien_trick
+
+- [Kyopro Encyclopedia of Algorithms - Monge グラフ上の $d$-辺最短路長を計算するアルゴリズム](https://noshi91.github.io/algorithm-encyclopedia/d-edge-shortest-path-monge)
+- [AtCoder Algorithm Lecture - Alien Trick](https://info.atcoder.jp/entry/algorithm_lectures/alien_trick)
 - [ABC 218 H - Red and Blue Lamps](https://atcoder.jp/contests/abc218/tasks/abc218_h) - maximization
 - [ABC 305 Ex - Shojin](https://atcoder.jp/contests/abc305/tasks/abc305_h) - submodular optimization; minimization with special ternary search conditions
 - [ARC 168 E - Subsegments with Large Sums](https://atcoder.jp/contests/arc168/tasks/arc168_e) - minimization with special binary search conditions
