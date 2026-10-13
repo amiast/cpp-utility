@@ -1,6 +1,6 @@
 # Throne
 
-> Given positive integer $N$ and integers $0\leq A, D\lt N$, determine if there exists nonnegative integers $k$ for which $A+kD\equiv0\pmod{N}$. If they exist, find the minimum $k$.
+> Given positive integer $N$ and integers $0\leq A, D\lt N$, determine if there exist nonnegative integers $k$ for which $A+kD\equiv0\pmod{N}$. If they exist, find the minimum $k$.
 
 ### Implementation 1 (Python's built-in `pow`)
 ```python
