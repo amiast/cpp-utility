@@ -16,6 +16,7 @@ $$f(X\cup\lbrace x_1\rbrace)+f(X\cup\lbrace x_2\rbrace)\geq f(X\cup\lbrace x_1,x
 The property also describes **diminishing returns** between increasing input and decreasing marginal output.
 
 Some notable submodular functions include:
+
 - monotone submodular functions: $f(X)\leq f(Y)$ for $X\subseteq Y\subseteq\Omega$.
 - symmetric submodular functions: $f(S)=f(\Omega\setminus S)$ for $S\subseteq\Omega$.
 
