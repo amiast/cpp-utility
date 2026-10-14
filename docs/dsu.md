@@ -206,6 +206,7 @@ Returns a vector of connected components of $G$.
 
 <details><summary>Click to unfold (spoilers)</summary>
 
+- [ARC 141 E - Sliding Edge on Torus](https://atcoder.jp/contests/arc141/tasks/arc141_e)
 - [ABC 280 F - Pay or Receive](https://atcoder.jp/contests/abc280/tasks/abc280_f)
 - [ABC 328 F - Good Set Query](https://atcoder.jp/contests/abc328/tasks/abc328_f)
 - [ABC 383 E - Sum of Max Matching](https://atcoder.jp/contests/abc383/tasks/abc383_e)
