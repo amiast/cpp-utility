@@ -21,7 +21,8 @@ namespace kotone {
 // - each node has associated flow balance (demand/supply).
 //
 // Reference: https://judge.yosupo.jp/problem/min_cost_b_flow
-// Reference: https://atcoder.jp/contests/abc393/submissions/62805548
+// Reference: Dorit S. Hochbaum. Lecture Notes for IEOR 266: Graph Algorithms and Network Flows.
+
 template <typename Cap, typename Cost> struct mincost_network_graph {
     // A minimum-cost network flow.
     // Contains the following attributes:
