@@ -12,6 +12,7 @@ namespace kotone {
 //
 // Reference: https://cp-algorithms.com/string/manacher.html
 std::pair<std::string, std::vector<int>> manacher(const std::string &s) {
+    if (s.empty()) return {};
     std::string t = "$";
     int m = s.size();
     for (int i = 0; i < m - 1; i++) t += s[i], t += '~';
