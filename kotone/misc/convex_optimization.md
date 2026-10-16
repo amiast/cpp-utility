@@ -129,7 +129,7 @@ A matroid $M=(E, \mathcal{I})$ satisfies the following properties:
 
 - The empty set is independent.
 - Every subset of an independent set is also independent.
-- If $X, Y\in\mathcal{I}$ and $|X|\gt|Y|$, then there exists $x\in X\setminus Y$ such that $Y\cup\lbrace x\rbrace\in\mathcal{I}$.
+- If $X, Y\in\mathcal{I}$ and $|X|\gt|Y|$, then there exists $x\in X\setminus Y$ such that $Y\cup\lbrace x\rbrace\in\mathcal{I}$. (This is also called the **exchange property**.)
 
 A **basis** of a matroid is a maximal independent set. By the above properties, all bases of a matroid have the same size. The **rank** of a matroid is the size of a basis.
 
@@ -173,6 +173,10 @@ $$\sum_{(u, v)\in E}e_ue_v^Tx_{uv},$$
 
 which is identical to the Edmonds matrix.
 
+### Related problems
+
+- [ABC 399 G - Colorful Spanning Tree](https://atcoder.jp/contests/abc399/tasks/abc399_g)
+
 ## Greedy algorithm for matroids
 
 Consider the problem of maximizing the weight of an independent set where each element $x\in E$ has a nonnegative weight $w(x)$. The corresponding greedy algorithm is as follows:
@@ -185,6 +189,12 @@ This algorithm is a generalization of Kruskal's algorithm. In particular, this a
 
 If weights are allowed to be negative and the problem does not require the independent set to have full rank, the algorithm can be modified to ignore elements with negative weights.
 
+### Related problems
+
+- [ABC 137 D - Summer Vacation](https://atcoder.jp/contests/abc137/tasks/abc137_d)
+- [JSC 2019 Qualification E - Card Collector](https://atcoder.jp/contests/jsc2019-qual/tasks/jsc2019_qual_e)
+- [ABC 363 G - Dynamic Scheduling](https://atcoder.jp/contests/abc363/tasks/abc363_g)
+
 ## Aliens method for matroids
 
 > There is a connected, weighted simple graph $G=(V, E)$. Furthermore, each edge $e\in E$ is colored either black or white. Find the minimum weight of a spanning tree that contains exactly $K$ black edges.
@@ -193,9 +203,39 @@ The above problem can be solved by iterating Kruskal's algorithm with respect to
 
 This approach can be generalized other matroids when minimizing the cost of a basis containing $K$ elements of a certain category.
 
-## Related problems
+## Hall's marriage theorem and transversal matroids
 
-- [ABC 137 D - Summer Vacation](https://atcoder.jp/contests/abc137/tasks/abc137_d)
-- [ABC 363 G - Dynamic Scheduling](https://atcoder.jp/contests/abc363/tasks/abc363_g)
-- [ABC 399 G - Colorful Spanning Tree](https://atcoder.jp/contests/abc399/tasks/abc399_g)
-- [JSC 2019 Qualification E - Card Collector](https://atcoder.jp/contests/jsc2019-qual/tasks/jsc2019_qual_e)
+Consider a bipartite graph $G=(U\cup V, E)$ where $|U|=|V|$. The following discussion holds for $|U|\neq|V|$ by replacing *perfect matching* with $X$-perfect matching where $X=\min\lbrace|U|, |V|\rbrace$.
+
+Hall's marriage theorem states that a perfect matching exists if and only if the following is true for all $S\subseteq U$.
+
+- $|S|\leq|T|$, where $T$ denotes the neighborhood of $S$.
+
+The following greedy algorithm recovers a perfect matching in $\mathcal{O}(f(G)|E|)$ time, where $f(G)$ is the computational cost of determining whether a particular subgraph of $G$ has perfect matching.
+
+1. Let $C$ be an empty set.
+1. For every edge $(u, v)$, if removing vertices $u, v$ results in a bipartite graph with perfect matching, add $(u, v)$ to $C$ and remove vertices $u, v$.
+3. Output $C$.
+
+This algorithm is correct under the invariant that the remaining subgraph has a perfect matching after each iteration.
+
+A related matroid is the **transversal matroid**, whose ground set is $U$ and independent sets $\mathcal{I}$ are subsets of $U$ whose vertices can all be matched to distinct vertices in $V$. A perfect matching exists if and only if its rank is $|U|$.
+
+Note that a transversal matroid is different from a graphic matroid or a **bipartite matroid**, whose ground set contains edges.
+
+Below is an outline of the proof that transversal matroids satisfy the exchange property.
+
+- Consider $X, Y\in\mathcal{I}$ where $|X|\gt|Y|$. Let $A, B$ be matchings that saturate $X, Y$, respectively.
+- The symmetric difference of $A, B$ is a subgraph of $G$ in which connected components are either
+  - an isolated vertex;
+  - a path alternating between $A$-edges and $B$-edges; or
+  - an even-length cycle alternating between $A$-edges and $B$-edges.
+- Since $|A|=|X|\gt|Y|=|B|$, the subgraph must contain more $A$-edges than $B$-edges. In particular, there exists a path $P$ whose edges originate from $A, B, A, \dots, A$.
+- Let $P_A, P_B$ be the set of $A$-edges and $B$-edges in $P$, respectively. Then $(B\cup P_A)\setminus P_B$ is a matching that saturates $Y\cup\lbrace x\rbrace$ where $x\in X\setminus Y$ is an endpoint of $P$.
+
+### Related problems
+
+- [ARC 076 F - Exhausted?](https://atcoder.jp/contests/arc076/tasks/arc076_d)
+- [ARC 106 E - Medals](https://atcoder.jp/contests/arc106/tasks/arc106_e)
+- [AJO 2024 Final B - Meetings](https://atcoder.jp/contests/ajo2024-final/tasks/ajo2024_final_b)
+- [ABC 437 G - Colorful Christmas Tree](https://atcoder.jp/contests/abc437/tasks/abc437_g)
