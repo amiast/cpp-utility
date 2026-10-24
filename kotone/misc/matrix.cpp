@@ -6,6 +6,13 @@
 
 using mint = atcoder::modint998244353;
 
+std::vector<std::vector<mint>> identity(int dimension) {
+    // assert(dimension >= 0);
+    std::vector result(dimension, std::vector<mint>(dimension));
+    for (int i = 0; i < dimension; i++) result[i][i] = 1;
+    return result;
+}
+
 std::vector<std::vector<mint>> prod(const std::vector<std::vector<mint>> &a, const std::vector<std::vector<mint>> &b) {
     // assert(!a.empty() && !b.empty() && a[0].size() == b.size());
     int n = a.size(), m = b.size(), l = b[0].size();
@@ -21,7 +28,8 @@ std::vector<std::vector<mint>> prod(const std::vector<std::vector<mint>> &a, con
 }
 
 std::vector<std::vector<mint>> pow(const std::vector<std::vector<mint>> &a, int64_t k) {
-    // assert(k > 0);
+    // assert(k >= 0);
+    if (k == 0) return identity(a.size());
     if (k == 1) return a;
     std::vector<std::vector<mint>> result = pow(a, k / 2);
     result = prod(result, result);
