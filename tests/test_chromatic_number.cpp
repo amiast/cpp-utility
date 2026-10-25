@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/chromatic_number
-// Details: https://judge.yosupo.jp/submission/374816
+// Details: https://judge.yosupo.jp/submission/413360
 
 #include <iostream>
 #include <vector>
