@@ -29,7 +29,7 @@ template <typename T, bool multiple, bool zeta> void divisor_transform(std::vect
 }
 
 // Returns the specified GCD/LCM convolution.
-template <typename T, bool gcd> std::vector<T> divisor_convolution(std::vector<T> &&A, std::vector<T> &&B) {
+template <typename T, bool gcd> std::vector<T> divisor_convolution(std::vector<T> A, std::vector<T> B) {
     int M = A.size();
     divisor_transform<T, gcd, true>(A);
     divisor_transform<T, gcd, true>(B);
