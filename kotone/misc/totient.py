@@ -4,7 +4,11 @@
 from math import gcd
 
 def totient(n):
-    """ Returns phi(n) = n * prod_p (1-1/p). """
+    """ Returns phi(n) = n * prod_p (1-1/p).
+
+        Requires `n >= 1`.
+    """
+    assert n >= 1
     phi = n
     for p in range(2, n + 1):
         if p * p > n:
@@ -42,4 +46,16 @@ def mul_order(n, m):
     for p in pfs:
         while phi % p == 0 and pow(n, phi // p, m) == 1:
             phi //= p
+    return phi
+
+def totient_list(N):
+    """ Returns length-`(N+1)` list `phi` such that `phi[n] = n * prod_p (1-1/p)`.
+
+        Requires `N >= 0`.
+    """
+    assert N >= 0
+    phi = list(range(N + 1))
+    for i in range(1, N + 1):
+        for j in range(i * 2, N + 1, i):
+            phi[j] -= phi[i]
     return phi
