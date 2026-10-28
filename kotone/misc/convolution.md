@@ -6,7 +6,7 @@ $$C_k=\bigoplus_{i\circ j=k}(A_i\otimes B_j)$$
 
 where $\circ$, $\oplus$ and $\otimes$ are abstract binary operations. This article assumes these operations can be performed in $\mathcal{O}(1)$ time.
 
-Whereas naive convolution on sequences of length at most $n$ takes $\Theta(n^2)$ time, certain transforms can be used to achieve $o(n^2)$ time complexity. Below is a table of things that can be convolved in $o(n^2)$ time, adapted from https://noshi91.hatenablog.com/entry/2020/10/27/175112.
+Whereas naive convolution on sequences of length at most $n$ takes $\Theta(n^2)$ time, certain transforms can be used to achieve $o(n^2)$ time complexity. Below is a table of things that can be convolved in $o(n^2)$ time, adapted from [noshi91のメモ - 私用メモ: 畳み込めるものまとめ](https://noshi91.hatenablog.com/entry/2020/10/27/175112).
 
 |Name|$\circ$|$\oplus$|$\otimes$|Time complexity|Transform|
 |-|:-:|:-:|:-:|-|-|
