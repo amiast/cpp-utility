@@ -64,18 +64,19 @@ int64_t pollards_rho(int64_t n) {
 // Requires compiler-provided type `__int128`.
 std::vector<int64_t> factorize(int64_t n) {
     assert(n > 0);
-    auto rec = [&](auto &rec, int64_t n, std::vector<int64_t> &vec) {
-        if (n == 1) return;
+    if (n == 1) return {};
+    std::vector<int64_t> result, stack{n};
+    while (stack.size()) {
+        int64_t n = stack.back();
+        stack.pop_back();
         if (is_prime(n)) {
-            vec.push_back(n);
-            return;
+            result.push_back(n);
+            continue;
         }
         int64_t d = pollards_rho(n);
-        rec(rec, d, vec);
-        rec(rec, n / d, vec);
-    };
-    std::vector<int64_t> result;
-    rec(rec, n, result);
+        stack.push_back(d);
+        if (d < n) stack.push_back(n / d);
+    }
     return result;
 }
 
