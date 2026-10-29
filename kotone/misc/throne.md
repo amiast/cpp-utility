@@ -45,3 +45,8 @@ AtCoder Library's `inv_mod` also computes `pow(D, -1, N)` for coprime $N, D$.
 - [ABC 186 E - Throne](https://atcoder.jp/contests/abc186/tasks/abc186_e)
 - [ARC 221 A - Two Arithmetic Progressions](https://atcoder.jp/contests/arc221/tasks/arc221_a)
 - [ABC 465 G - Sum of Mex of Mod of Linear](https://atcoder.jp/contests/abc465/tasks/abc465_g)
+
+Other applications of the extended Euclidean algorithm:
+
+- [ABC 315 G - Ai + Bj + Ck = X (1 <= i, j, k <= N)](https://atcoder.jp/contests/abc315/tasks/abc315_g)
+- [ABC 340 F - S = 1](https://atcoder.jp/contests/abc340/tasks/abc340_f)
