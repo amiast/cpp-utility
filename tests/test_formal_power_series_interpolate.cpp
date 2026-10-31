@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/polynomial_interpolation
-// Details: https://judge.yosupo.jp/submission/388226
+// Details: https://judge.yosupo.jp/submission/414250
 
 #include <iostream>
 #include <vector>

@@ -119,17 +119,17 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
         for (int i = m; i < len; i++) nodes[len + i] = {1};
         for (int i = len - 1; i > 0; i--) nodes[i] = nodes[i * 2] * nodes[i * 2 + 1];
         std::vector<mint> result(m);
-        auto solve = [&](auto &solve, int i, fps poly) {
+        auto solve = [&](this auto &&solve, int i, fps poly) {
             if (i >= len + m) return;
             poly %= nodes[i];
             if (i >= len) {
                 result[i - len] = poly[0];
                 return;
             }
-            solve(solve, i * 2, poly);
-            solve(solve, i * 2 + 1, poly);
+            solve(i * 2, poly);
+            solve(i * 2 + 1, poly);
         };
-        solve(solve, 1, *this);
+        solve(1, *this);
         return result;
     }
 
@@ -362,16 +362,16 @@ template <compatible_modint mint, bool using_ntt = true> struct formal_power_ser
         for (int i = 0; i < m; i++) nodes[i + len] = {-vec[i].first, 1};
         for (int i = m; i < len; i++) nodes[i + len] = {1};
         for (int i = len - 1; i > 0; i--) nodes[i] = nodes[i * 2] * nodes[i * 2 + 1];
-        auto solve = [&](auto &solve, int i, fps poly) -> fps {
+        auto solve = [&](this auto &&solve, int i, fps poly) -> fps {
             if (i >= len + m) return {};
             poly %= nodes[i];
             if (i >= len) {
                 assert(poly[0] != 0);
                 return {vec[i - len].second / poly[0]};
             }
-            return solve(solve, i * 2, poly) * nodes[i * 2 + 1] + solve(solve, i * 2 + 1, poly) * nodes[i * 2];
+            return solve(i * 2, poly) * nodes[i * 2 + 1] + solve(i * 2 + 1, poly) * nodes[i * 2];
         };
-        return solve(solve, 1, fps::derivative(nodes[1]));
+        return solve(1, fps::derivative(nodes[1]));
     }
 
     // Given `f(x)`, returns `f(y)` where `y == x + offset`.

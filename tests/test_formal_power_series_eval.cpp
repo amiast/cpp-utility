@@ -1,5 +1,5 @@
 // Verified with: https://judge.yosupo.jp/problem/multipoint_evaluation
-// Details: https://judge.yosupo.jp/submission/387957
+// Details: https://judge.yosupo.jp/submission/414249
 
 #include <iostream>
 #include <kotone/formal_power_series>
