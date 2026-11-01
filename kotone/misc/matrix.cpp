@@ -60,26 +60,6 @@ std::vector<std::vector<mint>> basis(const std::vector<std::vector<mint>> &mat) 
     return basis;
 }
 
-std::vector<std::vector<mint>> basis_row_echelon(const std::vector<std::vector<mint>> &mat) {
-    if (mat.empty()) return {};
-    int m = mat[0].size();
-    std::vector basis(m, std::vector<mint>(m));
-    auto add = [&](std::vector<mint> row) {
-        for (int i = 0; i < m; i++) {
-            if (row[i] == 0) continue;
-            if (basis[i][i] == 0) {
-                basis[i] = std::move(row);
-                return;
-            }
-            std::swap(basis[i], row);
-            mint acc = row[i] / basis[i][i];
-            for (int j = 0; j < m; j++) row[j] -= basis[i][j] * acc;
-        }
-    };
-    for (const std::vector<mint> &row : mat) add(row);
-    return basis;
-}
-
 mint determinant(std::vector<std::vector<mint>> mat) {
     int n = mat.size();
     mint result = 1;
