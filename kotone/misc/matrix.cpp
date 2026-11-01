@@ -38,7 +38,7 @@ std::vector<std::vector<mint>> pow(const std::vector<std::vector<mint>> &a, int6
 }
 
 // Returns a basis in row echelon form.
-std::vector<std::vector<mint>> basis(std::vector<std::vector<mint>> &mat) {
+std::vector<std::vector<mint>> basis(const std::vector<std::vector<mint>> &mat) {
     if (mat.empty()) return {};
     int m = mat[0].size();
     std::vector basis(m, std::vector<mint>(m));
@@ -46,7 +46,7 @@ std::vector<std::vector<mint>> basis(std::vector<std::vector<mint>> &mat) {
         for (int i = 0; i < m; i++) {
             if (row[i] == 0) continue;
             if (basis[i][i] == 0) {
-                basis[i] = row;
+                basis[i] = std::move(row);
                 return;
             }
             std::swap(basis[i], row);
@@ -54,7 +54,7 @@ std::vector<std::vector<mint>> basis(std::vector<std::vector<mint>> &mat) {
             for (int j = 0; j < m; j++) row[j] -= basis[i][j] * acc;
         }
     };
-    for (std::vector<mint> &row : mat) add(row);
+    for (const std::vector<mint> &row : mat) add(row);
     return basis;
 }
 
