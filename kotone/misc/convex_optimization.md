@@ -141,13 +141,13 @@ The **uniform matroid** of rank $r$ is a matroid where the independent sets are 
 
 A **partition matroid** is a direct sum of uniform matroids.
 
-Given a set $E$ in a vector space $V$, if $\mathcal{I}$ is the linearly independent subsets of $E$, then $(E, \mathcal{I})$ is a **vector matroid**. The **column matroid** of a matrix is defined similarly such that its independent sets are the linearly indpendent columns of the matrix. A basis of the column matroid corresponds to a basis of the matrix.
+Given a set $E$ in a vector space $V$, if $\mathcal{I}$ is the linearly independent subsets of $E$, then $(E, \mathcal{I})$ is a **linear matroid** or **vector matroid**. The **column matroid** of a matrix is defined similarly such that its independent sets are the linearly indpendent columns of the matrix. A basis of the column matroid corresponds to a basis of the matrix.
 
 Given a finite graph $G=(V, E)$, the **cycle matroid** or **graphic matroid** $M(G)=(E, \mathcal{I})$ is defined such that $I$ is the family of all edge sets that form a forest. Thus, a basis of a cycle matroid is a maximal forest containing a spanning tree of each connected component of $G$.
 
 ## Matroid intersection
 
-The matroid intersection problem asks for the largest common independent set of two matroids over the same ground set. That is, to find $X\in\mathcal{I}_1\cap\mathcal{I}_2$ that maximizes $|X|$ given matroids $(E, \mathcal{I}_1)$ and $(E, \mathcal{I}_2)$.
+The matroid intersection problem asks for a largest common independent set of two matroids over the same ground set. That is, to find $X\in\mathcal{I}_1\cap\mathcal{I}_2$ that maximizes $|X|$ given matroids $(E, \mathcal{I}_1)$ and $(E, \mathcal{I}_2)$.
 
 A known algorithm solves the matroid intersection problem in $\mathcal{O}(|E|^2r)$ time where $r$ is the size of the maximum independent set.
 
@@ -176,6 +176,64 @@ which is identical to the Edmonds matrix.
 ### Related problems
 
 - [ABC 399 G - Colorful Spanning Tree](https://atcoder.jp/contests/abc399/tasks/abc399_g)
+
+## Matroid parity problem
+
+Consider a matroid $M=(E, \mathcal{I})$ and a collection of pairs $P=\lbrace(a_1, b_1), \dots, (a_{|P|}, b_{|P|})\rbrace$ such that $a_i, b_i\in E$. The matroid parity problem asks to find a maximum subset of $P$ such that the elements in the union of the pairs are independent.
+
+Whereas the matroid parity problem is known to be NP-hard in general, it can be solved in polynomial time when concerned with linear matroids. In the linear matroid parity problem, the maximum size of an independent pairing is $\frac12\,\text{rank }A$ where $A$ is the skew-symmetric polynomial matrix defined by
+
+$$A=\sum_{i=1}^{|P|}x_i(a_ib_i^\intercal-b_ia_i^\intercal)$$
+
+for intederminates $x_1, \dots, x_{|P|}$. A randomized algorithm can compute $\text{rank }A$ in $\mathcal{O}(n^2(n+|P|))$ time where $n$ is the dimension of a vector.
+
+A greedy algorithm for obtaining a maximum pairing is to iteratively remove pairs $(a_i, b_i)$ that satisfy
+
+$$\text{rank }A=\text{rank}(A-x_i(a_ib_i^\intercal-b_ia_i^\intercal))$$
+
+and update $A$ after each removal. Naïvely computing the above quantity for each pair takes $\mathcal{O}(n^3|P|)$ time.
+
+A more efficient approach exploits properties of an invertible matrix. Since $A$ is a skew-symmetric matrix, it can only be invertible for even $n$. Without changing the solution, append zero entries to the vectors such that $n$ is even. Next, introduce additional vectors and pairs such that $A$ has full rank.
+
+Since $A$ has full rank if and only if $A$ is invertible, we can evaluate whether $\det(A-x_i(a_ib_i^\intercal-b_ia_i^\intercal))\neq0$ for each pair $(a_i, b_i)$ instead of computing its rank, then update $A$ whenever a pair is removed. The determinant can be computed using the generalized matrix determinant lemma, which states that
+
+$$\det(A+UV)=\det(I+V A^{-1}U)\det A.$$
+
+Additionally, $A^{-1}$ can be updated efficiently via the Woodbury matrix identity:
+
+$$(A+UV)^{-1}=A^{-1}-A^{-1}U(I+V A^{-1}U)^{-1}V A^{-1}.$$
+
+Using the fact that $A^{-1}$ is a skew-symmetric matrix,
+setting $U=(a_i, b_i)$ and $V=(x_ib_i, -x_ia_i)^\intercal$ yields
+
+$$I_2+V A^{-1}U=(1+x_ia_i^\intercal A^{-1}b_i)I_2,$$
+
+so
+
+$$\det(A-x_i(a_ib_i^\intercal-b_ia_i^\intercal))=(1+x_ia_i^\intercal A^{-1}b_i)^2\det A$$
+
+and
+
+$$(A-x_i(a_ib_i^\intercal-b_ia_i^\intercal))^{-1}=A^{-1}-\frac{x_i}{1+x_ia_i^\intercal A^{-1}b_i}A^{-1}(a_ib_i^\intercal-b_ia_i^\intercal)A^{-1}.$$
+
+Note that the newly added pairs should be tested and removed before the original pairs. The remaining pairs in $P$ form a maximum pairing. The overall time complexity is $\mathcal{O}(n^2(n+|P|))$.
+
+### Equivalence between partition matroid parity and graph matching
+
+Consider the problem of maximum matching on an undirected graph $G=(V, E)$. Let $M$ be the linear matroid of $|V|$-dimensional vectors, and let $e_i$ be an $|V|$-dimensional vector whose only nonzero component is $(e_i)_i=1$. Let $P$ be the collection of pairs $(e_u, e_v)$ for each edge $\lbrace u, v\rbrace$ in $E$. A maximum matching is equivalent to a maximum subset of pairs in the linear matroid partiy problem with respect to linear matroid $M$ and pairing $P$. More specifically, the matrix $A$ in the linear matroid parity problem is the **Tutte matrix** of $G$.
+
+The above formulation implicitly represents $G$ as a partition matroid before converting it to a linear matroid. In general, graph matching and partition matroid parity problems are reducible to each other and can be solved in polynomial time. Furthermore, graph matching can be solved in $\mathcal{O}(|V|^3)$ time.
+
+### Reduction from matroid intersection
+
+Consider two matroids $M_1=(E, \mathcal{I}_1), M_2=(E, \mathcal{I}_2)$ with identical ground set $E$. The matroid intersection problem asks for a largest common independent subset in both matroids.
+
+Define matroid $M^\prime=(E\times\lbrace1, 2\rbrace, \mathcal{I}^\prime)$ in which a subset $X$ is independent if $\lbrace e|(e, 1)\in X\rbrace\in\mathcal{I}_1$ and $\lbrace e|(e, 2)\in X\rbrace\in\mathcal{I}_2$. Furthermore, let $P$ be the collection of pairs $((e, 1), (e, 2))$ for each $e\in E$. A largest common independent subset is equivalent to a maximum subset of pairs in the matroid parity problem with respect to matroid $M$ and pairing $P$.
+
+### Related problems
+
+- [ABC 412 G - Degree Harmony](https://atcoder.jp/contests/abc412/tasks/abc412_g)
+- [ABC 482 G - Degree Harmony 2](https://atcoder.jp/contests/abc482/tasks/abc482_g)
 
 ## Greedy algorithm for matroids
 
