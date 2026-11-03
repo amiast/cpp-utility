@@ -74,7 +74,7 @@ template <compatible_modint mint> std::vector<bool> maximum_pairing(
         acc = xs[k] / acc;
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < m; j++) {
-                mat[i][j] -= acc * (acc_a[i] * acc_b[j] - acc_a[j]* acc_b[i]);
+                mat[i][j] -= acc * (acc_a[i] * acc_b[j] - acc_a[j] * acc_b[i]);
             }
         }
     }
