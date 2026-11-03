@@ -204,7 +204,7 @@ Additionally, $A^{-1}$ can be updated efficiently via the Woodbury matrix identi
 $$(A+UV)^{-1}=A^{-1}-A^{-1}U(I+V A^{-1}U)^{-1}V A^{-1}.$$
 
 Using the fact that $A^{-1}$ is a skew-symmetric matrix,
-setting $U=(a_i, b_i)$ and $V=(x_ib_i, -x_ia_i)^\intercal$ yields
+setting $U=(a_i, b_i)$ and $V=x_i(-b_i, a_i)^\intercal$ yields
 
 $$I_2+V A^{-1}U=(1+x_ia_i^\intercal A^{-1}b_i)I_2,$$
 
