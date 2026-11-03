@@ -37,27 +37,30 @@ std::vector<std::vector<mint>> pow(const std::vector<std::vector<mint>> &a, int6
     return result;
 }
 
-std::vector<std::vector<mint>> basis(const std::vector<std::vector<mint>> &mat) {
+std::vector<std::vector<mint>> basis(std::vector<std::vector<mint>> mat) {
     if (mat.empty()) return {};
-    int m = mat[0].size();
-    std::vector<std::vector<mint>> basis;
-    std::vector<int> col;
-    auto add = [&](std::vector<mint> row) {
-        int b = basis.size();
-        for (int i = 0; i < b; i++) {
-            if (row[col[i]] == 0) continue;
-            mint acc = row[col[i]] / basis[i][col[i]];
-            for (int j = 0; j < m; j++) row[j] -= basis[i][j] * acc;
+    int n = mat.size(), m = mat[0].size();
+    int r = 0;
+    for (int k = 0, j = 0; k < n && j < m; k++, j++, r++) {
+        while (j < m) {
+            for (int i = k; i < n; i++) {
+                if (mat[i][j] != 0) {
+                    std::swap(mat[k], mat[i]);
+                    break;
+                }
+            }
+            if (mat[k][j] != 0) break;
+            j++;
         }
-        for (int j = 0; j < m; j++) {
-            if (row[j] == 0) continue;
-            basis.push_back(std::move(row));
-            col.push_back(j);
-            return;
+        if (j == m) break;
+        mint inv = mat[k][j].inv();
+        for (int nj = 0; nj < m; nj++) mat[k][nj] *= inv;
+        for (int i = k + 1; i < n; i++) {
+            for (int nj = m - 1; nj >= j; nj--) mat[i][nj] -= mat[i][j] * mat[k][nj];
         }
-    };
-    for (const std::vector<mint> &row : mat) add(row);
-    return basis;
+    }
+    mat.resize(r);
+    return mat;
 }
 
 mint determinant(std::vector<std::vector<mint>> mat) {
