@@ -213,7 +213,7 @@ $$\det(A-x_i(a_ib_i^\intercal-b_ia_i^\intercal))=(1+x_ia_i^\intercal A^{-1}b_i)^
 
 and
 
-$$(A-x_i(a_ib_i^\intercal-b_ia_i^\intercal))^{-1}=A^{-1}-\frac{x_i}{1+x_ia_i^\intercal A^{-1}b_i}A^{-1}(a_ib_i^\intercal-b_ia_i^\intercal)A^{-1}.$$
+$$(A-x_i(a_ib_i^\intercal-b_ia_i^\intercal))^{-1}=A^{-1}+\frac{x_i}{1+x_ia_i^\intercal A^{-1}b_i}A^{-1}(a_ib_i^\intercal-b_ia_i^\intercal)A^{-1}.$$
 
 Note that the newly added pairs should be tested and removed before the original pairs. The remaining pairs in $P$ form a maximum pairing. The overall time complexity is $\mathcal{O}(n^2(n+|P|))$.
 
