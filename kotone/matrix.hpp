@@ -58,10 +58,9 @@ template <compatible_modint mint> matrix<mint> basis(matrix<mint> mat) {
     for (int k = 0, j = 0; k < n && j < m; k++, j++, r++) {
         while (j < m) {
             for (int i = k; i < n; i++) {
-                if (mat[i][j] != 0) {
-                    std::swap(mat[k], mat[i]);
-                    break;
-                }
+                if (mat[i][k] == 0) continue;
+                if (i != k) std::swap(mat[i], mat[k]);
+                break;
             }
             if (mat[k][j] != 0) break;
             j++;
@@ -102,7 +101,7 @@ template <compatible_modint mint> mint det(matrix<mint> mat) {
     return result;
 }
 
-// Returns a pair `{inv, found}` representing the inverse of the determinant such that
+// Returns a pair `{inv, found}` representing the inverse of the matrix such that
 // - `inv` is the inverse matrix and `found == true` if the inverse exists, or
 // - `inv` is empty and `found == false` if the inverse does not exist.
 //
@@ -129,6 +128,55 @@ template <compatible_modint mint> std::pair<matrix<mint>, bool> inv(matrix<mint>
     }
     for (int i = 0; i < n; i++) mat[i].erase(mat[i].begin(), mat[i].begin() + n);
     return {mat, true};
+}
+
+// Returns the upper Hessenberg form of the specified matrix.
+// Requires `mat` to be a square matrix.
+// Reference: https://judge.yosupo.jp/problem/characteristic_polynomial
+template <compatible_modint mint> matrix<mint> upper_hessenberg(matrix<mint> mat) {
+    int n = mat.size();
+    for (int k = 0; k < n - 2; k++) {
+        for (int i = k + 1; i < n; i++) {
+            if (mat[i][k] == 0) continue;
+            if (i != k + 1) {
+                std::swap(mat[i], mat[k + 1]);
+                for (int ni = 0; ni < n; ni++) std::swap(mat[ni][i], mat[ni][k + 1]);
+            }
+            break;
+        }
+        if (mat[k + 1][k] == 0) continue;
+        mint inv = mat[k + 1][k].inv();
+        for (int i = k + 2; i < n; i++) {
+            mint acc = mat[i][k] * inv;
+            for (int j = k; j < n; j++) mat[i][j] -= acc * mat[k + 1][j];
+            for (int j = 0; j < n; j++) mat[j][k + 1] += acc * mat[j][i];
+        }
+    }
+    return mat;
+}
+
+// Returns the characteristic polynomial of the specified matrix.
+// Requires `mat` to be a square matrix.
+// Reference: https://judge.yosupo.jp/problem/characteristic_polynomial
+template <compatible_modint mint> std::vector<mint> charpoly(const matrix<mint> &mat) {
+    if (mat.empty()) return {1};
+    int n = mat.size();
+    matrix<mint> hess = upper_hessenberg(mat);
+    matrix<mint> poly(n + 1);
+    poly[0] = {1};
+    poly[1] = {-hess[0][0], 1};
+    for (int i = 2; i <= n; i++) {
+        poly[i].resize(i + 1);
+        for (int j = 0; j < i; j++) poly[i][j] = poly[i - 1][j] * -hess[i - 1][i - 1];
+        for (int j = 0; j < i; j++) poly[i][j + 1] += poly[i - 1][j];
+        mint acc = 1;
+        for (int j = 1; j < i; j++) {
+            acc *= hess[i - j][i - j - 1];
+            mint prod = acc * hess[i - j - 1][i - 1];
+            for (int k = 0; k < i - j; k++) poly[i][k] -= prod * poly[i - j - 1][k];
+        }
+    }
+    return poly[n];
 }
 
 }  // namespace matrix
