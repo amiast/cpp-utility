@@ -244,6 +244,7 @@ def lcm_convolution(A, B):
 - [NDPC L - LCM](https://atcoder.jp/contests/ndpc/tasks/ndpc2026_l) - online computation of $c(j)=A_j\sum_{i\lt j}c(i)A_i/\gcd(A_i,A_j)$ via inversion of $1/n=\sum_{d|n}f(d)$
     - [AGC 038 C - LCMs](https://atcoder.jp/contests/agc038/tasks/agc038_c) - $F(n)=1/n=\sum_{d|n}f(d)$ (the resulting sequence $n\cdot f(n)$ is [A023900](https://oeis.org/A023900) in the OEIS); also possible with offline GCD convolution in $\mathcal{O}(M\log\log M)$ time where $M=\max A_i$
     - [ARC 185 E - Adjacent GCD](https://atcoder.jp/contests/arc185/tasks/arc185_e) - $F(n)=n=\sum_{d|n}\varphi(d)$ gives Euler's totient function since $\text{id}=\varphi\ast\mathbf{1}$
+- [ARC 221 A - Two Arithmetic Progressions](https://atcoder.jp/contests/arc221/tasks/arc221_a) - sparse inversion over multiples
 - [ARC 233 B - Count of Euclid Function Call](https://atcoder.jp/contests/arc233/tasks/arc233_b) - general inversion formula for non-arithmetic function $f(x)=|\lbrace (a,b)|1\leq a\lt b, an+bm\leq x,\gcd(a,b)=1\rbrace|$
 
 ## Test yourself
