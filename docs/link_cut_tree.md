@@ -176,7 +176,7 @@ void lct.access(int v)
 void lct.update(int v)
 ```
 
-- After calling `lct.access(v)`, the internal splay tree is now rooted at $v$, whose aggregate covers the entire root-to-$v$ path, and lazy updates are propagated to its children.
+- After calling `lct.access(v)`, the internal splay tree is now rooted at $v$, whose aggregate covers the entire root-to-$v$ path. The lazy update of $v$ is resolved and propagated to its children.
 - After calling `lct.update(v)`, the aggregate of $v$ is updated with respect to its children.
 
 To update the value of $v$, the functions should be called in the following order:
@@ -187,12 +187,12 @@ lct.access(v);
 lct.update(v);
 ```
 
-When the user needs to query the aggregate of a valid $s$-$t$ path, the functions should be called in the following order:
+When the user needs to query the aggregate of a valid $s$-$t$ path or apply lazy propagation to it, the functions should be called in the following order:
 
 ```cpp
 lct.reorient(s);
 lct.access(t);
-// retrieve the value stored at v
+// retrieve aggregate of v and/or apply lazy update to v
 // note: this modifies the structure of the tree
 ```
 
