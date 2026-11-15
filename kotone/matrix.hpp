@@ -76,6 +76,59 @@ template <compatible_modint mint> matrix<mint> basis(matrix<mint> mat) {
     return mat;
 }
 
+// Solves the linear system `a * x = b` and returns a pair `{sol, space}` such that
+// - `sol` is a particular solution and `space` is the solution space if a solution exists, or
+// - `sol` and `space` are empty if a solution does not exist.
+//
+// Requires `a` to be a valid matrix.
+// Requires `a.size() == b.size()`.
+template <compatible_modint mint> std::pair<std::vector<mint>, matrix<mint>> solve(matrix<mint> a, std::vector<mint> b) {
+    assert(a.size() == b.size());
+    if (a.empty()) return {{}, {}};
+    int n = a.size(), m = a[0].size();
+    std::vector<int> fixed;
+    std::vector<bool> free(m, true);
+    for (int k = 0, j = 0; k < n && j < m; k++, j++) {
+        while (j < m) {
+            for (int i = k; i < n; i++) {
+                if (a[i][j] == 0) continue;
+                if (i != k) std::swap(a[i], a[k]), std::swap(b[i], b[k]);
+                break;
+            }
+            if (a[k][j] != 0) break;
+            j++;
+        }
+        if (j == m) break;
+        fixed.push_back(j);
+        free[j] = false;
+        mint inv = a[k][j].inv();
+        b[k] *= inv;
+        for (int nj = 0; nj < m; nj++) a[k][nj] *= inv;
+        for (int i = k + 1; i < n; i++) {
+            b[i] -= a[i][j] * b[k];
+            for (int nj = m - 1; nj >= j; nj--) a[i][nj] -= a[i][j] * a[k][nj];
+        }
+    }
+    int r = fixed.size();
+    for (int i = r; i < n; i++) if (b[i].val()) return {{}, {}};
+    std::vector<mint> sol(m);
+    for (int i = r - 1; i >= 0; i--) {
+        int j = fixed[i];
+        sol[j] = b[i];
+        for (int nj = j + 1; nj < m; nj++) sol[j] -= a[i][nj] * sol[nj];
+    }
+    matrix<mint> space(m - r, std::vector<mint>(m));
+    for (int k = 0, f = 0; k < m - r; k++, f++) {
+        while (!free[f]) f++;
+        space[k][f] = 1;
+        for (int i = r - 1; i >= 0; i--) {
+            int j = fixed[i];
+            for (int nj = j + 1; nj < m; nj++) space[k][j] -= a[i][nj] * space[k][nj];
+        }
+    }
+    return {sol, space};
+}
+
 // Returns the determinant specified matrix.
 // Requires `mat` to be a square matrix.
 template <compatible_modint mint> mint det(matrix<mint> mat) {
