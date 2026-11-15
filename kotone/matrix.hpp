@@ -40,7 +40,7 @@ template <compatible_modint mint> matrix<mint> prod(const matrix<mint> &a, const
 // Returns the matrix raised to the specified exponent `k`.
 // Requires `mat` to be a square matrix.
 template <compatible_modint mint> matrix<mint> pow(const matrix<mint> &mat, int64_t k) {
-    // assert(k >= 0);
+    assert(k >= 0);
     if (k == 0) return identity<mint>(mat.size());
     if (k == 1) return mat;
     matrix<mint> result = pow(mat, k / 2);
@@ -58,7 +58,7 @@ template <compatible_modint mint> matrix<mint> basis(matrix<mint> mat) {
     for (int k = 0, j = 0; k < n && j < m; k++, j++, r++) {
         while (j < m) {
             for (int i = k; i < n; i++) {
-                if (mat[i][k] == 0) continue;
+                if (mat[i][j] == 0) continue;
                 if (i != k) std::swap(mat[i], mat[k]);
                 break;
             }
