@@ -11,10 +11,10 @@ Whereas naive convolution on sequences of length at most $n$ takes $\Theta(n^2)$
 |Name|$\circ$|$\oplus$|$\otimes$|Time complexity|Transform|
 |-|:-:|:-:|:-:|-|-|
 |Conv.|$+$|$+$|$\times$|$\mathcal{O}(n\log n)$|FFT, NTT|
-|AND conv.|$\cap$|$+$|$\times$|$\mathcal{O}(n\log n)$|Zeta and Möbius trans.|
-|OR conv.|$\cup$|$+$|$\times$|$\mathcal{O}(n\log n)$|Zeta and Möbius trans.|
 |XOR conv.|$\bigtriangleup$|$+$|$\times$|$\mathcal{O}(n\log n)$|Hadamard trans.|
-|Subset conv.|$\sqcup$|$+$|$\times$|$\mathcal{O}(n\log^2n)$|Zeta and Möbius trans., lift and unlift|
+|AND conv.|$\cap$|$+$|$\times$|$\mathcal{O}(n\log n)$|Zeta and Möbius trans.  See [`subset_transform.md`](subset_transform.md)|
+|OR conv.|$\cup$|$+$|$\times$|$\mathcal{O}(n\log n)$|Zeta and Möbius trans.  See [`subset_transform.md`](subset_transform.md)|
+|Subset conv.|$\sqcup$|$+$|$\times$|$\mathcal{O}(n\log^2n)$|Zeta and Möbius trans., FPS conversion. See [`subset_transform.md`](subset_transform.md)|
 |GCD conv.|$\gcd$|$+$|$\times$|$\mathcal{O}(n\log\log n)$|Zeta and Möbius trans. See [`moebius_inversion.md`](moebius_inversion.md)|
 |LCM conv.|$\text{lcm}$|$+$|$\times$|$\mathcal{O}(n\log\log n)$|Zeta and Möbius trans. See [`moebius_inversion.md`](moebius_inversion.md)|
 |Dirichlet conv.|$\times$|$+$|$\times$|$\mathcal{O}(n\log n)$|-|
