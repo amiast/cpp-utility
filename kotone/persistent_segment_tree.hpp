@@ -7,14 +7,17 @@
 namespace kotone {
 
 // A fully-persistent lazy segment tree for a sparse collection of values over an interval.
+// If `is_persistent == false`, operations that expect to copy a node will instead receive the same node.
 template <
     typename S,
     S (*op)(S, S),
     S (*e)(),
+    S (*to_node)(int64_t, int64_t),
     typename F,
     S (*mapping)(F, S),
     F (*composition)(F, F),
-    F (*id)()
+    F (*id)(),
+    bool is_persistent
 > struct persistent_segment_tree {
   private:
     struct node {
@@ -27,30 +30,33 @@ template <
     std::vector<node> _nodes;
 
     int _copy(int index) {
+        if constexpr (!is_persistent) return index;
         _nodes.push_back(_nodes[index]);
         return _nodes.size() - 1;
     }
 
-    int _apply(int index, F f, bool copying) {
-        if (copying) index = _copy(index);
+    template <bool copying> int _apply(int index, F f) {
+        if constexpr (is_persistent && copying) index = _copy(index);
         _nodes[index].val = mapping(f, _nodes[index].val);
         _nodes[index].lazy = composition(f, _nodes[index].lazy);
         return index;
     }
 
-    void _push(int index) {
+    void _push(int index, int64_t l, int64_t m, int64_t r) {
         F app = _nodes[index].lazy;
         if (_nodes[index].left == -1) {
             _nodes[index].left = _nodes.size();
-            _nodes.emplace_back(mapping(app, e()), app);
+            if constexpr (to_node) _nodes.emplace_back(mapping(app, to_node(l, m)), app);
+            else _nodes.emplace_back(mapping(app, e()), app);
         } else {
-            _nodes[index].left = _apply(_nodes[index].left, app, true);
+            _nodes[index].left = _apply<true>(_nodes[index].left, app);
         }
         if (_nodes[index].right == -1) {
             _nodes[index].right = _nodes.size();
-            _nodes.emplace_back(mapping(app, e()), app);
+            if constexpr (to_node) _nodes.emplace_back(mapping(app, to_node(m, r)), app);
+            else _nodes.emplace_back(mapping(app, e()), app);
         } else {
-            _nodes[index].right = _apply(_nodes[index].right, app, true);
+            _nodes[index].right = _apply<true>(_nodes[index].right, app);
         }
         _nodes[index].lazy = id();
     }
@@ -66,8 +72,8 @@ template <
             _nodes[index].val = val;
             return;
         }
-        _push(index);
         int64_t m = (l + r) / 2;
+        _push(index, l, m, r);
         if (pos < m) _set(_nodes[index].left, l, m, pos, val);
         else _set(_nodes[index].right, m, r, pos, val);
         _update(index);
@@ -76,8 +82,8 @@ template <
     S _prod(int index, int64_t l, int64_t r, int64_t ql, int64_t qr) {
         if (qr <= l || r <= ql) return e();
         if (ql <= l && r <= qr) return _nodes[index].val;
-        _push(index);
         int64_t m = (l + r) / 2;
+        _push(index, l, m, r);
         S val_l = _prod(_nodes[index].left, l, m, ql, qr);
         S val_r = _prod(_nodes[index].right, m, r, ql, qr);
         return op(val_l, val_r);
@@ -86,11 +92,11 @@ template <
     void _apply(int index, int64_t l, int64_t r, int64_t ql, int64_t qr, F app) {
         if (qr <= l || r <= ql) return;
         if (ql <= l && r <= qr) {
-            _apply(index, app, false);
+            _apply<false>(index, app);
             return;
         }
-        _push(index);
         int64_t m = (l + r) / 2;
+        _push(index, l, m, r);
         _apply(_nodes[index].left, l, m, ql, qr, app);
         _apply(_nodes[index].right, m, r, ql, qr, app);
         _update(index);
@@ -99,9 +105,9 @@ template <
     int _copy_paste(int source, int dest, int64_t l, int64_t r, int64_t ql, int64_t qr) {
         if (qr <= l || r <= ql) return dest;
         if (ql <= l && r <= qr) return source;
-        _push(source);
-        _push(dest);
         int64_t m = (l + r) / 2;
+        _push(source, l, m, r);
+        _push(dest, l, m, r);
         _nodes[dest].left = _copy_paste(_nodes[source].left, _nodes[dest].left, l, m, ql, qr);
         _nodes[dest].right = _copy_paste(_nodes[source].right, _nodes[dest].right, m, r, ql, qr);
         _update(dest);
@@ -113,8 +119,9 @@ template <
 
     // Constructs a segment tree for the interval `[low, high)` with initial root `0`.
     // Requires `low <= high`.
-    persistent_segment_tree(int64_t low, int64_t high) : _low(low), _high(high), _nodes(1) {
+    persistent_segment_tree(int64_t low, int64_t high) : _low(low), _high(high) {
         assert(low <= high);
+        _nodes.emplace_back(to_node(low, high));
     }
 
     // Constructs a segment tree for the interval `[0, length)` with initial root `0`.
