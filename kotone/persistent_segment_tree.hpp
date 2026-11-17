@@ -46,15 +46,13 @@ template <
         F app = _nodes[index].lazy;
         if (_nodes[index].left == -1) {
             _nodes[index].left = _nodes.size();
-            if constexpr (to_node) _nodes.emplace_back(mapping(app, to_node(l, m)), app);
-            else _nodes.emplace_back(mapping(app, e()), app);
+            _nodes.emplace_back(mapping(app, to_node(l, m)), app);
         } else {
             _nodes[index].left = _apply<true>(_nodes[index].left, app);
         }
         if (_nodes[index].right == -1) {
             _nodes[index].right = _nodes.size();
-            if constexpr (to_node) _nodes.emplace_back(mapping(app, to_node(m, r)), app);
-            else _nodes.emplace_back(mapping(app, e()), app);
+            _nodes.emplace_back(mapping(app, to_node(m, r)), app);
         } else {
             _nodes[index].right = _apply<true>(_nodes[index].right, app);
         }
