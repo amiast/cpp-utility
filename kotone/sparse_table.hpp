@@ -8,7 +8,7 @@
 namespace kotone {
 
 // A static data structure for computing interval product of idempotent monoids.
-template <typename S, S (*op)(S, S), S (*e)()> struct sparse_table {
+template <typename S, S (*op)(S, S), S (*e)() = nullptr> struct sparse_table {
   private:
     int _size = 0, _depth = 0;
     std::vector<std::vector<S>> _table;
@@ -23,7 +23,7 @@ template <typename S, S (*op)(S, S), S (*e)()> struct sparse_table {
         if (vec.empty()) return;
         _size = vec.size();
         _depth = std::bit_width(vec.size());
-        _table.assign(_depth, std::vector<S>(_size, e()));
+        _table.assign(_depth, std::vector<S>(_size));
         _table[0] = vec;
         for (int k = 1; k < _depth; k++) {
             for (int i = 0; i + (1 << k) <= _size; i++) {
@@ -33,10 +33,12 @@ template <typename S, S (*op)(S, S), S (*e)()> struct sparse_table {
     }
 
     // Returns the product of the specified interval `[l, r)`.
-    // If `l == r`, returns `e()`.
-    // Requires `0 <= l <= r <= size`.
+    // If `l == r` and `e()` is provided, returns `e()`.
+    // Requires `0 <= l <= r <= size` if `e()` is provided.
+    // Otherwise, requires `0 <= l < r <= size`.
     S prod(int l, int r) const {
-        assert(0 <= l && l <= r && r <= _size);
+        if constexpr (e) assert(0 <= l && l <= r && r <= _size);
+        else assert(0 <= l && l < r && r <= _size);
         if (l == r) return e();
         int len = r - l;
         int k = _log(len);
@@ -46,7 +48,7 @@ template <typename S, S (*op)(S, S), S (*e)()> struct sparse_table {
 
 // A static data structure for computing interval product of monoids.
 // For idempotent monoids, consider using `sparse_table`.
-template <typename S, S (*op)(S, S), S (*e)()> struct disjoint_sparse_table {
+template <typename S, S (*op)(S, S), S (*e)() = nullptr> struct disjoint_sparse_table {
   private:
     int _size = 0, _depth = 0;
     std::vector<std::vector<S>> _table;
@@ -61,7 +63,7 @@ template <typename S, S (*op)(S, S), S (*e)()> struct disjoint_sparse_table {
         if (vec.empty()) return;
         _size = vec.size();
         _depth = std::bit_width(vec.size());
-        _table.assign(_depth, std::vector<S>(_size, e()));
+        _table.assign(_depth, std::vector<S>(_size));
         _table[0] = vec;
         for (int k = 1; k < _depth; k++) {
             int block_size = 1 << k;
@@ -85,9 +87,12 @@ template <typename S, S (*op)(S, S), S (*e)()> struct disjoint_sparse_table {
     }
 
     // Returns the product of the specified interval `[l, r)`.
-    // If `l == r`, returns `e()`.
-    // Requires `0 <= l <= r <= size`.
+    // If `l == r` and `e()` is provided, returns `e()`.
+    // Requires `0 <= l <= r <= size` if `e()` is provided.
+    // Otherwise, requires `0 <= l < r <= size`.
     S prod(int l, int r) const {
+        if constexpr (e) assert(0 <= l && l <= r && r <= _size);
+        else assert(0 <= l && l < r && r <= _size);
         assert(0 <= l && l <= r && r <= _size);
         if (l == r) return e();
         if (l + 1 == r) return _table[0][l];
